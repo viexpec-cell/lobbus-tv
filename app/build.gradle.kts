@@ -151,6 +151,9 @@ android {
         // JVM unit tests hit android.util.Log / SystemClock in the code under test (StalkerAuthManager
         // etc.); return defaults (no-op log, 0 clock) instead of "not mocked" crashes.
         unitTests.isReturnDefaultValues = true
+        // LOBBUS: o Robolectric precisa dos recursos (res/, fontes, temas) no teste de JVM, senão a
+        // máquina de prints não desenha nada. Ver docs/lobbus/PRINTS.md.
+        unitTests.isIncludeAndroidResources = true
     }
 
     buildTypes {
@@ -341,6 +344,10 @@ val verifyI18nLiterals = tasks.register<VerifyI18nLiterals>("verifyI18nLiterals"
 // preBuild fronts every variant, so debug compile checks and release assembles are both covered.
 // Inputs are declared above, so an unchanged source tree makes this UP-TO-DATE and free.
 tasks.named("preBuild") { dependsOn(verifyI18nLiterals) }
+
+// LOBBUS: máquina de prints das telas (Robolectric + Roborazzi, só testes de JVM).
+// Tudo mora em gradle/lobbus-prints.gradle.kts para não espalhar código da Lobbus neste arquivo.
+apply(from = rootProject.file("gradle/lobbus-prints.gradle.kts"))
 
 dependencies {
     // The shared data/settings/sync module. It lives in its own repository now — see

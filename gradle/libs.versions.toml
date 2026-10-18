@@ -75,6 +75,13 @@ orgJson = "20260814"
 junitExt = "1.3.0"
 espressoCore = "3.7.0"
 
+# --- LOBBUS: máquina de prints (só teste JVM, nada disso entra no APK) ---
+# Robolectric roda o runtime real do Android na JVM. A 4.17 é a primeira com o android-all do
+# Android 17 (API 37), que é o compileSdk do app. Se a API 37 faltar, fixe 36 em @Config(sdk).
+robolectricLobbus = "4.17"
+# Roborazzi grava o PNG do que o Compose desenhou dentro do Robolectric.
+roborazziLobbus = "1.76.0"
+
 # --- OwnTV core library (https://github.com/ahXN00/OwnTV_Core) ---
 # Both artifacts always ship on the same version; never split them. Bumping this is how the TV app
 # takes a core change. For local work, owntv.corePath in ~/.gradle/gradle.properties substitutes
@@ -167,6 +174,12 @@ koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compos
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 org-json = { group = "org.json", name = "json", version.ref = "orgJson" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitExt" }
+# LOBBUS: prints das telas sem emulador (ver docs/lobbus/PRINTS.md).
+robolectric-lobbus = { group = "org.robolectric", name = "robolectric", version.ref = "robolectricLobbus" }
+roborazzi-lobbus = { group = "io.github.takahirom.roborazzi", name = "roborazzi", version.ref = "roborazziLobbus" }
+roborazzi-compose-lobbus = { group = "io.github.takahirom.roborazzi", name = "roborazzi-compose", version.ref = "roborazziLobbus" }
+# Versão vem do BOM do Compose, igual às demais.
+androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark" }
 androidx-test-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
