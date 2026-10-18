@@ -39,6 +39,17 @@ class PrintsDasTelasTest {
     @get:Rule
     val compose = createComposeRule()
 
+    /**
+     * A tela Início da Fase 4, com o botão principal em foco, como o protótipo a mostra.
+     * Comparar com `docs/lobbus/design/LobbusTV-01-inicio.jpg`.
+     */
+    @Test
+    fun inicio() {
+        compose.montarTela { TelaInicio() }
+        compose.onNodeWithTag(TAG_BOTAO_ASSISTIR).requestFocus()
+        compose.gravarTela("01-inicio")
+    }
+
     /** Tela inteira, 1920×1080, para comparar lado a lado com `docs/lobbus/design/`. */
     @Test
     fun telaDeExemplo() {
