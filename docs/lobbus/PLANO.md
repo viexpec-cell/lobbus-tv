@@ -4,19 +4,18 @@ Checklist vivo. Toda sessão começa aqui e termina atualizando "Estado atual".
 
 ## Estado atual
 
-- Fase: **3 · Reskin** (primeira passada concluída) e **2** com pendências do Vitor
-- Último passo (18/10): máquina de prints rodando de verdade no ramo `claude/fase4-prints`, com os
-  três PNGs de exemplo em `docs/lobbus/prints/`, conferidos. Antes disso, no mesmo dia: tokens da
-  Lobbus aplicados (cores, laranja, Montserrat, raios); v0.2.0 assinada no ramo `apk`:
+- Fase: **4 · Telas assinatura** (primeira tela aprovada) e **2** com pendências do Vitor
+- Último passo (18/10): **Início aprovado pelo Vitor** pelo print `docs/lobbus/prints/01-inicio.png`,
+  no ramo `claude/fase4-inicio`. Antes disso, no mesmo dia: máquina de prints rodando de verdade,
+  tokens da Lobbus aplicados (cores, laranja, Montserrat, raios) e v0.2.0 assinada no ramo `apk`:
   `https://github.com/viexpec-cell/lobbus-tv/raw/apk/LobbusTV.apk` (instala por cima da v0.1.0).
 - Próximos itens, em ordem:
   1. Vitor testar a v0.2.0 na TV: visual, moldura da imagem, canais, filmes e séries.
   2. Vitor cadastrar os 4 segredos (LEIA-ME em `lobbus-work/lobbus-tv-assinatura`) e ativar o Actions no fork.
-  3. Fase 4: telas assinatura do protótipo, uma por vez (Início, Ao vivo, Filmes, Detalhe, Player).
-     A máquina de prints está pronta e verificada no ramo `claude/fase4-prints`
-     (`./gradlew :app:lobbusPrints`): ver `docs/lobbus/PRINTS.md`. Nenhuma tela da Fase 4 foi
-     escrita ainda, então os únicos PNGs de hoje são os blocos de exemplo. A próxima tela a
-     escrever é o **Início**.
+  3. Fase 4: telas assinatura do protótipo, uma por vez. O Início está pronto e aprovado no ramo
+     `claude/fase4-inicio`; a próxima tela a escrever é o **Ao vivo**. A máquina de prints
+     (`./gradlew :app:lobbusPrints`) está verificada: ver `docs/lobbus/PRINTS.md`. Quem escreve a
+     tela não compila, então contar com uma rodada de consertos na nuvem antes do print sair.
   4. Depois do item 2: tag para o CI publicar o release e apagar o ramo `apk`.
 - Bloqueios: itens 1 e 2 dependem do Vitor. O item 3 não depende de ninguém: falta escrever a tela.
 - Build local de release em máquina de 8 GB: `--no-daemon --max-workers=1 -Dorg.gradle.jvmargs=-Xmx5g -Pkotlin.compiler.execution.strategy=in-process` (com o daemon do Kotlin separado o sistema mata o processo).
@@ -78,7 +77,8 @@ Problema: canal Full HD numa TV 4K é ampliado 2× e perde nitidez ao ocupar a t
 - [x] Máquina de prints das telas, sem emulador (Roborazzi + Robolectric): montada, rodada e
       documentada em `docs/lobbus/PRINTS.md`. Primeira rodada de verdade em 18/10/2026, com os três
       PNGs de exemplo conferidos em `docs/lobbus/prints/`. Comando: `./gradlew :app:lobbusPrints`
-- [ ] Início com destaque estilo Netflix e fileiras
+- [x] Início com destaque estilo Netflix e fileiras: aprovado em 18/10/2026 pelo print
+      `docs/lobbus/prints/01-inicio.png`, no ramo `claude/fase4-inicio`
 - [ ] Ao vivo com card "No ar agora" estilo IMDb e "A seguir"
 - [ ] Filmes com Top 10 de números vazados e fileira 4K/HDR/Atmos
 - [ ] Detalhe da série com episódios e "Continuar T:E"
