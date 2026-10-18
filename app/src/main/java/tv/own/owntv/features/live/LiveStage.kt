@@ -46,12 +46,8 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.em
 import androidx.compose.foundation.layout.offset
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -87,6 +83,11 @@ import tv.own.owntv.ui.stage.drawBoxShadow
 import tv.own.owntv.ui.stage.drawInnerRing
 import tv.own.owntv.ui.stage.stageGlass
 import tv.own.owntv.ui.stage.stageSelectedBar
+import tv.own.owntv.lobbus.home.LobbusRotuloMono
+import tv.own.owntv.lobbus.live.LobbusCabecalhoDeTela
+import tv.own.owntv.lobbus.live.LobbusLinhaASeguir
+import tv.own.owntv.lobbus.live.LobbusNoArAgora
+import tv.own.owntv.lobbus.live.LobbusRotuloASeguir
 import tv.own.owntv.ui.theme.StageColors
 import tv.own.owntv.ui.theme.StageRadii
 import tv.own.owntv.ui.theme.mpx
@@ -102,27 +103,23 @@ import tv.own.owntv.ui.theme.stageText
 
 private val Tabular = "tnum"
 
-/** "Live TV" 46/800, then the crumb: "‹ **Sky Cinema** · 9 channels" (no ‹ when the column is on screen). */
+/**
+ * LOBBUS: the prototype's page header, "[02] FILMES · 56 CANAIS" over "Canais ao vivo.", drawn by
+ * [tv.own.owntv.lobbus.live.LobbusCabecalhoDeTela]. The category and its count move into the mono
+ * eyebrow, where the prototype keeps them.
+ */
 @Composable
-internal fun LiveHeader(category: String, count: Int, showChevron: Boolean, modifier: Modifier = Modifier) {
-    Row(modifier, horizontalArrangement = Arrangement.spacedBy(22.mpx), verticalAlignment = Alignment.Bottom) {
-        Text(stringResource(R.string.common_nav_live_tv), style = stageText(46, 800, (-1).mpxSp), color = StageColors.Text, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        Row(
-            Modifier.padding(bottom = 3.mpx),
-            horizontalArrangement = Arrangement.spacedBy(12.mpx),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (showChevron) OwnTVIcon(OwnTVIcon.CHEVRON_LEFT, StageColors.Muted, Modifier.size(20.mpx))
-            Text(
-                category, style = stageText(20, 700), color = stageAccent.accent,
-                maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false),
-            )
-            Text(
-                "· " + pluralStringResource(R.plurals.content_live_channel_count, count, count),
-                style = stageText(20, 500), color = StageColors.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis,
-            )
-        }
-    }
+internal fun LiveHeader(category: String, count: Int, modifier: Modifier = Modifier) {
+    LobbusCabecalhoDeTela(
+        ordem = 2,
+        rotulo = stringResource(
+            R.string.lobbus_rotulo_com_contagem,
+            category,
+            pluralStringResource(R.plurals.content_live_channel_count, count, count),
+        ),
+        titulo = stringResource(R.string.common_nav_live_tv),
+        modifier = modifier,
+    )
 }
 
 /**
@@ -162,24 +159,38 @@ internal fun LiveStageRow(
             )
         }
         LivePlate(channel.displayLogoUrl, 76.mpx, 54.mpx)
+        // LOBBUS: the prototype's row — name over the programme, "FALTAM 47 MIN" in Geist Mono at the
+        // far end of the line, and the progress spanning the row instead of a fixed 300.
         Column(Modifier.weight(1f)) {
-            Text(name.name, style = stageText(22, 700), color = if (focused) StageColors.FxText else StageColors.Text, maxLines = 1, overflow = TextOverflow.Ellipsis)
             val title = now?.title ?: nowTitle
+            val left = now?.let { timeLeftText(minutesLeft(it)) }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    name.name, style = stageText(22, 700),
+                    color = if (focused) StageColors.FxText else StageColors.Text,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+                if (left != null) {
+                    Spacer(Modifier.weight(1f))
+                    LobbusRotuloMono(
+                        texto = left.uppercase(java.util.Locale.getDefault()),
+                        cor = if (focused) StageColors.FxLine else StageColors.Dim,
+                        tamanho = 13,
+                    )
+                }
+            }
             if (title != null) {
-                val left = now?.let { timeLeftText(minutesLeft(it)) }
                 Spacer(Modifier.height(2.mpx))
                 Text(
-                    buildAnnotatedString {
-                        append(title)
-                        if (left != null) withStyle(SpanStyle(color = (if (focused) StageColors.FxLine else StageColors.Muted).copy(alpha = 0.6f))) { append(" · $left") }
-                    },
+                    title,
                     style = stageText(17, 400), color = if (focused) StageColors.FxLine else StageColors.Muted,
                     maxLines = 1, overflow = TextOverflow.Ellipsis,
                 )
             }
             if (now != null) {
                 Spacer(Modifier.height(8.mpx))
-                StageProgress(progressOf(now), Modifier.width(300.mpx), flat = true)
+                StageProgress(progressOf(now), Modifier.fillMaxWidth(), flat = true)
             }
         }
         if (trailing != null) trailing()
@@ -218,16 +229,18 @@ internal fun progressOf(p: XtEpgEntry): Float {
     return ((System.currentTimeMillis() - p.startMs).toFloat() / span).coerceIn(0f, 1f)
 }
 
-/** "18:45 – 20:30 · Horror · 2026 · FSK 16": the time range, then only the details the feed carries. */
+/**
+ * "Horror · 2026 · 1 h 55": only the details the feed carries.
+ *
+ * LOBBUS: the time range moved to the card's mono eyebrow and the age rating to its own chip, so
+ * neither is repeated here. Returns null when the feed carried nothing at all.
+ */
 @Composable
-private fun detailsLine(now: XtEpgEntry, details: EpgDetails?): String {
-    val formatTime = rememberSystemTimeFormatter()
+private fun detailsLine(details: EpgDetails?): String? {
     val length = details?.lengthMin?.let { stringResource(R.string.player_duration_minutes, it) }
-    return (
-        listOf(stringResource(R.string.content_live_time_range_plain, formatTime(now.startMs), formatTime(now.stopMs))) +
-            details?.categoryList.orEmpty() +
-            listOfNotNull(details?.year?.toString(), details?.rating, length)
-        ).joinToString(" · ")
+    return (details?.categoryList.orEmpty() + listOfNotNull(details?.year?.toString(), length))
+        .joinToString(" · ")
+        .ifBlank { null }
 }
 
 /**
@@ -312,34 +325,32 @@ internal fun LiveStagePane(
         val now = nowNext?.now
         Column(Modifier.fillMaxWidth().padding(start = 4.mpx, end = 4.mpx, top = 34.mpx)) {
             if (now != null) {
-                Text(now.title, style = stageText(42, 800, (-0.5).mpxSp), color = StageColors.Text, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                Text(
-                    detailsLine(now, nowNext.nowDetails),
-                    style = stageText(19, 400), color = StageColors.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(top = 8.mpx, bottom = 16.mpx),
+                // LOBBUS: the prototype's "No ar agora" card, framed in the accent, with the time
+                // range in mono over the title and the time left beside the progress.
+                val formatTime = rememberSystemTimeFormatter()
+                LobbusNoArAgora(
+                    faixaDeHorario = stringResource(
+                        R.string.content_live_time_range_plain,
+                        formatTime(now.startMs),
+                        formatTime(now.stopMs),
+                    ),
+                    titulo = now.title,
+                    detalhes = detailsLine(nowNext.nowDetails),
+                    classificacao = nowNext.nowDetails?.rating,
+                    sinopse = now.description?.takeIf { it.isNotBlank() },
+                    progresso = progressOf(now),
+                    restante = timeLeftText(minutesLeft(now)),
                 )
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.mpx)) {
-                    StageProgress(progressOf(now), Modifier.weight(1f))
-                    Text(timeLeftText(minutesLeft(now)), style = stageText(17, 400).copy(fontFeatureSettings = Tabular), color = StageColors.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                }
-                now.description?.takeIf { it.isNotBlank() }?.let {
-                    Text(
-                        it, style = stageText(19, 400).copy(lineHeight = (19 * 1.55f).mpxSp), color = stageTone(Color(0xFFD0C3B8), StageColors.Body),
-                        maxLines = 3, overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.padding(top = 18.mpx),
-                    )
-                }
             }
             val next = nowNext?.next
             val later = nowNext?.upcoming?.firstOrNull()
             if (next != null) {
-                Row(
-                    Modifier
-                        .padding(top = 22.mpx)
-                        .offset(x = (-12).mpx)
-                        .focusGroup(),
-                    // 30 between the two, less the 12 + 12 each entry pads itself with for its focus fill.
-                    horizontalArrangement = Arrangement.spacedBy(6.mpx),
+                // LOBBUS: "A SEGUIR NESTE CANAL" over the two entries, each a full-width row, as the
+                // prototype stacks them: side by side they truncated long titles to nothing.
+                LobbusRotuloASeguir(Modifier.padding(top = 26.mpx, bottom = 12.mpx))
+                Column(
+                    Modifier.focusGroup(),
+                    verticalArrangement = Arrangement.spacedBy(10.mpx),
                 ) {
                     // ◀ from next goes back to the channel it belongs to, not to whatever lies to the left.
                     LiveScheduleItem(
@@ -362,19 +373,18 @@ internal fun LiveStagePane(
 @Composable
 private fun LiveScheduleItem(p: XtEpgEntry, accentTime: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val formatTime = rememberSystemTimeFormatter()
-    val a = stageAccent
-    StageSurface(onClick = onClick, radius = 12.mpx, modifier = modifier) { focused ->
-        Text(
-            buildAnnotatedString {
-                withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontFeatureSettings = Tabular, color = if (focused) a.onAccent else if (accentTime) a.accent else StageColors.Muted)) {
-                    append(formatTime(p.startMs))
-                }
-                append("  ")
-                append(p.title)
-            },
-            style = stageText(18, 400), color = if (focused) a.onAccent else if (accentTime) StageColors.Text else StageColors.Muted,
-            maxLines = 1, overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(horizontal = 12.mpx, vertical = 6.mpx),
+    // LOBBUS: one row of the prototype's "A seguir": the hour in Geist Mono, then the title.
+    StageSurface(
+        onClick = onClick,
+        radius = StageRadii.Row,
+        modifier = modifier.fillMaxWidth().height(62.mpx),
+    ) { focused ->
+        LobbusLinhaASeguir(
+            hora = formatTime(p.startMs),
+            titulo = p.title,
+            detalhe = null,
+            focado = focused,
+            destacado = accentTime,
         )
     }
 }

@@ -52,6 +52,18 @@ class PrintsDasTelasTest {
         compose.gravarTela("01-inicio")
     }
 
+    /**
+     * A tela Ao vivo da Fase 4, com a linha de canal em foco, como o protótipo a mostra.
+     * Comparar com `docs/lobbus/design/LobbusTV-02-ao-vivo.jpg`.
+     */
+    @Test
+    fun aoVivo() {
+        compose.montarTela { TelaAoVivo() }
+        compose.onNodeWithTag(TAG_LINHA_CANAL).requestFocus()
+        compose.onNodeWithTag(TAG_LINHA_CANAL).assertIsFocused()
+        compose.gravarTela("02-ao-vivo")
+    }
+
     /** Tela inteira, 1920×1080, para comparar lado a lado com `docs/lobbus/design/`. */
     @Test
     fun telaDeExemplo() {

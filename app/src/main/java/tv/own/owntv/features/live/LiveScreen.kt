@@ -646,7 +646,6 @@ fun LiveScreen(
             LiveHeader(
                 category = headerLabel,
                 count = count,
-                showChevron = !separate && lockedKey == null,
                 modifier = Modifier.padding(start = fx(84), top = 52.mpx).width(listX - fx(84) + listWidth),
             )
             // Header tools + channel list: one focus group.
