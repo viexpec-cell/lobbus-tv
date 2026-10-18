@@ -11,6 +11,8 @@ Checklist vivo. Toda sessão começa aqui e termina atualizando "Estado atual".
   1. Vitor testar a v0.2.0 na TV: visual, moldura da imagem, canais, filmes e séries.
   2. Vitor cadastrar os 4 segredos (LEIA-ME em `lobbus-work/lobbus-tv-assinatura`) e ativar o Actions no fork.
   3. Fase 4: telas assinatura do protótipo, uma por vez (Início, Ao vivo, Filmes, Detalhe, Player).
+     Máquina de prints montada no ramo `claude/fase4-prints` (`./gradlew :app:lobbusPrints`), ainda
+     sem o primeiro PNG: ver `docs/lobbus/PRINTS.md`, seção "O que ainda falta".
   4. Depois do item 2: tag para o CI publicar o release e apagar o ramo `apk`.
 - Bloqueios: itens 1 e 2 dependem do Vitor.
 - Build local de release em máquina de 8 GB: `--no-daemon --max-workers=1 -Dorg.gradle.jvmargs=-Xmx5g -Pkotlin.compiler.execution.strategy=in-process` (com o daemon do Kotlin separado o sistema mata o processo).
@@ -69,6 +71,8 @@ Problema: canal Full HD numa TV 4K é ampliado 2× e perde nitidez ao ocupar a t
 
 ## Fase 4 · Telas assinatura
 
+- [ ] Máquina de prints das telas, sem emulador (Roborazzi + Robolectric): montada e documentada em
+      `docs/lobbus/PRINTS.md`; falta rodar uma vez num ambiente com Android SDK e rede liberada
 - [ ] Início com destaque estilo Netflix e fileiras
 - [ ] Ao vivo com card "No ar agora" estilo IMDb e "A seguir"
 - [ ] Filmes com Top 10 de números vazados e fileira 4K/HDR/Atmos
