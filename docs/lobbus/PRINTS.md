@@ -5,10 +5,9 @@ Vitor aprovar cada tela da Fase 4 comparando o print com o protótipo em `docs/l
 
 Nada aqui vai para o APK: é tudo código de teste (`app/src/test/`).
 
-> **Atenção, estado atual:** a infraestrutura está montada e a parte de Gradle foi verificada, mas os
-> prints ainda **não foram gerados nenhuma vez**, porque a sessão que montou tudo roda numa caixa sem
-> acesso de rede ao `dl.google.com`, de onde vêm o Android SDK e as bibliotecas androidx. Detalhes e
-> o que destravar: seção [O que ainda falta](#o-que-ainda-falta).
+> **Estado atual:** a máquina rodou pela primeira vez em 18/10/2026 e os três PNGs de exemplo estão
+> em `docs/lobbus/prints/`, conferidos um a um. O que precisou de conserto nessa primeira rodada está
+> em [O que a primeira rodada corrigiu](#o-que-a-primeira-rodada-corrigiu).
 
 ## Comando único
 
@@ -27,19 +26,47 @@ Pré-requisitos numa máquina limpa:
 A primeira execução baixa as dependências e também o runtime do Android que o Robolectric usa
 (`android-all`, algumas centenas de MB). Da segunda em diante é tudo cache.
 
-Se o Maven Central responder **429** (acontece em rede compartilhada), use o espelho do Google num
-init script **fora do repositório**, em `~/.gradle/init.d/espelho.gradle.kts`:
+Se o Maven Central responder **429** (acontece em rede compartilhada, e aconteceu na primeira
+rodada), são **dois** espelhos, porque são dois downloads diferentes.
+
+**1. As dependências do Gradle**, num init script **fora do repositório**, em
+`~/.gradle/init.d/espelho.gradle.kts`. O espelho precisa entrar **antes** do `mavenCentral()`: se o
+`repo1` for consultado primeiro e responder 429, o Gradle desliga o repositório e a resolução falha
+inteira, mesmo com o espelho na lista.
 
 ```kotlin
+val ESPELHO = "https://maven-central.storage-download.googleapis.com/maven2"
+
+beforeSettings {
+    pluginManagement.repositories {
+        val espelho = maven { name = "EspelhoMavenCentral"; setUrl(ESPELHO) }
+        remove(espelho)
+        add(0, espelho)
+    }
+}
+
 settingsEvaluated {
     dependencyResolutionManagement.repositories {
-        maven {
-            name = "EspelhoMavenCentral"
-            url = uri("https://maven-central.storage-download.googleapis.com/maven2")
-        }
+        val espelho = maven { name = "EspelhoMavenCentral"; setUrl(ESPELHO) }
+        remove(espelho)
+        add(0, espelho)
     }
 }
 ```
+
+**2. O runtime do Android que o Robolectric baixa sozinho** (`android-all`, cerca de 430 MB em
+`~/.m2`). Esse download não passa pelos repositórios do Gradle, então o init script acima não o
+alcança: ele vai direto ao Maven Central e morre no mesmo 429, antes do primeiro print. O espelho
+dele é um parâmetro da própria tarefa, também de fora do repositório:
+
+```bash
+./gradlew :app:lobbusPrints \
+  -Plobbus.prints.espelhoMaven=https://maven-central.storage-download.googleapis.com/maven2
+```
+
+ou, equivalente, a variável de ambiente `LOBBUS_PRINTS_ESPELHO`. Sem nenhum dos dois, fica o padrão
+do Robolectric, que é o próprio Maven Central. Depois do primeiro download o jar fica em `~/.m2` e
+as rodadas seguintes não precisam mais de espelho nenhum.
 
 ## Onde os PNGs caem
 
@@ -71,9 +98,10 @@ Por que esta e não o plugin oficial `com.android.compose.screenshot` (layoutlib
 * Permite recortar um bloco pela `testTag`, então o mesmo teste serve para a tela inteira e para o
   card em foco.
 
-O plugin oficial continua sendo o plano B: ele é mais simples de instalar, mas desenha as telas com o
-layoutlib em vez do app de verdade, não dá foco e ainda está em `alpha`. Se o Roborazzi não fechar com
-AGP 9.4 / Kotlin 2.4.20, a troca é: tirar `apply(from = gradle/lobbus-prints.gradle.kts)` do
+O Roborazzi fechou com AGP 9.4 e Kotlin 2.4.20: é com ele que os prints de hoje foram gerados (ver
+[O que a primeira rodada corrigiu](#o-que-a-primeira-rodada-corrigiu)). O plugin oficial fica como
+plano B: é mais simples de instalar, mas desenha as telas com o layoutlib em vez do app de verdade,
+não dá foco e ainda está em `alpha`. Se um dia for preciso trocar, a troca é: tirar `apply(from = gradle/lobbus-prints.gradle.kts)` do
 `app/build.gradle.kts`, ligar o plugin `com.android.compose.screenshot` e reescrever
 `PrintsDasTelasTest.kt` como `@Preview` no source set `screenshotTest`. O catálogo falso
 (`CatalogoFalso.kt`) e os blocos de exemplo são aproveitados sem mudança.
@@ -135,12 +163,23 @@ Depois rode `./gradlew :app:lobbusPrints` e confira o PNG novo em `docs/lobbus/p
 
 ## Quanto tempo leva
 
-Estimativa, ainda não medida numa execução de verdade (ver [O que ainda falta](#o-que-ainda-falta)):
+Medido na primeira rodada de verdade, em 18/10/2026, num contêiner de nuvem de 2 vCPU com tudo frio
+(sem Android SDK, sem cache do Gradle, sem `~/.m2`):
 
-* Primeira execução numa máquina limpa: vários minutos, quase tudo download (Gradle, androidx, o
-  `android-all` do Robolectric) e a compilação do app.
-* Execuções seguintes, com cache quente: na casa de 1 a 3 minutos no total.
-* Cada print a mais, depois do primeiro da rodada: poucos segundos.
+| Etapa | Tempo real |
+| --- | --- |
+| Instalar o Android SDK (plataforma 37, build-tools, platform-tools) | cerca de 2 min |
+| `./gradlew :app:assembleStandardDebug -x lint`, tudo frio | **1 h 06 min** |
+| `./gradlew :app:lobbusPrints` logo depois, baixando o `android-all` (430 MB) | cerca de 1 min |
+| `./gradlew :app:lobbusPrints` com cache quente, sem mexer em código | **13 a 21 s** |
+| `./gradlew :app:lobbusPrints` depois de mexer no código de teste | cerca de 1 min 30 s |
+
+A conta toda, de uma máquina limpa ao primeiro PNG, deu cerca de **1 h 50 min**, e quase tudo é a
+compilação do app, não os prints. O caro é o Kotlin do `:app`: foi quase uma hora sozinho, com o
+daemon do Kotlin em 150% de CPU o tempo todo. Depois que o app está compilado, cada rodada de prints
+custa segundos, e cada print a mais dentro da mesma rodada custa frações de segundo.
+
+Quem já tem o app compilado na máquina, que é o caso normal, vê só a última linha da tabela.
 
 A tarefa roda só os testes de `tv.own.owntv.lobbus.prints` e sempre do zero, para nunca entregar um
 PNG velho por achar que nada mudou. Num `./gradlew test` comum, os testes de print montam as telas
@@ -169,48 +208,82 @@ Da mecânica:
 
 * O Robolectric precisa dos recursos do app no teste de JVM: já ligado em `app/build.gradle.kts`
   (`unitTests.isIncludeAndroidResources = true`).
-* `@Config(sdk = [37])` depende de existir `android-all` da API 37. Ele existe (Robolectric 4.17). Se
-  um dia faltar, baixe para `sdk = [36]` em `PrintsDasTelasTest.kt` e anote aqui.
+* `@Config(sdk = [37])` depende de existir `android-all` da API 37. Ele existe (Robolectric 4.17) e
+  é o que roda hoje. Se um dia faltar, ou se uma API nova quebrar o Espresso de novo, baixe para
+  `sdk = [36]` em `PrintsDasTelasTest.kt` e anote aqui.
+* `@Config(application = android.app.Application::class)` não é detalhe: sem isso o Robolectric sobe
+  o `OwnTVApp` e a JVM de teste morre calada, com saída 2. Toda classe de print precisa da linha.
+* A API 37 exige dois `jvmArgs` (`--add-exports` e `--add-opens` de `java.base/jdk.internal.access`)
+  e um Espresso acima do 3.5.1. Os dois já estão em `gradle/lobbus-prints.gradle.kts`.
 * Textos visíveis dos blocos de exemplo ficam soltos no Kotlin de propósito: o `verifyI18nLiterals`
   só varre `src/main/java`, então código de teste não entra no gate. Em tela de produção, o texto
   continua indo para `lobbus_brand.xml`.
 
-## O que ainda falta
+## O que a primeira rodada corrigiu
 
-A sessão que montou esta máquina roda num contêiner cuja política de rede **bloqueia
-`dl.google.com`**, que é de onde vêm o Android SDK (plataforma 37, build-tools) e, por redirecionamento
-de `maven.google.com`, todas as bibliotecas androidx: AGP, Compose, `androidx.tv`, Media3, Room. Sem
-esse host, o `:app` não compila de jeito nenhum, então foi impossível rodar `assembleStandardDebug` e,
-por consequência, gerar qualquer PNG. O mesmo bloqueio atinge `ahxn00.github.io`, que serve o core
-publicado (`tv.own.owntv:core`).
+A máquina foi montada numa sessão sem acesso de rede a `dl.google.com`, então nada dela tinha
+chegado a compilar: nenhum PNG existia. Em 18/10/2026, com a rede liberada, ela rodou pela primeira
+vez. Tudo o que estava marcado como "não verificado" foi verificado, e quatro coisas precisaram de
+conserto. Ficam registradas aqui porque são exatamente o tipo de detalhe que ninguém adivinha sem
+rodar.
 
-O que **foi** verificado:
+**1. O Robolectric baixa o `android-all` por fora do Gradle.** O espelho do Maven Central posto num
+init script resolve as dependências do build, mas não o runtime do Android: o Robolectric vai ao
+Maven Central por conta própria e tomou o mesmo 429. A tarefa passou a aceitar
+`-Plobbus.prints.espelhoMaven=<url>` (ou `LOBBUS_PRINTS_ESPELHO`), que repassa a url ao
+`robolectric.dependency.repo.url` do JVM de teste. Sem o parâmetro, nada muda: continua o Maven
+Central.
 
-* A parte de Gradle, rodada de verdade num projeto isolado: `gradle/lobbus-prints.gradle.kts`
-  compila, lê as versões do catálogo, declara as dependências e registra a tarefa `lobbusPrints`,
-  tanto no modo normal quanto no modo "gerando prints".
-* As versões existem e são compatíveis entre si: Robolectric 4.17 (primeira com runtime do Android 17,
-  a API 37), Roborazzi 1.76.0, e o `android-all` da API 37 publicado no Maven Central.
+**2. O JDK 21 não exporta `jdk.internal.access`.** O runtime do Android 17 cria memória compartilhada
+no arranque e o Robolectric alcança o `FileDescriptor` por reflexão, em `jdk.internal.access`. Sem
+export, todo teste morre em `Failed to interact with raw FileDescriptor internals; perhaps JRE has
+changed?`. O `gradle/lobbus-prints.gradle.kts` passou a dar ao JVM de teste
+`--add-exports` e `--add-opens` de `java.base/jdk.internal.access`.
 
-O que **não** foi verificado, e por isso pode precisar de ajuste na primeira rodada:
+**3. O teste de print não pode subir o app de verdade.** Por padrão o Robolectric instancia o
+`Application` do manifesto, que aqui é o `OwnTVApp`: ele sobe Koin, banco, player e bibliotecas
+nativas, e **derrubava a JVM de teste com saída 2, sem stack trace nenhum**. O
+`PrintsDasTelasTest` passou a declarar `application = android.app.Application::class`. Um print
+precisa do Compose e do tema, não do arranque do app, e assim a tela de print também não depende
+de nada que o app faça no boot.
 
-* A compilação do código de teste (`LobbusPrint.kt`, `BlocosDeExemplo.kt`, `CatalogoFalso.kt`,
-  `PrintsDasTelasTest.kt`).
-* A execução do Roborazzi: nome exato da sobrecarga de `captureRoboImage`, modo de gravação e o
-  tamanho final do bitmap.
-* Se o foco programático desenha o anel como o design pede.
+**4. O Espresso 3.5.1 não entende a API 37.** O `ui-test-junit4` traz de carona um Espresso antigo,
+que procura `android.hardware.input.InputManager.getInstance()` por reflexão. Esse método não existe
+mais na API 37, então todo `waitForIdle()` estourava em `NoSuchMethodException`. A saída prevista
+aqui era cair para `sdk = [36]`, e ela de fato funciona. Mas não foi preciso: fixar o
+`androidx.test.espresso:espresso-core` na versão do catálogo (`espressoCore`, hoje 3.7.0) resolve, e
+os prints continuam saindo na API 37, que é o `compileSdk` do app. Se um dia o Espresso voltar a
+quebrar numa API nova, `sdk = [36]` em `PrintsDasTelasTest.kt` segue sendo a saída de emergência.
 
-Para destravar, basta liberar no ambiente da sessão, em Network access, os domínios:
+### O que ficou confirmado
 
-```
-dl.google.com
-maven.google.com
-ahxn00.github.io
-```
+* O `android-all` da API 37 **existe** para o Robolectric 4.17
+  (`android-all-instrumented:17-robolectric-15733970-i7`) e carrega sem reclamar. Os prints saem na
+  API 37, não na 36.
+* `captureRoboImage(File)` é a sobrecarga certa, e vem do módulo `roborazzi` (não do
+  `roborazzi-compose`), tanto para `onRoot()` quanto para um nó com `testTag`. O import que já
+  estava escrito, `com.github.takahirom.roborazzi.captureRoboImage`, estava certo.
+* Os tamanhos saem como o projeto pediu: a tela em **1920×1080**, a fileira em 1680×440 e o card em
+  378×218, que são as medidas dos próprios blocos.
+* O `requestFocus()` **desenha o anel laranja**. Conferido pixel a pixel no
+  `exemplo-03-card-em-foco.png`: 2 px de `#F2600C` nos quatro lados, 1 px de `#0D0906` de
+  afastamento e então a superfície do card em `#221A14`. É o anel do design, vindo do foco de
+  verdade.
+* O interruptor funciona: `./gradlew :app:testStandardDebugUnitTest` roda os testes de print, passa
+  e **não escreve PNG nenhum**. Só `lobbusPrints` grava.
+* As rodadas são determinísticas: duas execuções seguidas deram os três arquivos byte a byte iguais,
+  então qualquer diferença no `git diff` é mudança de código.
 
-(o passo a passo está em https://code.claude.com/docs/en/cloud-environments#network-access). Depois
-disso, rodar `./gradlew :app:lobbusPrints` e corrigir o que aparecer, que é trabalho de uma sessão
-curta. Numa máquina com Android SDK e rede normal, nada disso se aplica.
+### O que continua sem verificação
+
+* **Só os blocos de exemplo foram fotografados.** As cinco telas da Fase 4 ainda não existem, então
+  não se sabe como o Roborazzi se comporta com uma tela de verdade, mais pesada, com listas longas,
+  fundo desfocado e imagens.
+* O quinto card da fileira de exemplo sai cortado na borda direita da tela. É a fileira de exemplo
+  transbordando de propósito, não um defeito da máquina, mas vale lembrar que o print não rola a
+  tela: o que estiver fora dos 1920 px não aparece.
+* A comparação automática (modo "verify" do Roborazzi, que acusa diferença contra um print
+  anterior) nunca foi usada: a tarefa sempre grava.
 
 ## Como pedir um render
 
@@ -230,6 +303,10 @@ git commit -m "Prints: <tela> da Fase 4"
 git push -u origin <ramo>
 ```
 
-Se o comando falhar com erro de rede ou de SDK, é o caso descrito em
-[O que ainda falta](#o-que-ainda-falta): libere os domínios e rode de novo, em vez de mexer na
-configuração do Gradle.
+Numa sessão de nuvem, a rede precisa alcançar `dl.google.com`, `maven.google.com` e
+`ahxn00.github.io` (o passo a passo está em
+https://code.claude.com/docs/en/cloud-environments#network-access). Se o comando falhar com 429 do
+Maven Central, é o caso dos dois espelhos descrito em [Comando único](#comando-único): ponha os
+espelhos e rode de novo, em vez de mexer na configuração do Gradle. Reserve uma hora boa se o app
+ainda não estiver compilado nessa máquina, como mostra
+[Quanto tempo leva](#quanto-tempo-leva).
