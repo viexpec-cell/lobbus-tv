@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -131,7 +132,10 @@ fun CardEmAndamento(item: EmAndamento, modifier: Modifier = Modifier) {
     var focado by remember { mutableStateOf(false) }
     Column(
         modifier = modifier
-            .width(378.mpx)
+            // `requiredWidth`, não `width`: numa fileira que transborda, o `width` deixa o último
+            // card ser espremido pelo espaço que sobra e o título quebra letra a letra. O card
+            // mantém a largura e é cortado pela borda da tela, que é o que uma fileira de TV faz.
+            .requiredWidth(378.mpx)
             .onFocusChanged { focado = it.isFocused }
             .focusable()
             .then(

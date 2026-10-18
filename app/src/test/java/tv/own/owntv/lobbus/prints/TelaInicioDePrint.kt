@@ -55,7 +55,10 @@ fun TelaInicio() {
             Spacer(Modifier.height(44.mpx))
             LobbusSobrancelha(ordem = 1, rotulo = destaque.rotulo, tipo = destaque.tipo)
             Spacer(Modifier.height(8.mpx))
-            LobbusTituloHeroi("${destaque.tituloClaro} ${destaque.tituloAcento}")
+            // O ponto final é da identidade e quem o põe é o `LobbusTituloHeroi`. O catálogo falso
+            // guarda "fogo." com o ponto desde os blocos de exemplo, que o desenhavam à mão, então
+            // aqui ele sai antes, senão o título vira "fogo..".
+            LobbusTituloHeroi("${destaque.tituloClaro} ${destaque.tituloAcento.removeSuffix(".")}")
             Spacer(Modifier.height(18.mpx))
             LobbusMetaHeroi(
                 nota = destaque.nota.toString().replace('.', ','),

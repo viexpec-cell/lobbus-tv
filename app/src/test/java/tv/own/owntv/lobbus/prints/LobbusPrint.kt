@@ -5,8 +5,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
@@ -78,6 +81,11 @@ fun TemaDePrint(content: @Composable () -> Unit) {
         systemInDarkTheme = true,
         focusBorderWidthDp = 2,
     ) {
+        // Modo de entrada por controle remoto, que é como a TV roda. Sem isto o Robolectric fica em
+        // modo de toque, e nele o `Modifier.clickable` do `StageButton` recusa o foco: o print sai
+        // com o botão em repouso e ninguém percebe, porque `requestFocus()` não reclama.
+        val modoDeEntrada = LocalInputModeManager.current
+        LaunchedEffect(Unit) { modoDeEntrada.requestInputMode(InputMode.Keyboard) }
         CompositionLocalProvider(
             LocalDensity provides Density(LobbusPrint.DENSIDADE, 1f),
         ) {

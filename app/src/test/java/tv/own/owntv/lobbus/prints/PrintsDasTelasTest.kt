@@ -1,5 +1,6 @@
 package tv.own.owntv.lobbus.prints
 
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.requestFocus
@@ -47,6 +48,7 @@ class PrintsDasTelasTest {
     fun inicio() {
         compose.montarTela { TelaInicio() }
         compose.onNodeWithTag(TAG_BOTAO_ASSISTIR).requestFocus()
+        compose.onNodeWithTag(TAG_BOTAO_ASSISTIR).assertIsFocused()
         compose.gravarTela("01-inicio")
     }
 
