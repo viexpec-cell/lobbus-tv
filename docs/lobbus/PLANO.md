@@ -4,20 +4,24 @@ Checklist vivo. Toda sessão começa aqui e termina atualizando "Estado atual".
 
 ## Estado atual
 
-- Fase: **4 · Telas assinatura** (Início aprovado, Ao vivo escrito) e **2** com pendências do Vitor
-- Último passo (18/10): Início aprovado pelo Vitor e mesclado na `main`. Ao vivo escrito no ramo
-  `claude/fase4-ao-vivo`, à espera do print. Antes disso, no mesmo dia: máquina de prints rodando de verdade,
+- Fase: **4 · Telas assinatura** (Início e Ao vivo aprovados) e **2** com pendências do Vitor
+- Último passo (18/10): **Ao vivo aprovado pelo Vitor** pelo print `docs/lobbus/prints/02-ao-vivo.png`,
+  no ramo `claude/fase4-ao-vivo`, que também leva dois acertos do Início feitos depois da mesclagem:
+  o título do destaque em duas linhas e o acento do cabeçalho de tela. Esse ramo ainda não está na
+  `main`. Antes disso, no mesmo dia: Início aprovado e mesclado, máquina de prints rodando de verdade,
   tokens da Lobbus aplicados (cores, laranja, Montserrat, raios) e v0.2.0 assinada no ramo `apk`:
   `https://github.com/viexpec-cell/lobbus-tv/raw/apk/LobbusTV.apk` (instala por cima da v0.1.0).
 - Próximos itens, em ordem:
   1. Vitor testar a v0.2.0 na TV: visual, moldura da imagem, canais, filmes e séries.
   2. Vitor cadastrar os 4 segredos (LEIA-ME em `lobbus-work/lobbus-tv-assinatura`) e ativar o Actions no fork.
-  3. Fase 4: telas assinatura do protótipo, uma por vez. Feito o Início; o **Ao vivo** está escrito
-     no ramo `claude/fase4-ao-vivo` e espera o print. Depois vêm Filmes, Detalhe da série e Player. A máquina de prints
-     (`./gradlew :app:lobbusPrints`) está verificada: ver `docs/lobbus/PRINTS.md`. Quem escreve a
-     tela não compila, então contar com uma rodada de consertos na nuvem antes do print sair.
+  3. Fase 4: telas assinatura do protótipo, uma por vez. Feitos o Início e o Ao vivo; a próxima é
+     **Filmes**, depois Detalhe da série e Player. Antes de escrever Filmes, levar
+     `claude/fase4-ao-vivo` para a `main`, senão a próxima tela nasce sobre uma pilha de ramos. A
+     máquina de prints (`./gradlew :app:lobbusPrints`) está verificada: ver `docs/lobbus/PRINTS.md`.
+     Quem escreve a tela não compila, então contar com uma rodada de consertos na nuvem antes do
+     print sair.
   4. Depois do item 2: tag para o CI publicar o release e apagar o ramo `apk`.
-- Bloqueios: itens 1 e 2 dependem do Vitor. O item 3 não depende de ninguém: falta escrever a tela.
+- Bloqueios: itens 1 e 2 dependem do Vitor. O item 3 não depende de ninguém: falta escrever a tela de Filmes.
 - Build local de release em máquina de 8 GB: `--no-daemon --max-workers=1 -Dorg.gradle.jvmargs=-Xmx5g -Pkotlin.compiler.execution.strategy=in-process` (com o daemon do Kotlin separado o sistema mata o processo).
 
 ## Fase 0 · Validação na TV (Vitor, sem código)
@@ -79,7 +83,8 @@ Problema: canal Full HD numa TV 4K é ampliado 2× e perde nitidez ao ocupar a t
       PNGs de exemplo conferidos em `docs/lobbus/prints/`. Comando: `./gradlew :app:lobbusPrints`
 - [x] Início com destaque estilo Netflix e fileiras: aprovado pelo Vitor em 18/10/2026 pelo print
       `docs/lobbus/prints/01-inicio.png`; já na `main`
-- [ ] Ao vivo com card "No ar agora" estilo IMDb e "A seguir"
+- [x] Ao vivo com card "No ar agora" estilo IMDb e "A seguir": aprovado pelo Vitor em 18/10/2026
+      pelo print `docs/lobbus/prints/02-ao-vivo.png`, no ramo `claude/fase4-ao-vivo`
 - [ ] Filmes com Top 10 de números vazados e fileira 4K/HDR/Atmos
 - [ ] Detalhe da série com episódios e "Continuar T:E"
 - [ ] Player com painel de informações técnicas
