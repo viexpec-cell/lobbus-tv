@@ -160,7 +160,10 @@ fun LobbusTituloHeroi(titulo: String, modifier: Modifier = Modifier, onLinhas: (
         maxLines = 2,
         overflow = TextOverflow.Ellipsis,
         onTextLayout = { onLinhas(it.lineCount) },
-        modifier = modifier,
+        // A mesma medida da sinopse. No protótipo o título quebra em duas linhas ("Linha de" e
+        // "fogo."), e é essa quebra que põe o laranja sozinho na segunda linha. Com os 900 px da
+        // coluna do destaque, um título curto cabe inteiro numa linha e a assinatura se perde.
+        modifier = modifier.widthIn(max = 760.mpx),
     )
 }
 
