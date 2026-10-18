@@ -4,10 +4,16 @@ Checklist vivo. Toda sessão começa aqui e termina atualizando "Estado atual".
 
 ## Estado atual
 
-- Fase: **2 · Fork e rebrand** (quase concluída)
-- Último passo: rebrand, moldura da imagem e CI com nomes da Lobbus, sobre a tag v5.2.0 do OwnTV (core 1.0.68). Build local de debug ok.
-- Próximo item: Vitor cadastrar os 4 segredos de assinatura no GitHub; depois criar a tag `v0.1.0` para o CI publicar o primeiro release assinado e testar na TV.
-- Bloqueios: segredos de assinatura (só o Vitor pode cadastrar; instruções em `lobbus-work/lobbus-tv-assinatura/LEIA-ME.txt` no computador dele).
+- Fase: **2 · Fork e rebrand** (código concluído; falta o CI publicar releases)
+- Último passo (17/10): v0.1.0 assinada com a chave da Lobbus, compilada localmente e publicada no ramo `apk` para teste na TV:
+  `https://github.com/viexpec-cell/lobbus-tv/raw/apk/LobbusTV.apk` (SHA-256 c160df1f…5fc7c).
+- Próximos itens, em ordem:
+  1. Vitor testar a v0.1.0 na TV (Downloader com o link acima) e dar retorno da moldura da imagem.
+  2. Vitor cadastrar os 4 segredos (LEIA-ME em `lobbus-work/lobbus-tv-assinatura`) e ativar o Actions no fork.
+  3. Tag `v0.1.1` para o CI publicar o primeiro release; conferir que atualiza por cima da v0.1.0; apagar o ramo `apk`.
+  4. Fase 3 (reskin).
+- Bloqueios: itens 1 e 2 dependem do Vitor.
+- Observação de build local: o release precisa de uma JVM só (`-Pkotlin.compiler.execution.strategy=in-process`, `-Xmx5g`, `--max-workers=1`) em máquinas com 8 GB; com o daemon do Kotlin separado, o sistema mata o processo por falta de memória.
 
 ## Fase 0 · Validação na TV (Vitor, sem código)
 
@@ -36,7 +42,8 @@ Checklist vivo. Toda sessão começa aqui e termina atualizando "Estado atual".
 - [x] Chave de assinatura gerada e salva no computador do Vitor
 - [ ] Vitor cadastrar os segredos KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD
 - [ ] Ativar o GitHub Actions no fork (aba Actions, botão de ativar workflows)
-- [ ] Tag v0.1.0, release publicado, instalação na TV pelo Downloader com o link fixo
+- [x] v0.1.0 assinada publicada no ramo `apk` (teste antes do CI)
+- [ ] Primeiro release pelo CI (tag v0.1.1) e instalação pelo link fixo de releases
 
 ## Fase 2b · Moldura da imagem (pedido do Vitor em 16/10)
 
