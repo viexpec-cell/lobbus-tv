@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -53,23 +55,27 @@ fun TelaInicio() {
         Column(Modifier.padding(start = 72.mpx, top = 88.mpx, end = 40.mpx)) {
             BarraDeCima()
             Spacer(Modifier.height(44.mpx))
-            LobbusSobrancelha(ordem = 1, rotulo = destaque.rotulo, tipo = destaque.tipo)
-            Spacer(Modifier.height(8.mpx))
-            // O ponto final é da identidade e quem o põe é o `LobbusTituloHeroi`. O catálogo falso
-            // guarda "fogo." com o ponto desde os blocos de exemplo, que o desenhavam à mão, então
-            // aqui ele sai antes, senão o título vira "fogo..".
-            LobbusTituloHeroi("${destaque.tituloClaro} ${destaque.tituloAcento.removeSuffix(".")}")
-            Spacer(Modifier.height(18.mpx))
-            LobbusMetaHeroi(
-                nota = destaque.nota.toString().replace('.', ','),
-                partes = listOf(destaque.ano.toString(), destaque.duracao, destaque.generos),
-                classificacao = destaque.classificacao,
-                etiquetas = destaque.selos.map { it.rotulo },
-            )
-            Spacer(Modifier.height(20.mpx))
-            LobbusSinopse(destaque.sinopse, maxLinhas = 4)
-            Spacer(Modifier.height(36.mpx))
-            BotoesDoDestaque()
+            // A mesma largura que o `HomeScreen` dá ao destaque. Sem ela o título caberia numa linha
+            // só no print e em duas no app, que é o contrário de servir para aprovar o desenho.
+            Column(Modifier.width(900.mpx)) {
+                LobbusSobrancelha(ordem = 1, rotulo = destaque.rotulo, tipo = destaque.tipo)
+                Spacer(Modifier.height(8.mpx))
+                // O ponto final é da identidade e quem o põe é o `LobbusTituloHeroi`. O catálogo
+                // falso guarda "fogo." com o ponto desde os blocos de exemplo, que o desenhavam à
+                // mão, então aqui ele sai antes, senão o título vira "fogo..".
+                LobbusTituloHeroi("${destaque.tituloClaro} ${destaque.tituloAcento.removeSuffix(".")}")
+                Spacer(Modifier.height(18.mpx))
+                LobbusMetaHeroi(
+                    nota = destaque.nota.toString().replace('.', ','),
+                    partes = listOf(destaque.ano.toString(), destaque.duracao, destaque.generos),
+                    classificacao = destaque.classificacao,
+                    etiquetas = destaque.selos.map { it.rotulo },
+                )
+                Spacer(Modifier.height(20.mpx))
+                LobbusSinopse(destaque.sinopse, maxLinhas = 4)
+                Spacer(Modifier.height(36.mpx))
+                BotoesDoDestaque()
+            }
             Spacer(Modifier.height(64.mpx))
             LobbusTituloFileira(
                 titulo = "Continuar assistindo",
@@ -79,8 +85,13 @@ fun TelaInicio() {
                 inicio = 0.mpx,
             )
             Spacer(Modifier.height(20.mpx))
-            Row(horizontalArrangement = Arrangement.spacedBy(24.mpx)) {
-                CatalogoFalso.continuarAssistindo.forEachIndexed { indice, item ->
+            // Fileira como o app a desenha: uma lista preguiçosa que corta no fim da tela. Com uma
+            // `Row` comum, os cards que não cabem se espremem um sobre o outro no print.
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(24.mpx),
+                userScrollEnabled = false,
+            ) {
+                itemsIndexed(CatalogoFalso.continuarAssistindo) { indice, item ->
                     CardEmAndamento(
                         item = item,
                         modifier = if (indice == 1) Modifier.testTag(TAG_CARD_FOCO) else Modifier,
