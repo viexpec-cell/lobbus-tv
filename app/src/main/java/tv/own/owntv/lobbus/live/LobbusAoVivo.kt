@@ -25,6 +25,7 @@ import java.util.Locale
 import tv.own.owntv.R
 import tv.own.owntv.lobbus.home.LobbusRotuloMono
 import tv.own.owntv.lobbus.home.LobbusSobrancelha
+import tv.own.owntv.lobbus.home.LobbusTitulo
 import tv.own.owntv.lobbus.home.lobbusTituloDestaque
 import tv.own.owntv.ui.theme.StageColors
 import tv.own.owntv.ui.theme.StageRadii
@@ -43,8 +44,8 @@ import tv.own.owntv.ui.theme.stageText
  */
 
 /**
- * O cabeçalho de uma tela inteira: a sobrancelha em Geist Mono e, embaixo, o nome da tela com a
- * última palavra em laranja e ponto final ("Canais ao vivo.").
+ * O cabeçalho de uma tela inteira: a sobrancelha em Geist Mono e, embaixo, o nome da tela no
+ * tratamento de cabeçalho, com o laranja na expressão do fim e ponto final ("Canais ao vivo.").
  */
 @Composable
 fun LobbusCabecalhoDeTela(ordem: Int, rotulo: String, titulo: String, modifier: Modifier = Modifier) {
@@ -52,7 +53,7 @@ fun LobbusCabecalhoDeTela(ordem: Int, rotulo: String, titulo: String, modifier: 
         LobbusSobrancelha(ordem = ordem, rotulo = rotulo, tipo = null)
         Spacer(Modifier.height(10.mpx))
         Text(
-            text = lobbusTituloDestaque(titulo),
+            text = lobbusTituloDestaque(titulo, LobbusTitulo.CABECALHO),
             style = stageText(46, 900, (-1).mpxSp),
             color = StageColors.Text,
             maxLines = 1,

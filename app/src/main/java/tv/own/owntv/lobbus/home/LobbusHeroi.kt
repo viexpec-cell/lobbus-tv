@@ -113,29 +113,63 @@ fun LobbusSobrancelha(ordem: Int, rotulo: String, tipo: String?) {
 }
 
 /**
- * O título do destaque como o protótipo o desenha: a última palavra em laranja com ponto final, as
- * palavras de ligação em contorno e o resto cheio.
+ * Os dois tratamentos de título do protótipo. O que muda entre eles é onde o laranja começa e se as
+ * palavras de ligação saem em contorno.
+ */
+enum class LobbusTitulo {
+    /**
+     * O destaque do Início: a última palavra em laranja, as de ligação em contorno e o resto cheio
+     * ("Linha" cheio, "de" em contorno, "fogo." laranja).
+     */
+    DESTAQUE,
+
+    /**
+     * O cabeçalho de uma tela inteira: sem contorno, e o laranja pega a ligação colada na última
+     * palavra, porque ali ela faz parte da expressão ("Canais" cheio, "ao vivo." laranja). Nos
+     * cabeçalhos em que a última palavra vem sozinha o resultado é o mesmo de sempre ("O que está"
+     * cheio, "passando." laranja).
+     */
+    CABECALHO,
+}
+
+/**
+ * O título como o protótipo o desenha, no tratamento pedido por [tratamento].
  *
  * O ponto final é da identidade da Lobbus ("Linha de fogo."), então entra aqui e não no dado.
  */
 @Composable
-fun lobbusTituloDestaque(titulo: String): AnnotatedString {
+fun lobbusTituloDestaque(
+    titulo: String,
+    tratamento: LobbusTitulo = LobbusTitulo.DESTAQUE,
+): AnnotatedString {
     val acento = stageAccent.accent
     val contorno = with(LocalDensity.current) { 2.mpx.toPx() }
     val palavras = titulo.trim().split(" ").filter { it.isNotBlank() }
     val ultima = palavras.lastIndex
+    // Num cabeçalho, uma ligação colada na última palavra entra no laranja junto com ela: o
+    // protótipo escreve "Canais ao vivo.", não "Canais ao vivo." com o "ao" de fora.
+    val inicioDoAcento = if (
+        tratamento == LobbusTitulo.CABECALHO &&
+        palavras.size >= 3 &&
+        palavras[ultima - 1].lowercase(Locale.getDefault()) in LIGACOES
+    ) {
+        ultima - 1
+    } else {
+        ultima
+    }
     // O ponto final sai de um recurso, não de um literal solto: o `verifyI18nLiterals` só deixa
     // passar texto visível que veio do XML. Resolvido aqui, fora do construtor, que não é
     // @Composable.
     val fecho = palavras.lastOrNull()?.let { stringResource(R.string.lobbus_titulo_ponto_final, it) }.orEmpty()
     return buildAnnotatedString {
         palavras.forEachIndexed { indice, palavra ->
-            val ligacao = palavras.size >= 3 &&
+            val ligacao = tratamento == LobbusTitulo.DESTAQUE &&
+                palavras.size >= 3 &&
                 indice != 0 &&
                 indice != ultima &&
                 palavra.lowercase(Locale.getDefault()) in LIGACOES
             val estilo = when {
-                indice == ultima -> SpanStyle(color = acento)
+                indice >= inicioDoAcento -> SpanStyle(color = acento)
                 ligacao -> SpanStyle(drawStyle = Stroke(width = contorno))
                 else -> SpanStyle(color = StageColors.Text)
             }
