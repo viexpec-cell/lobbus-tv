@@ -103,7 +103,7 @@ internal fun videoSectionCounts(vm: SettingsViewModel): List<Int> {
     val perPlaylist = sources.isNotEmpty()
     return listOf(
         6 + (if (perPlaylist) 2 else 0),
-        5 + (if (vm.tunnelingSupported) 1 else 0),
+        6 + (if (vm.tunnelingSupported) 1 else 0), // LOBBUS: +1 (moldura da imagem)
         3,
         3,
         4 + (if (livePreview) 1 else 0) + (if (timeshift) 1 else 0),
@@ -722,6 +722,7 @@ internal fun VideoPlayerGroupRows(
     }
 
     val zoomMode = runCatching { ZoomMode.valueOf(zoom) }.getOrDefault(ZoomMode.FIT)
+    val lobbusFrame by tv.own.owntv.lobbus.PictureFramePrefs.frame.collectAsStateWithLifecycle() // LOBBUS
 
     val counts = videoSectionCounts(vm)
     androidx.compose.runtime.CompositionLocalProvider(
@@ -893,6 +894,18 @@ internal fun VideoPlayerGroupRows(
             value = SettingValue.Choice(stringResource(zoomMode.labelRes)),
             modifier = Modifier.focusRequester(dialogRowFocus.getValue(Dialog.ZOOM)),
             onClick = { savedScroll = scrollState.value; dialog = Dialog.ZOOM },
+        )
+        // LOBBUS: moldura da imagem (ver tv.own.owntv.lobbus.PictureFrame).
+        KeyedSettingRow(
+            choices = tv.own.owntv.lobbus.PictureFrame.entries.map { stringResource(it.labelRes) },
+            chosen = lobbusFrame.ordinal,
+            recommended = tv.own.owntv.lobbus.PictureFrame.AUTO.ordinal,
+            icon = OwnTVIcon.ASPECT,
+            title = stringResource(R.string.lobbus_frame_title),
+            desc = stringResource(R.string.lobbus_frame_description),
+            value = SettingValue.Choice(stringResource(lobbusFrame.labelRes)),
+            modifier = Modifier.focusRequester(dialogRowFocus.getValue(Dialog.LOBBUS_FRAME)),
+            onClick = { savedScroll = scrollState.value; dialog = Dialog.LOBBUS_FRAME },
         )
         KeyedSettingRow(
             quickKey = "vp_reset_zoom",
@@ -1390,6 +1403,21 @@ internal fun VideoPlayerGroupRows(
             onSelect = { vm.setDefaultZoom(it); dialog = Dialog.NONE },
             onDismiss = { dialog = Dialog.NONE },
         )
+        // LOBBUS: moldura da imagem.
+        Dialog.LOBBUS_FRAME -> {
+            val frame by tv.own.owntv.lobbus.PictureFramePrefs.frame.collectAsStateWithLifecycle()
+            PickerDialog(
+                title = stringResource(R.string.lobbus_frame_title),
+                options = tv.own.owntv.lobbus.PictureFrame.entries.map { it.name to stringResource(it.labelRes) },
+                selected = frame.name,
+                onSelect = { name ->
+                    tv.own.owntv.lobbus.PictureFrame.entries.firstOrNull { it.name == name }
+                        ?.let(tv.own.owntv.lobbus.PictureFramePrefs::set)
+                    dialog = Dialog.NONE
+                },
+                onDismiss = { dialog = Dialog.NONE },
+            )
+        }
         Dialog.RESUME -> PickerDialog(
             title = stringResource(R.string.settings_resume_playback),
             options = tv.own.owntv.core.settings.SettingsRepository.ResumeMode.entries.map { it.name to stringResource(resumeModeLabelRes(it)) },
@@ -1927,7 +1955,7 @@ private fun dialogForQuickKey(key: String): Dialog? = when (key) {
     else -> null
 }
 
-private enum class Dialog { NONE, LIVE_ENGINE, LIVE_ENGINE_SOURCES, LIVE_ENGINE_SOURCE, LIVE_LATENCY_SOURCES, LIVE_LATENCY_SOURCE, LIVE_LATENCY_CUSTOM_SOURCE, VOD_ENGINE, VOD_ENGINE_SOURCES, VOD_ENGINE_SOURCE, ZOOM, VOLUME, RESET_SAVED_ZOOM, RESET_SAVED_VOLUME, RESET_SAVED_AUDIO_DELAY, SEEK_STEP, LIVE_REWIND_STEP, SUB_STYLE, SUB_LANG, AUDIO_LANG, SURROUND, AUDIO_SYNC, RESUME, LIVE_LATENCY, LIVE_CUSTOM, LIVE_PREROLL, LIVE_TUNE_TIMEOUT, LIVE_TUNE_TIMEOUT_SOURCES, LIVE_TUNE_TIMEOUT_SOURCE, LIVE_PREROLL_SOURCES, LIVE_PREROLL_SOURCE, EXTERNAL_PLAYER, RESET_PINS, RESET_LIVE_PINS, FORGET_FIXES, AFR_WARNING, AFR_PAUSE, VOD_BUFFER, VOD_TIMEOUT, VOD_RECONNECTS, TIMESHIFT_WINDOW, TIMESHIFT_RESUME, MAX_QUALITY, LIVE_PREVIEW_PANEL, MINI_PLAYER, MULTIVIEW_TILES, MULTIVIEW_WARNING }
+private enum class Dialog { NONE, LOBBUS_FRAME, LIVE_ENGINE, LIVE_ENGINE_SOURCES, LIVE_ENGINE_SOURCE, LIVE_LATENCY_SOURCES, LIVE_LATENCY_SOURCE, LIVE_LATENCY_CUSTOM_SOURCE, VOD_ENGINE, VOD_ENGINE_SOURCES, VOD_ENGINE_SOURCE, ZOOM, VOLUME, RESET_SAVED_ZOOM, RESET_SAVED_VOLUME, RESET_SAVED_AUDIO_DELAY, SEEK_STEP, LIVE_REWIND_STEP, SUB_STYLE, SUB_LANG, AUDIO_LANG, SURROUND, AUDIO_SYNC, RESUME, LIVE_LATENCY, LIVE_CUSTOM, LIVE_PREROLL, LIVE_TUNE_TIMEOUT, LIVE_TUNE_TIMEOUT_SOURCES, LIVE_TUNE_TIMEOUT_SOURCE, LIVE_PREROLL_SOURCES, LIVE_PREROLL_SOURCE, EXTERNAL_PLAYER, RESET_PINS, RESET_LIVE_PINS, FORGET_FIXES, AFR_WARNING, AFR_PAUSE, VOD_BUFFER, VOD_TIMEOUT, VOD_RECONNECTS, TIMESHIFT_WINDOW, TIMESHIFT_RESUME, MAX_QUALITY, LIVE_PREVIEW_PANEL, MINI_PLAYER, MULTIVIEW_TILES, MULTIVIEW_WARNING }
 
 /** "Auto" for 0, else seconds ("60s") — the film buffer and network timeout choices. */
 @Composable

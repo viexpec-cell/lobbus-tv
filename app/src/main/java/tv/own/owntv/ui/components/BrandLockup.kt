@@ -1,6 +1,13 @@
 package tv.own.owntv.ui.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.tv.material3.Text
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -57,6 +64,12 @@ private fun accentTriangle(): Color? {
  */
 @Composable
 fun BrandMark(icon: AppIcon, size: Dp, modifier: Modifier = Modifier, followAccent: Boolean = true) {
+    // LOBBUS: o lobo da Lobbus no lugar da marca do OwnTV, em qualquer cor de ícone.
+    if (LOBBUS_BRAND) {
+        val tint = if (tv.own.owntv.ui.theme.LocalStagePalette.current.isLight) ColorFilter.tint(tv.own.owntv.ui.theme.StageColors.Text) else null
+        Image(painterResource(R.drawable.lobbus_mark), null, modifier.size(size), colorFilter = tint)
+        return
+    }
     val small = size <= 32.dp
     val accent = accentTriangle().takeIf { followAccent }
     if (icon == AppIcon.PIXEL && !small) {
@@ -106,6 +119,34 @@ private val PixelPower = Color(CorePixelMark.POWER)
  */
 @Composable
 fun Wordmark(width: Dp, modifier: Modifier = Modifier, tv: Color = stageAccent.accent, own: Color = WordmarkCream) {
+    if (LOBBUS_BRAND) {
+        // LOBBUS: "Lobbus" + pílula "TV" no laranja de destaque, na mesma caixa do wordmark original.
+        Row(
+            modifier.width(width).height(width * 182f / 988f),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(width * 0.04f),
+        ) {
+            val h = width * 182f / 988f
+            Image(
+                painterResource(R.drawable.lobbus_wordmark), null,
+                Modifier.height(h * 0.74f).width(h * 0.74f * 1080f / 234f),
+                colorFilter = ColorFilter.tint(own),
+            )
+            Box(
+                Modifier.height(h * 0.68f).background(tv, RoundedCornerShape(50)).padding(horizontal = h * 0.22f),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    stringResource(R.string.lobbus_tv_label),
+                    color = LobbusOnOrange,
+                    fontSize = with(LocalDensity.current) { (h * 0.40f).toSp() },
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                )
+            }
+        }
+        return
+    }
     Box(modifier.width(width).height(width * 182f / 988f)) {
         Image(painterResource(R.drawable.owntv_wordmark_own), null, Modifier.fillMaxSize(), colorFilter = ColorFilter.tint(own))
         Image(painterResource(R.drawable.owntv_wordmark_tv), null, Modifier.fillMaxSize(), colorFilter = ColorFilter.tint(tv))
@@ -113,6 +154,12 @@ fun Wordmark(width: Dp, modifier: Modifier = Modifier, tv: Color = stageAccent.a
 }
 
 val WordmarkCream = Color(0xFFFFF6EE)
+
+/** LOBBUS: liga a marca da Lobbus no lugar da do OwnTV (lobo, "Lobbus" e a pílula "TV"). */
+private const val LOBBUS_BRAND = true
+
+/** LOBBUS: texto sobre o laranja (on-orange do design system). Nunca branco sobre laranja. */
+private val LobbusOnOrange = Color(0xFF140C06)
 
 /**
  * The lockup (Brand tab, C column): the mark, then the wordmark at 2.75 × the mark's width (62 →

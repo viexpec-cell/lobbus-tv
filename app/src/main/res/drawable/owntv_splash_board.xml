@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- LOBBUS: substitui o recurso de marca do OwnTV (vem do :core). Gerado para todas as cores de ícone. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:width="108dp" android:height="108dp" android:gravity="center"
+        android:drawable="@mipmap/lobbus_icon_foreground"/>
+</layer-list>

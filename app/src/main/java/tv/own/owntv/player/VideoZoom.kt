@@ -8,7 +8,10 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -40,11 +43,19 @@ fun Modifier.videoZoom(
         // No video dimensions yet — just fill the slot.
         return fillMaxSize()
     }
-    val cw = maxWidth
-    val ch = maxHeight
+    // LOBBUS: moldura (ver tv.own.owntv.lobbus.PictureFrame). Só em tela cheia (contêiner com pelo menos
+    // 90% da largura da tela) e só nos modos que encaixam a imagem inteira: FIT, 16:9, 4:3 e STRETCH.
+    // FILL e ORIGINAL são cortes escolhidos de propósito e ficam como estão.
+    val frame by tv.own.owntv.lobbus.PictureFramePrefs.frame.collectAsState()
+    val screenW = LocalConfiguration.current.screenWidthDp
+    val fullScreen = screenW > 0 && maxWidth.value >= screenW * 0.9f
+    val framed = zoom != ZoomMode.FILL && zoom != ZoomMode.ORIGINAL
+    val s = if (fullScreen && framed) frame.scaleFor(videoSize?.second) else 1f
+    val cw = maxWidth * s
+    val ch = maxHeight * s
     val containerAspect = cw.value / ch.value
     return when (zoom) {
-        ZoomMode.STRETCH -> fillMaxSize()
+        ZoomMode.STRETCH -> if (s < 1f) width(cw).height(ch) else fillMaxSize()
         ZoomMode.ORIGINAL -> {
             val vs = videoSize
             if (vs != null && vs.first > 0 && vs.second > 0) {

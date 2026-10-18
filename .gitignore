@@ -17,7 +17,8 @@ local.properties
 .serena/
 .codegraph/
 .zcode/
-CLAUDE.md
+# LOBBUS: o CLAUDE.md da raiz é versionado (instruções do projeto para o Claude Code)
+/.claude/CLAUDE.md
 AGENT_HANDOVER.md
 
 # Signing keys & secrets — NEVER commit these

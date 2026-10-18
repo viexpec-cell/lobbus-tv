@@ -1,3 +1,14 @@
+# Lobbus TV
+
+Player pessoal para Google TV da Agência Lobbus: canais ao vivo, filmes e séries de uma fonte Xtream com guia, no visual da Lobbus. **Não fornece nenhum canal, lista ou conteúdo.**
+
+- Instalar na TV: app **Downloader** e o link `https://github.com/viexpec-cell/lobbus-tv/releases/latest/download/LobbusTV.apk`
+- Plano e estado do projeto: [`docs/lobbus/PLANO.md`](docs/lobbus/PLANO.md) · Regras para quem programa: [`CLAUDE.md`](CLAUDE.md)
+
+**Baseado no [OwnTV](https://github.com/ahXN00/OwnTV)** (GPLv3), de ahXN00 e colaboradores. Este fork continua sob a GPLv3 e mantém os créditos abaixo. O README original do OwnTV segue a partir daqui.
+
+---
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: light)" srcset="extras/brand/app-logos/logo_eggshell_light.png">

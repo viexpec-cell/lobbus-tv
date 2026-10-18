@@ -317,10 +317,20 @@ internal fun ZoomDialog(current: ZoomMode, onSelect: (ZoomMode) -> Unit, onDismi
     BackHandler { onDismiss() }
     // Land focus on the current mode (not always the first row) so re-opening starts on your selection.
     val selectedIndex = ZoomMode.entries.indexOf(current).coerceAtLeast(0)
+    // LOBBUS: a moldura da imagem fica no mesmo menu, logo abaixo dos modos de zoom.
+    val frame by tv.own.owntv.lobbus.PictureFramePrefs.frame.collectAsStateWithLifecycle()
     DialogScaffold(title = stringResource(R.string.settings_player_zoom), onDismiss = onDismiss) {
         items(ZoomMode.entries.size) { index ->
             val mode = ZoomMode.entries[index]
             OptionRow(label = stringResource(mode.labelRes), selected = mode == current, modifier = if (index == selectedIndex) Modifier.focusRequester(focus) else Modifier, onClick = { onSelect(mode) })
+        }
+        items(tv.own.owntv.lobbus.PictureFrame.entries.size) { index ->
+            val option = tv.own.owntv.lobbus.PictureFrame.entries[index]
+            OptionRow(
+                label = stringResource(option.labelRes),
+                selected = option == frame,
+                onClick = { tv.own.owntv.lobbus.PictureFramePrefs.set(option); onDismiss() },
+            )
         }
     }
 }
