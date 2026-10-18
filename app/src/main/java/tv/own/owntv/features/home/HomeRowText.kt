@@ -1,18 +1,10 @@
 package tv.own.owntv.features.home
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
-import androidx.tv.material3.Text
-import tv.own.owntv.ui.theme.StageColors
+import tv.own.owntv.lobbus.home.LobbusTituloFileira
 import tv.own.owntv.ui.theme.mpx
-import tv.own.owntv.ui.theme.stageText
 import tv.own.owntv.R
 import tv.own.owntv.core.model.HomeLiveRowMode
 import tv.own.owntv.core.model.HomeRow
@@ -61,23 +53,23 @@ fun durationText(minutes: Long): String =
 fun timeLeftText(minutes: Long): String = stringResource(R.string.home_time_left, durationText(minutes))
 
 /**
- * `.rowh`: a Home row's title in 26/800 (27 under the full hero), with an optional dim 17/700 word
- * after it — the count ("Keep watching 5") or "On now". Cards start 46 below its top (48 under the hero).
+ * `.rowh`: a Home row's title, with an optional dim word after it — the count ("Keep watching 5")
+ * or "On now". Cards start 46 below its top (48 under the hero).
+ *
+ * LOBBUS: the Lobbus prototype draws this header its own way (last word in the accent with a full
+ * stop, counter in Geist Mono after it), so the drawing lives in `lobbus/home/LobbusHeroi.kt` and
+ * this stays the one place Home asks for a header. [ordem] is the section number the counter shows
+ * ("[02] 5 TÍTULOS"); null leaves the counter unnumbered.
  */
 @Composable
-fun HomeRowHeader(title: String, small: String?, start: Dp, big: Boolean = false) {
-    Row(
-        Modifier.padding(start = start).height((if (big) 48 else 46).mpx),
-        horizontalArrangement = Arrangement.spacedBy(14.mpx),
-    ) {
-        Text(
-            title, style = stageText(if (big) 27 else 26, 800), color = StageColors.Text, maxLines = 1,
-            overflow = TextOverflow.Ellipsis, modifier = Modifier.alignByBaseline(),
-        )
-        if (small != null) {
-            Text(small, style = stageText(17, 700), color = StageColors.Dim, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.alignByBaseline())
-        }
-    }
+fun HomeRowHeader(title: String, small: String?, start: Dp, big: Boolean = false, ordem: Int? = null) {
+    LobbusTituloFileira(
+        titulo = title,
+        contador = small,
+        ordem = ordem,
+        altura = (if (big) 48 else 46).mpx,
+        inicio = start,
+    )
 }
 
 @Composable

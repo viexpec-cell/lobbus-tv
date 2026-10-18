@@ -255,6 +255,11 @@ fun StageButton(
     height: Dp = 64.mpx,
     textSize: Int = 22,
     tinted: Boolean = false,
+    /**
+     * LOBBUS: the one call to action of a screen, filled with the accent whether it holds focus or
+     * not (the prototype's "Assistir"). Focus then shows as the ring and the lift alone.
+     */
+    filled: Boolean = false,
     /** A glyph after the label: the ▾ of "● Record ▾". */
     trailingIcon: OwnTVIcon? = null,
 ) {
@@ -265,10 +270,14 @@ fun StageButton(
         radius = r,
         modifier = modifier.height(height).then(if (round) Modifier.width(height) else Modifier),
         focusStyle = StageFocus.PRIMARY,
-        idle = if (tinted) Modifier.background(a.accent.copy(alpha = 0.2f), RoundedCornerShape(r)) else Modifier.stageGlass(r),
+        idle = when {
+            filled -> Modifier.background(a.accent, RoundedCornerShape(r))
+            tinted -> Modifier.background(a.accent.copy(alpha = 0.2f), RoundedCornerShape(r))
+            else -> Modifier.stageGlass(r)
+        },
         contentAlignment = Alignment.Center,
     ) { focused ->
-        val color = if (focused) a.onAccent else if (tinted) a.accent else StageColors.Text
+        val color = if (focused || filled) a.onAccent else if (tinted) a.accent else StageColors.Text
         Row(
             Modifier.then(if (round) Modifier else Modifier.padding(horizontal = 30.mpx)),
             horizontalArrangement = Arrangement.spacedBy(12.mpx),

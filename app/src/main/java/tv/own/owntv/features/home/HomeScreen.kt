@@ -1,6 +1,5 @@
 package tv.own.owntv.features.home
 
-import tv.own.owntv.ui.theme.stageTone
 import tv.own.owntv.ui.stage.backdropLeftWash
 import android.graphics.SurfaceTexture
 import android.view.Surface
@@ -52,7 +51,6 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -61,7 +59,6 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -98,12 +95,15 @@ import tv.own.owntv.ui.stage.StageFocus
 import tv.own.owntv.ui.stage.StagePoster
 import tv.own.owntv.ui.stage.StageStill
 import tv.own.owntv.ui.stage.StageSurface
-import tv.own.owntv.ui.stage.StageTag
 import tv.own.owntv.ui.theme.StageColors
 import tv.own.owntv.ui.theme.dissolveEdges
 import tv.own.owntv.ui.theme.mpx
 import tv.own.owntv.ui.theme.mpxSp
 import tv.own.owntv.ui.theme.stageAccent
+import tv.own.owntv.lobbus.home.LobbusMetaHeroi
+import tv.own.owntv.lobbus.home.LobbusSinopse
+import tv.own.owntv.lobbus.home.LobbusSobrancelha
+import tv.own.owntv.lobbus.home.LobbusTituloHeroi
 import tv.own.owntv.ui.theme.stageText
 import java.util.Locale
 
@@ -374,7 +374,7 @@ fun HomeScreen(
                 contentPadding = PaddingValues(top = if (fullBleed || posterItem != null) 0.dp else NoHeroTop, bottom = 48.mpx),
                 verticalArrangement = Arrangement.spacedBy(RowGap),
             ) {
-                itemsIndexed(renderRows, key = { _, row -> row.name }) { _, row ->
+                itemsIndexed(renderRows, key = { _, row -> row.name }) { ordemDaFileira, row ->
                     val firstItemFocusRequester = rowFocusRequester(row)
                     val rowModifier = if (row == firstRowUnderHero) unfoldOnUp else Modifier
                     when (row) {
@@ -389,6 +389,7 @@ fun HomeScreen(
                                 bottomGap = if (posterItem != null) 10.mpx else 0.dp,
                                 onItemFocused = { posterIndex = it },
                                 title = row.displayTitle(),
+                                ordem = ordemDaFileira + 1,
                                 items = state.trendingItems,
                                 start = contentStart,
                                 onItemClick = { item ->
@@ -463,6 +464,7 @@ fun HomeScreen(
                         HomeRow.HERO -> if (state.heroItems.isNotEmpty()) {
                             KeepWatchingRow(
                                 title = row.displayTitle(),
+                                ordem = ordemDaFileira + 1,
                                 items = state.heroItems,
                                 big = fullBleed && !inRows,
                                 start = contentStart,
@@ -543,6 +545,7 @@ fun HomeScreen(
 
                         HomeRow.FAVORITE_MOVIES -> FavoritePosterRow(
                             title = row.displayTitle(),
+                            ordem = ordemDaFileira + 1,
                             items = state.favoriteMovies,
                             key = { it.id },
                             name = { it.name },
@@ -557,6 +560,7 @@ fun HomeScreen(
 
                         HomeRow.FAVORITE_SERIES -> FavoritePosterRow(
                             title = row.displayTitle(),
+                            ordem = ordemDaFileira + 1,
                             items = state.favoriteSeries,
                             key = { it.id },
                             name = { it.name },
@@ -571,6 +575,7 @@ fun HomeScreen(
 
                         HomeRow.CONTINUE_MOVIES -> ContinuePosterRow(
                             title = row.displayTitle(),
+                            ordem = ordemDaFileira + 1,
                             items = state.continueMovies,
                             start = contentStart,
                             onItemClick = { onPlayMovie(it.sourceItemId, it.positionMs) },
@@ -582,6 +587,7 @@ fun HomeScreen(
 
                         HomeRow.CONTINUE_SERIES -> ContinuePosterRow(
                             title = row.displayTitle(),
+                            ordem = ordemDaFileira + 1,
                             items = state.continueSeries,
                             start = contentStart,
                             onItemClick = { onPlayEpisode(0L, it.targetItemId, it.positionMs) },
@@ -707,25 +713,20 @@ private fun TrendingBackdrop(item: TrendingHomeItem, folded: Boolean, modifier: 
     }
 }
 
-/** "↗ #3 in Trending · Movies": 18/700 in the accent. */
+/**
+ * LOBBUS: the prototype's eyebrow, "[01] EM ALTA HOJE ──── FILME", drawn by
+ * [tv.own.owntv.lobbus.home.LobbusSobrancelha]. The number is the section's place on screen, so the
+ * hero is always `[01]`; the trending rank itself is what orders the row behind it.
+ */
 @Composable
-private fun TrendingEyebrow(item: TrendingHomeItem, withTag: Boolean) {
-    val accent = stageAccent.accent
-    Row(horizontalArrangement = Arrangement.spacedBy(10.mpx), verticalAlignment = Alignment.CenterVertically) {
-        OwnTVIcon(OwnTVIcon.TREND, tint = accent, modifier = Modifier.size(18.mpx))
-        Text(
-            stringResource(
-                R.string.home_trending_rank,
-                item.snapshot.trendingRank,
-                stringResource(if (item is TrendingHomeItem.Movie) R.string.common_nav_movies else R.string.common_nav_series),
-            ),
-            style = stageText(18, 700, 0.02f.em()), color = accent, maxLines = 1, overflow = TextOverflow.Ellipsis,
-        )
-        if (withTag) {
-            Spacer(Modifier.width(6.mpx))
-            StageTag(stringResource(R.string.home_trending_in_playlist))
-        }
-    }
+private fun TrendingEyebrow(item: TrendingHomeItem) {
+    LobbusSobrancelha(
+        ordem = 1,
+        rotulo = stringResource(R.string.home_row_now_trending),
+        tipo = stringResource(
+            if (item is TrendingHomeItem.Movie) R.string.lobbus_tipo_filme else R.string.lobbus_tipo_serie,
+        ),
+    )
 }
 
 /**
@@ -738,8 +739,6 @@ internal fun Modifier.tracked(requester: FocusRequester? = null, track: (FocusRe
     return (if (requester == null) focusRequester(own) else this)
         .onFocusChanged { if (it.hasFocus) track(requester ?: own) }
 }
-
-private fun Float.em() = androidx.compose.ui.unit.TextUnit(this, androidx.compose.ui.unit.TextUnitType.Em)
 
 @Composable
 private fun TrendingHero(
@@ -798,7 +797,10 @@ private fun TrendingHero(
     }
 
     val snapshot = item.snapshot
-    val quality = ProviderVariantParser.displaySignals(snapshot.providerRawName).quality.label
+    // LOBBUS: the prototype shows every signal the provider advertises as its own chip (4K, Dolby
+    // Vision, Atmos), not just the quality one.
+    val signals = ProviderVariantParser.displaySignals(snapshot.providerRawName)
+    val heroTags = listOfNotNull(signals.quality.label) + signals.capabilities
     val runtime = when (item) {
         is TrendingHomeItem.Movie -> item.movie.durationSecs?.takeIf { it >= 60 }?.let { durationText(it / 60L) }
         is TrendingHomeItem.Series -> seasonCount?.let { pluralStringResource(R.plurals.home_trending_seasons, it, it) }
@@ -826,64 +828,27 @@ private fun TrendingHero(
             Modifier.padding(start = start, top = 170.mpx - HeroLift).width(900.mpx)
                 .wrapContentHeight(Alignment.Top, unbounded = true),
         ) {
-            TrendingEyebrow(item, withTag = true)
+            TrendingEyebrow(item)
             // 18 in the design; Compose's trimmed 112 line box starts its glyphs 10 px lower than
             // Chrome's `line-height: 1` box (measured on the TV).
             Spacer(Modifier.height(8.mpx))
-            // The title art when TMDB has it, as the films and series hero do; the text title otherwise,
-            // and if the art fails to load. 170 high, the room the films hero gives it.
-            var logoFailed by remember(extras.logoUrl) { mutableStateOf(false) }
-            val showLogo = !extras.logoUrl.isNullOrBlank() && !logoFailed
-            if (showLogo) {
-                tv.own.owntv.ui.stage.StageTitleArt(
-                    url = extras.logoUrl,
-                    contentDescription = snapshot.localizedTitle,
-                    onFailed = { logoFailed = true },
-                    modifier = Modifier.fillMaxWidth().height(170.mpx),
-                )
-            } else {
-                Text(
-                    snapshot.localizedTitle,
-                    style = stageText(112, 800, (-3).mpxSp).copy(
-                        lineHeight = 112.mpxSp,
-                        lineHeightStyle = LineHeightStyle(LineHeightStyle.Alignment.Center, LineHeightStyle.Trim.Both),
-                    ),
-                    color = StageColors.Text,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    onTextLayout = { titleLines = it.lineCount },
-                )
-            }
+            // LOBBUS: the typographic title of the prototype, in place of TMDB's title art: the mixed
+            // fill, outline and accent with a full stop is the signature of the screen, and art would
+            // bring another brand's lettering into it.
+            LobbusTituloHeroi(snapshot.localizedTitle) { titleLines = it }
             Spacer(Modifier.height(18.mpx))
-            Row(horizontalArrangement = Arrangement.spacedBy(16.mpx), verticalAlignment = Alignment.CenterVertically) {
-                val metaStyle = stageText(21, 600)
-                val metaColor = stageTone(Color(0xFFD9CCC1), StageColors.Body)
-                meta.forEachIndexed { i, part ->
-                    if (i > 0) Text("•", style = metaStyle, color = metaColor.copy(alpha = 0.4f))
-                    Text(part, style = metaStyle, color = metaColor, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                }
-                snapshot.rating?.let { rating ->
-                    if (meta.isNotEmpty()) Text("•", style = metaStyle, color = metaColor.copy(alpha = 0.4f))
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.mpx), verticalAlignment = Alignment.CenterVertically) {
-                        Text("★", style = metaStyle, color = StageColors.RatingStar)
-                        Text(ratingText(rating), style = metaStyle, color = metaColor)
-                    }
-                }
-                quality?.let { StageTag(it) }
-            }
+            LobbusMetaHeroi(
+                nota = snapshot.rating?.let { ratingText(it) },
+                partes = meta,
+                // No age rating reaches the hero today; the prototype's "16" chip waits for data.
+                classificacao = null,
+                etiquetas = heroTags,
+            )
             snapshot.overview?.takeIf { it.isNotBlank() }?.let { overview ->
                 Spacer(Modifier.height(20.mpx))
-                Text(
-                    overview,
-                    style = stageText(22, 400).copy(lineHeight = (22 * 1.55f).mpxSp),
-                    color = StageColors.Body,
-                    // Four lines as drawn; a title that needs a second line (112 high) takes three of
-                    // them, so the pager still ends above the Keep watching heading.
-                    // The title art is 170 high, 58 more than one title line, so it costs two of them.
-                    maxLines = if (titleLines > 1) 1 else if (showLogo) 2 else 4,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.widthIn(max = 760.mpx),
-                )
+                // Four lines as drawn; a title that needs a second line (112 high) takes three of them,
+                // so the pager still ends above the Keep watching heading.
+                LobbusSinopse(overview, maxLinhas = if (titleLines > 1) 1 else 4)
             }
             Spacer(Modifier.height(36.mpx))
             Row(horizontalArrangement = Arrangement.spacedBy(14.mpx), verticalAlignment = Alignment.CenterVertically) {
@@ -897,6 +862,8 @@ private fun TrendingHero(
                         onClick = { onActivate(item) },
                         icon = if (isMovie) OwnTVIcon.PLAY else OwnTVIcon.SERIES,
                         iconFilled = isMovie,
+                        // LOBBUS: the prototype keeps this one orange at rest, as the call to action.
+                        filled = true,
                         modifier = Modifier.focusRequester(primaryFocusRequester).tracked(primaryFocusRequester, track),
                     )
                     if (!snapshot.trailerKey.isNullOrBlank()) {
@@ -948,7 +915,7 @@ private fun TrendingHero(
 private fun FoldedHeroLine(item: TrendingHomeItem, start: Dp, height: Dp = CompactHeroHeight) {
     Box(Modifier.fillMaxWidth().height(height).padding(start = start, top = 64.mpx)) {
         Column {
-            TrendingEyebrow(item, withTag = false)
+            TrendingEyebrow(item)
             // 8 in the design; Compose's 60 px line box starts its glyphs 13 px higher than
             // Chrome's (measured on the TV).
             Spacer(Modifier.height(21.mpx))
@@ -1016,6 +983,8 @@ private fun TrendingPager(count: Int, activeIndex: Int, progress: Float, onNavig
 @Composable
 private fun KeepWatchingRow(
     title: String,
+    // LOBBUS: o número da seção que o contador mostra ("[02] 5 TÍTULOS").
+    ordem: Int? = null,
     items: List<HeroItem>,
     big: Boolean,
     start: Dp,
@@ -1032,7 +1001,7 @@ private fun KeepWatchingRow(
     val w = if (big) 384 else 336
     val h = if (big) 216 else 189
     Column(modifier) {
-        HomeRowHeader(title, small = if (big) null else items.size.toString(), start = start, big = big)
+        HomeRowHeader(title, small = if (big) null else stringResource(R.string.lobbus_fileira_titulos, items.size), start = start, big = big, ordem = ordem)
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy((if (big) 24 else 20).mpx),
             contentPadding = PaddingValues(start = start, end = 64.mpx),
@@ -1160,6 +1129,8 @@ internal fun relativeLastWatchedLabel(lastEngagementAt: Long, nowMs: Long): Stri
 @Composable
 private fun ContinuePosterRow(
     title: String,
+    // LOBBUS: o número da seção que o contador mostra ("[02] 5 TÍTULOS").
+    ordem: Int? = null,
     items: List<LauncherContinuationItem>,
     start: Dp,
     onItemClick: (LauncherContinuationItem) -> Unit,
@@ -1169,7 +1140,7 @@ private fun ContinuePosterRow(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier) {
-        HomeRowHeader(title, small = items.size.toString(), start = start)
+        HomeRowHeader(title, small = stringResource(R.string.lobbus_fileira_titulos, items.size), start = start, ordem = ordem)
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(20.mpx),
             contentPadding = PaddingValues(start = start, end = 64.mpx),
@@ -1197,6 +1168,8 @@ private fun ContinuePosterRow(
 @Composable
 private fun <T> FavoritePosterRow(
     title: String,
+    // LOBBUS: o número da seção que o contador mostra ("[02] 5 TÍTULOS").
+    ordem: Int? = null,
     items: List<T>,
     key: (T) -> Long,
     name: (T) -> String,
@@ -1209,7 +1182,7 @@ private fun <T> FavoritePosterRow(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier) {
-        HomeRowHeader(title, small = items.size.toString(), start = start)
+        HomeRowHeader(title, small = stringResource(R.string.lobbus_fileira_titulos, items.size), start = start, ordem = ordem)
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(20.mpx),
             contentPadding = PaddingValues(start = start, end = 64.mpx),
@@ -1240,6 +1213,8 @@ private fun <T> FavoritePosterRow(
 @Composable
 private fun TrendingPosterRow(
     title: String,
+    // LOBBUS: o número da seção que o contador mostra ("[02] 5 TÍTULOS").
+    ordem: Int? = null,
     items: List<TrendingHomeItem>,
     start: Dp,
     onItemClick: (TrendingHomeItem) -> Unit,
@@ -1251,7 +1226,7 @@ private fun TrendingPosterRow(
     onItemFocused: (Int) -> Unit = {},
 ) {
     Column {
-        HomeRowHeader(title, small = null, start = start)
+        HomeRowHeader(title, small = null, start = start, ordem = ordem)
         Spacer(Modifier.height(headerGap))
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(20.mpx),

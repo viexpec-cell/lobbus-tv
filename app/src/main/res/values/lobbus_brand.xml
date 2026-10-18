@@ -7,6 +7,13 @@
     <string name="settings_font_plus_jakarta_sans" translatable="false">Montserrat</string>
     <string name="lobbus_accent_orange" translatable="false">Laranja Lobbus</string>
     <string name="lobbus_tv_label" translatable="false">TV</string>
+    <!-- Telas assinatura (Fase 4): numeração das seções, ponto final dos títulos e contador das fileiras. -->
+    <string name="lobbus_indice_secao" translatable="false">[%1$02d]</string>
+    <string name="lobbus_titulo_ponto_final" translatable="false">%1$s.</string>
+    <string name="lobbus_fileira_contador" translatable="false">[%1$02d] %2$s</string>
+    <string name="lobbus_fileira_titulos" translatable="false">%1$d TÍTULOS</string>
+    <string name="lobbus_tipo_filme" translatable="false">Filme</string>
+    <string name="lobbus_tipo_serie" translatable="false">Série</string>
     <!-- Moldura da imagem (player em tela cheia). -->
     <string name="lobbus_frame_title" translatable="false">Moldura da imagem</string>
     <string name="lobbus_frame_description" translatable="false">Mostra o vídeo um pouco menor, com bordas pretas, para ganhar nitidez em canais Full HD numa TV 4K. Nunca estica a imagem.</string>
