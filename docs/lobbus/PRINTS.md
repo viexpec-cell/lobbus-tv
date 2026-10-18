@@ -27,6 +27,20 @@ Pré-requisitos numa máquina limpa:
 A primeira execução baixa as dependências e também o runtime do Android que o Robolectric usa
 (`android-all`, algumas centenas de MB). Da segunda em diante é tudo cache.
 
+Se o Maven Central responder **429** (acontece em rede compartilhada), use o espelho do Google num
+init script **fora do repositório**, em `~/.gradle/init.d/espelho.gradle.kts`:
+
+```kotlin
+settingsEvaluated {
+    dependencyResolutionManagement.repositories {
+        maven {
+            name = "EspelhoMavenCentral"
+            url = uri("https://maven-central.storage-download.googleapis.com/maven2")
+        }
+    }
+}
+```
+
 ## Onde os PNGs caem
 
 Em `docs/lobbus/prints/`, um arquivo por print, sempre com o mesmo nome, para o `git diff` mostrar o
