@@ -25,7 +25,15 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 // SDK 37 é o compileSdk do app e o Robolectric 4.17 tem o runtime dele. Se um dia faltar o
 // android-all dessa API, baixe para `sdk = [36]` e anote em PRINTS.md.
-@Config(sdk = [37], qualifiers = LobbusPrint.QUALIFICADORES)
+//
+// `application`: um Application vazio, não o `OwnTVApp` do manifesto. O arranque de verdade sobe
+// Koin, banco, player e bibliotecas nativas, e derruba a JVM do teste (saída 2, sem stack). Um
+// print só precisa do Compose e do tema, então o teste não boota o app.
+@Config(
+    sdk = [37],
+    qualifiers = LobbusPrint.QUALIFICADORES,
+    application = android.app.Application::class,
+)
 class PrintsDasTelasTest {
 
     @get:Rule

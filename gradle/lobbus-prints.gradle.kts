@@ -23,6 +23,10 @@ dependencies {
     add("testImplementation", platform("androidx.compose:compose-bom:${versao("composeBom")}"))
     add("testImplementation", "androidx.compose.ui:ui-test-junit4")
     add("testImplementation", "androidx.test.ext:junit:${versao("junitExt")}")
+    // Espresso novo, acima do 3.5.1 que vem de carona no ui-test-junit4: o antigo procura
+    // `InputManager.getInstance()` por reflexão, método que não existe mais na API 37, e
+    // derruba todo `waitForIdle()`. Versão do catálogo, a mesma do resto do projeto.
+    add("testImplementation", "androidx.test.espresso:espresso-core:${versao("espressoCore")}")
     add("testImplementation", "org.robolectric:robolectric:${versao("robolectricLobbus")}")
     add("testImplementation", "io.github.takahirom.roborazzi:roborazzi:${versao("roborazziLobbus")}")
     add("testImplementation", "io.github.takahirom.roborazzi:roborazzi-compose:${versao("roborazziLobbus")}")
@@ -37,6 +41,20 @@ val gerandoPrints: Boolean = gradle.startParameter.taskNames.any {
     it.substringAfterLast(':').equals("lobbusPrints", ignoreCase = true)
 }
 
+// O Robolectric baixa o runtime do Android (`android-all`) por conta própria, direto do Maven
+// Central, sem passar pelos repositórios do Gradle: o espelho de um init script não o alcança.
+// Em rede compartilhada o repo1 responde 429 e a tarefa morre antes do primeiro print, então o
+// espelho entra aqui, sempre de fora do repositório:
+//
+//   ./gradlew :app:lobbusPrints -Plobbus.prints.espelhoMaven=https://.../maven2
+//   LOBBUS_PRINTS_ESPELHO=https://.../maven2 ./gradlew :app:lobbusPrints
+//
+// Sem nenhum dos dois, fica o padrão do Robolectric, que é o próprio Maven Central.
+val espelhoMaven: String? = (
+    providers.gradleProperty("lobbus.prints.espelhoMaven").orNull
+        ?: System.getenv("LOBBUS_PRINTS_ESPELHO")
+    )?.takeIf { it.isNotBlank() }
+
 tasks.withType<Test>().configureEach {
     // Onde o LobbusPrint grava os arquivos.
     systemProperty("lobbus.prints.dir", pastaDosPrints.absolutePath)
@@ -49,6 +67,21 @@ tasks.withType<Test>().configureEach {
     systemProperty("roborazzi.test.record", "true")
     // Uma tela 1920×1080 em bitmap ARGB consome memória; o padrão de 512 MB não basta.
     maxHeapSize = "4g"
+
+    // O runtime do Android 17 cria memória compartilhada no arranque e o Robolectric alcança o
+    // FileDescriptor por reflexão, em `jdk.internal.access`, que o JDK 21 não exporta por padrão.
+    // Sem estas duas linhas todo teste de print morre em "Failed to interact with raw
+    // FileDescriptor internals".
+    jvmArgs(
+        "--add-exports=java.base/jdk.internal.access=ALL-UNNAMED",
+        "--add-opens=java.base/jdk.internal.access=ALL-UNNAMED",
+    )
+
+    // Espelho do Maven Central só para o download do `android-all`, quando houver um configurado.
+    espelhoMaven?.let { url ->
+        systemProperty("robolectric.dependency.repo.url", url)
+        systemProperty("robolectric.dependency.repo.id", "espelho-maven-central")
+    }
 
     if (gerandoPrints) {
         filter { includeTestsMatching("tv.own.owntv.lobbus.prints.*") }
