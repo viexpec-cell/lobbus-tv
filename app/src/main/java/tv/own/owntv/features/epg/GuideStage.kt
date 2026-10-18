@@ -198,7 +198,7 @@ internal fun GuideProgrammeBlock(
         if (details != null) Text(details, style = stageText(19, 400), color = StageColors.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis)
         Text(
             synopsis.orEmpty(),
-            style = stageText(19, 400).copy(lineHeight = (19 * 1.5f).mpxSp), color = stageTone(Color(0xFFCCD6D2), StageColors.Body),
+            style = stageText(19, 400).copy(lineHeight = (19 * 1.5f).mpxSp), color = stageTone(Color(0xFFD0C3B8), StageColors.Body),
             maxLines = 2, minLines = 2, overflow = TextOverflow.Ellipsis,
             modifier = Modifier.widthIn(max = 1000.mpx).padding(top = 12.mpx, bottom = 20.mpx),
         )
@@ -797,7 +797,7 @@ private fun GuideReviewRow(
         Text(s.channel.name, style = stageText(20, 700), color = StageColors.Text, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.width(300.mpx))
         Text("→", style = stageText(22, 400), color = StageColors.Dim)
         Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(8.mpx), verticalAlignment = Alignment.CenterVertically) {
-            Text(s.epgName ?: s.epgChannelId, style = stageText(18, 400), color = stageTone(Color(0xFFD3DCD8), StageColors.Body), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+            Text(s.epgName ?: s.epgChannelId, style = stageText(18, 400), color = stageTone(Color(0xFFD9CCC1), StageColors.Body), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
             Text(
                 stringResource(R.string.common_percent, (s.score * 100).toInt()),
                 style = stageText(15, 800), color = LocalStagePalette.current.chipWarnText, maxLines = 1, overflow = TextOverflow.Ellipsis,

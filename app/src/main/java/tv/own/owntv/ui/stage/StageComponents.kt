@@ -803,7 +803,7 @@ fun StagePoster(
     val focused by interaction.collectIsFocusedAsState()
     val accent = stageAccent
     val r = StageRadii.Poster
-    val badge = Color(8, 12, 14)
+    val badge = Color(13, 9, 6)
     Column(
         modifier
             .width(width)
@@ -911,7 +911,7 @@ fun StageStill(
             }
         }
         Spacer(Modifier.height(12.mpx))
-        Text(title, style = stageText(titleSize, 700), color = stageTone(Color(0xFFE6EEEA), StageColors.Text), maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(title, style = stageText(titleSize, 700), color = stageTone(Color(0xFFEDE4DC), StageColors.Text), maxLines = 1, overflow = TextOverflow.Ellipsis)
         if (line != null) {
             Spacer(Modifier.height((if (lineSize >= 16) 4 else 3).mpx))
             Text(line, style = stageText(lineSize, 400), color = StageColors.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -951,7 +951,7 @@ fun StageEpisode(
     val focused by interaction.collectIsFocusedAsState()
     val accent = stageAccent
     val r = StageRadii.Poster
-    val badge = Color(8, 12, 14)
+    val badge = Color(13, 9, 6)
     Column(
         modifier
             .width(width)
@@ -1067,7 +1067,7 @@ fun StageRatingChip(rating: String, modifier: Modifier = Modifier, small: Boolea
         modifier
             .height(if (small) 28.mpx else 32.mpx)
             .defaultMinSize(minWidth = if (small) 66.mpx else 76.mpx)
-            .background(Color(8, 12, 14).copy(alpha = 0.92f), RoundedCornerShape(10.mpx))
+            .background(Color(13, 9, 6).copy(alpha = 0.92f), RoundedCornerShape(10.mpx))
             .padding(horizontal = 10.mpx),
         horizontalArrangement = Arrangement.spacedBy(6.mpx),
         verticalAlignment = Alignment.CenterVertically,

@@ -4,6 +4,8 @@
     <string name="app_name" translatable="false">Lobbus TV</string>
     <string name="lobbus_about_based_on" translatable="false">Baseado no OwnTV</string>
     <string name="lobbus_about_credits" translatable="false">Software livre sob a licença GPLv3. Metadados do TMDB e legendas do OpenSubtitles, sem endosso desses serviços.</string>
+    <string name="settings_font_plus_jakarta_sans" translatable="false">Montserrat</string>
+    <string name="lobbus_accent_orange" translatable="false">Laranja Lobbus</string>
     <string name="lobbus_tv_label" translatable="false">TV</string>
     <!-- Moldura da imagem (player em tela cheia). -->
     <string name="lobbus_frame_title" translatable="false">Moldura da imagem</string>

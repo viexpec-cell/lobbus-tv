@@ -456,7 +456,7 @@ private fun AudioBtn(
             tint = when {
                 focused -> a.onAccent
                 favorite -> colors.favorite
-                else -> stageTone(Color(0xFFE6EEEA), StageColors.ItemText)
+                else -> stageTone(Color(0xFFEDE4DC), StageColors.ItemText)
             },
             filled = favorite || icon == OwnTVIcon.PLAY,
             modifier = Modifier.size(if (big) 24.mpx else 21.mpx),

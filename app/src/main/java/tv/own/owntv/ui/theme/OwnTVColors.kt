@@ -102,6 +102,26 @@ private fun rolesFrom(seed: Color, isDark: Boolean): AccentRoles {
 }
 
 /**
+ * LOBBUS: o laranja da Lobbus como papéis de acento. Texto sobre o laranja é sempre o on-orange
+ * #140C06 (5,9:1), nunca branco. O contêiner é um laranja queimado escuro, com texto âmbar.
+ */
+private fun lobbusAccentRoles(isDark: Boolean) = if (isDark) {
+    AccentRoles(
+        primary = Color(0xFFF2600C),
+        onPrimary = Color(0xFF140C06),
+        primaryContainer = Color(0xFF4A2410),
+        onPrimaryContainer = Color(0xFFFFE9DB),
+    )
+} else {
+    AccentRoles(
+        primary = Color(0xFFF2600C),
+        onPrimary = Color(0xFF140C06),
+        primaryContainer = Color(0xFFFFE9DB),
+        onPrimaryContainer = Color(0xFF6B2A05),
+    )
+}
+
+/**
  * Build the resolved M3 tokens for a theme (dark/light) and accent. A valid [customAccent] hex
  * overrides the preset (its tonal roles are generated from the seed color).
  *
@@ -114,20 +134,12 @@ fun ownTvColors(
     customAccent: String = "",
     focusHighlight: String = "",
 ): OwnTVColors {
-    val roles = parseAccentHex(customAccent)?.let { rolesFrom(it, isDark) } ?: AccentRoles(
-        primary = accent.primary(isDark),
-        onPrimary = accent.onPrimary(isDark),
-        primaryContainer = accent.primaryContainer(isDark),
-        onPrimaryContainer = accent.onPrimaryContainer(isDark),
-    )
+    // LOBBUS: sem cor personalizada, o acento é sempre o laranja da Lobbus (as cores prontas do OwnTV
+    // ficam de fora). Uma cor personalizada em hex continua valendo.
+    val roles = parseAccentHex(customAccent)?.let { rolesFrom(it, isDark) } ?: lobbusAccentRoles(isDark)
     val primary = roles.primary
     // Always the dark-surface tone of the same accent: the player HUD is dark chrome in every theme.
-    val onVideoRoles = parseAccentHex(customAccent)?.let { rolesFrom(it, true) } ?: AccentRoles(
-        primary = accent.primary(true),
-        onPrimary = accent.onPrimary(true),
-        primaryContainer = accent.primaryContainer(true),
-        onPrimaryContainer = accent.onPrimaryContainer(true),
-    )
+    val onVideoRoles = parseAccentHex(customAccent)?.let { rolesFrom(it, true) } ?: lobbusAccentRoles(true)
     val focus = parseAccentHex(focusHighlight) ?: primary
     return if (isDark) {
         OwnTVColors(

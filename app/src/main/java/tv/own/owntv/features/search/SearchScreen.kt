@@ -677,7 +677,7 @@ private fun PosterPanel(info: VodTitleInfo, series: Boolean, modifier: Modifier 
             )
             info.plot?.takeIf { it.isNotBlank() }?.let {
                 Text(
-                    it, style = stageText(19, 400).copy(lineHeight = (19 * 1.55f).mpxSp), color = stageTone(Color(0xFFCCD6D2), StageColors.Body),
+                    it, style = stageText(19, 400).copy(lineHeight = (19 * 1.55f).mpxSp), color = stageTone(Color(0xFFD0C3B8), StageColors.Body),
                     maxLines = 3, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 18.mpx, bottom = 22.mpx),
                 )
             }
@@ -736,7 +736,7 @@ private fun RecentRow(term: String, onClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             OwnTVIcon(OwnTVIcon.HISTORY, if (focused) a.onAccent else StageColors.Muted, Modifier.size(20.mpx))
-            Text(term, style = stageText(18.5f, 600), color = if (focused) a.onAccent else stageTone(Color(0xFFCDD7D3), StageColors.ItemText), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(term, style = stageText(18.5f, 600), color = if (focused) a.onAccent else stageTone(Color(0xFFD3C6BB), StageColors.ItemText), maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     }
 }

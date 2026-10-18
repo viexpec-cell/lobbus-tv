@@ -43,13 +43,21 @@ private val DancingScriptFamily = FontFamily(
     variableFont(R.font.dancing_script_variable, FontWeight.Bold),
 )
 
-// Stage's typeface: every weight it uses (400–800) from one variable file.
+// LOBBUS: a fonte padrão (a opção "Plus Jakarta Sans" do OwnTV) passa a ser a Montserrat da Lobbus,
+// em arquivos estáticos de 400 a 900. As outras fontes escolhíveis continuam iguais.
 private val PlusJakartaSansFamily = FontFamily(
-    variableFont(R.font.plus_jakarta_sans_variable, FontWeight.Normal),
-    variableFont(R.font.plus_jakarta_sans_variable, FontWeight.Medium),
-    variableFont(R.font.plus_jakarta_sans_variable, FontWeight.SemiBold),
-    variableFont(R.font.plus_jakarta_sans_variable, FontWeight.Bold),
-    variableFont(R.font.plus_jakarta_sans_variable, FontWeight.ExtraBold),
+    Font(R.font.montserrat_regular, FontWeight.Normal),
+    Font(R.font.montserrat_medium, FontWeight.Medium),
+    Font(R.font.montserrat_semibold, FontWeight.SemiBold),
+    Font(R.font.montserrat_bold, FontWeight.Bold),
+    Font(R.font.montserrat_extrabold, FontWeight.ExtraBold),
+    Font(R.font.montserrat_black, FontWeight.Black),
+)
+
+/** LOBBUS: Geist Mono, a fonte dos rótulos técnicos do design system (caixa alta, espaçada). */
+val LobbusMonoFamily = FontFamily(
+    Font(R.font.geist_mono_regular, FontWeight.Normal),
+    Font(R.font.geist_mono_medium, FontWeight.Medium),
 )
 
 private val PoppinsFamily = FontFamily(
@@ -83,7 +91,7 @@ val AppFontFamily.subtitleFontResource: Int
         AppFontFamily.PLAYFAIR_DISPLAY -> R.font.playfair_display_variable
         AppFontFamily.DANCING_SCRIPT -> R.font.dancing_script_variable
         AppFontFamily.POPPINS -> R.font.poppins_regular
-        AppFontFamily.PLUS_JAKARTA_SANS -> R.font.plus_jakarta_sans_variable
+        AppFontFamily.PLUS_JAKARTA_SANS -> R.font.montserrat_semibold // LOBBUS: Montserrat
         AppFontFamily.SYSTEM_SANS,
         AppFontFamily.MONOSPACE,
         -> 0

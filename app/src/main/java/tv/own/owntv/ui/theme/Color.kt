@@ -19,27 +19,29 @@ import tv.own.owntv.core.theme.OwnTVPalette
 // Brand mark color (the OwnTV play logo) — constant.
 val AccentCyan = Color(OwnTVPalette.AccentCyan)
 
-// ---------------- DARK (M3 dark over near-black #040e0b) ----------------
-val DarkBackground = Color(OwnTVPalette.DarkBackground) // Option A — nav + inter-panel gap surface
-val DarkSurface = Color(OwnTVPalette.DarkSurface)
-val DarkSurfaceContainerLowest = Color(OwnTVPalette.DarkSurfaceContainerLowest)
-val DarkSurfaceContainerLow = Color(OwnTVPalette.DarkSurfaceContainerLow)
-val DarkSurfaceContainer = Color(OwnTVPalette.DarkSurfaceContainer)
-val DarkSurfaceContainerHigh = Color(OwnTVPalette.DarkSurfaceContainerHigh)
-val DarkSurfaceContainerHighest = Color(OwnTVPalette.DarkSurfaceContainerHighest)
-val DarkOnSurface = Color(OwnTVPalette.DarkOnSurface)
-val DarkOnSurfaceVariant = Color(OwnTVPalette.DarkOnSurfaceVariant)
-val DarkOutline = Color(OwnTVPalette.DarkOutline)
-val DarkOutlineVariant = Color(OwnTVPalette.DarkOutlineVariant)
-val DarkSecondary = Color(OwnTVPalette.DarkSecondary)
-val DarkOnSecondary = Color(OwnTVPalette.DarkOnSecondary)
-val DarkSecondaryContainer = Color(OwnTVPalette.DarkSecondaryContainer)
-val DarkOnSecondaryContainer = Color(OwnTVPalette.DarkOnSecondaryContainer)
-val DarkTertiary = Color(OwnTVPalette.DarkTertiary)
-val DarkOnTertiary = Color(OwnTVPalette.DarkOnTertiary)
-val DarkTertiaryContainer = Color(OwnTVPalette.DarkTertiaryContainer)
-val DarkOnTertiaryContainer = Color(OwnTVPalette.DarkOnTertiaryContainer)
-val DarkError = Color(OwnTVPalette.DarkError)
+// ---------------- DARK ----------------
+// LOBBUS: neutros quentes do design system da Lobbus (grafite amarronzado, nunca cinza frio) no lugar
+// dos neutros esverdeados do OwnTV (OwnTVPalette). Os nomes ficam iguais para não mexer nas telas.
+val DarkBackground = Color(0xFF0D0906)            // ink
+val DarkSurface = Color(0xFF110C08)
+val DarkSurfaceContainerLowest = Color(0xFF0A0705)
+val DarkSurfaceContainerLow = Color(0xFF15100C)   // ink-2
+val DarkSurfaceContainer = Color(0xFF1A140F)
+val DarkSurfaceContainerHigh = Color(0xFF221A14)  // graphite
+val DarkSurfaceContainerHighest = Color(0xFF2E241C) // graphite-2
+val DarkOnSurface = Color(0xFFF6EFE9)             // text
+val DarkOnSurfaceVariant = Color(0xFFAB9C8F)      // muted
+val DarkOutline = Color(0xFF5A4C40)
+val DarkOutlineVariant = Color(0xFF2E241C)
+val DarkSecondary = Color(0xFFFFE9DB)             // amber
+val DarkOnSecondary = Color(0xFF140C06)
+val DarkSecondaryContainer = Color(0xFF3A2C21)
+val DarkOnSecondaryContainer = Color(0xFFFFE9DB)
+val DarkTertiary = Color(0xFFFF7A2E)              // orange-2
+val DarkOnTertiary = Color(0xFF140C06)
+val DarkTertiaryContainer = Color(0xFF4A2410)
+val DarkOnTertiaryContainer = Color(0xFFFFE9DB)
+val DarkError = Color(0xFFFF5A45)                 // danger
 
 // ---------------- LIGHT (M3 light) ----------------
 val LightBackground = Color(OwnTVPalette.LightBackground)

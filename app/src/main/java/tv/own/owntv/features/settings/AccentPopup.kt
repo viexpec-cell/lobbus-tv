@@ -87,7 +87,8 @@ fun AccentPopup(
     StageColorPopup(
         eyebrow = stringResource(R.string.settings_group_appearance),
         title = stringResource(R.string.settings_accent),
-        presets = AccentColor.entries.map { ac ->
+        // LOBBUS: uma só cor pronta, o laranja da Lobbus (as outras do OwnTV seriam iguais a ela).
+        presets = AccentColor.entries.take(1).map { ac ->
             ColorChoice(ac.primary(true), stringResource(ac.labelRes)) { onPickCustom(""); onPickPreset(ac) }
         },
         start = parseAccentHex(customAccent) ?: accent.primary(true),

@@ -165,11 +165,11 @@ internal fun TopBar(
 @Composable
 private fun ChannelLogo(logoUrl: String?, title: String?, size: Int, modifier: Modifier = Modifier) {
     Box(
-        modifier.size(size.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFF004F46)),
+        modifier.size(size.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFF2E241C)),
         contentAlignment = Alignment.Center,
     ) {
         if (!logoUrl.isNullOrBlank()) AsyncImage(model = logoUrl, contentDescription = null, modifier = Modifier.fillMaxSize())
-        else Text((title ?: "?").take(3).uppercase(), style = tv.own.owntv.ui.theme.stageText(22, 700), color = Color(0xFF6FF8E4), fontWeight = FontWeight.Bold)
+        else Text((title ?: "?").take(3).uppercase(), style = tv.own.owntv.ui.theme.stageText(22, 700), color = Color(0xFFFF7A2E), fontWeight = FontWeight.Bold)
     }
 }
 
@@ -187,9 +187,9 @@ internal fun ChannelOsdCard(
         modifier = modifier.widthIn(max = if (guide != null) 420.dp else 340.dp).clip(RoundedCornerShape(14.dp)).background(hudShade(0.55f)).padding(14.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Box(Modifier.size(44.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFF004F46)), contentAlignment = Alignment.Center) {
+        Box(Modifier.size(44.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFF2E241C)), contentAlignment = Alignment.Center) {
             if (!logoUrl.isNullOrBlank()) AsyncImage(model = logoUrl, contentDescription = null, modifier = Modifier.fillMaxSize())
-            else Text((title ?: "?").take(3).uppercase(), style = tv.own.owntv.ui.theme.stageText(22, 700), color = Color(0xFF6FF8E4), fontWeight = FontWeight.Bold)
+            else Text((title ?: "?").take(3).uppercase(), style = tv.own.owntv.ui.theme.stageText(22, 700), color = Color(0xFFFF7A2E), fontWeight = FontWeight.Bold)
         }
         Column {
             Text(title ?: "", style = tv.own.owntv.ui.theme.stageText(25, 500), color = hudInk, maxLines = 1, overflow = TextOverflow.Ellipsis)

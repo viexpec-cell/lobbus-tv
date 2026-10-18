@@ -156,7 +156,7 @@ internal fun LiveStageRow(
             Text(
                 channel.number?.toString().orEmpty(),
                 style = stageText(20, 600).copy(textAlign = TextAlign.End, fontFeatureSettings = Tabular),
-                color = if (focused) stageTone(Color(0xFFE6F2EE), StageColors.FxLine) else StageColors.Dim,
+                color = if (focused) stageTone(Color(0xFFFFE9DB), StageColors.FxLine) else StageColors.Dim,
                 maxLines = 1, overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.width(50.mpx),
             )
@@ -296,7 +296,7 @@ internal fun LiveStagePane(
                 ) {
                     LivePlate(channel.displayLogoUrl, 64.mpx, 46.mpx)
                     Column {
-                        channel.number?.let { Text(it.toString(), style = stageText(15, 600), color = Color(0xFFCFD8D4), maxLines = 1, overflow = TextOverflow.Ellipsis) }
+                        channel.number?.let { Text(it.toString(), style = stageText(15, 600), color = Color(0xFFD6C9BE), maxLines = 1, overflow = TextOverflow.Ellipsis) }
                         Text(channelName.orEmpty(), style = stageText(22, 700), color = Color.White, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 }
@@ -324,7 +324,7 @@ internal fun LiveStagePane(
                 }
                 now.description?.takeIf { it.isNotBlank() }?.let {
                     Text(
-                        it, style = stageText(19, 400).copy(lineHeight = (19 * 1.55f).mpxSp), color = stageTone(Color(0xFFCCD6D2), StageColors.Body),
+                        it, style = stageText(19, 400).copy(lineHeight = (19 * 1.55f).mpxSp), color = stageTone(Color(0xFFD0C3B8), StageColors.Body),
                         maxLines = 3, overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.padding(top = 18.mpx),
                     )
@@ -651,7 +651,7 @@ private fun LiveColumnItem(
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.mpx)) {
                 Text(
                     entry.label, style = stageText(18.5f, 600),
-                    color = on ?: if (selected) a.accent else stageTone(Color(0xFFCDD7D3), StageColors.ItemText),
+                    color = on ?: if (selected) a.accent else stageTone(Color(0xFFD3C6BB), StageColors.ItemText),
                     maxLines = 2, overflow = TextOverflow.Ellipsis,
                 )
                 // Tags on their own line, so a long name is never cut for them.

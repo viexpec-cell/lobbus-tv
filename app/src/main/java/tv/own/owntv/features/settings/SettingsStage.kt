@@ -564,7 +564,7 @@ fun PopupSizeSample(sizePercent: Int) {
     }
 }
 
-private val PanelText: Color @Composable get() = stageTone(Color(0xFFD3DCD8), StageColors.Body)
+private val PanelText: Color @Composable get() = stageTone(Color(0xFFD9CCC1), StageColors.Body)
 
 /** A "label  value" line in the panel (OpenSubtitles' account details). */
 @Composable

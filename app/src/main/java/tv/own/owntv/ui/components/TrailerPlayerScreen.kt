@@ -236,7 +236,7 @@ private fun TrailerPlayerContent(videoKey: String, title: String?, onExit: () ->
             AndroidView(factory = { playerView }, modifier = Modifier.fillMaxSize())
 
             val hudAlpha by animateFloatAsState(if (hudVisible) 1f else 0f, ownTvTween(320), label = "trailerHud")
-            val wash = Color(5, 8, 10)
+            val wash = Color(13, 9, 6)
             // Top: the eyebrow and the title over a 300 high wash.
             Box(
                 Modifier.align(Alignment.TopStart).fillMaxWidth().height(300.mpx).graphicsLayer { alpha = hudAlpha }
@@ -316,7 +316,7 @@ private fun TrailerBlockedDialog(onOpen: () -> Unit, onCancel: () -> Unit) {
         LaunchedEffect(Unit) { runCatching { openFocus.requestFocus() } }
         BackHandler { onCancel() }
         Box(
-            Modifier.fillMaxSize().background(Color(2, 5, 6).copy(alpha = 0.55f)).trapAllFocusExit().focusGroup(),
+            Modifier.fillMaxSize().background(Color(8, 5, 3).copy(alpha = 0.55f)).trapAllFocusExit().focusGroup(),
             contentAlignment = Alignment.Center,
         ) {
             Column(Modifier.width(720.mpx).stageGlass(30.mpx, overContent = true).padding(horizontal = 36.mpx, vertical = 32.mpx)) {

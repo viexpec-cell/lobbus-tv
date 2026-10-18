@@ -276,7 +276,7 @@ internal fun VodHeroTitle(title: String, modifier: Modifier = Modifier) {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun VodMeta(parts: List<String>, rating: Double?, tags: List<String>, size: Int, modifier: Modifier = Modifier) {
-    val text = stageTone(Color(0xFFD3DCD8), StageColors.Body)
+    val text = stageTone(Color(0xFFD9CCC1), StageColors.Body)
     val items = parts + listOfNotNull(rating?.let { "★" })
     FlowRow(
         modifier,

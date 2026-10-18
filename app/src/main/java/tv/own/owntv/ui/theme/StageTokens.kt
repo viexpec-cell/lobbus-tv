@@ -82,34 +82,36 @@ data class StagePalette(
     fun shadow(alpha: Float): Color = shadowTint.copy(alpha = alpha * shadowScale)
 
     companion object {
+        // LOBBUS: neutros quentes do design system da Lobbus (texto creme, grafite amarronzado, linhas em
+        // creme translúcido) no lugar dos neutros esverdeados do OwnTV.
         val Dark = StagePalette(
             isLight = false,
-            text = Color(0xFFF1F5F3),
-            muted = Color(0xFFA7B3AE),
-            dim = Color(0xFF6D7A75),
-            itemText = Color(0xFFD5DFDB),
-            menuItemText = Color(0xFFDBE4E0),
-            tagText = Color(0xFFC8D3CE),
-            ink = Color.White,
-            page = Color(0xFF05080A),
-            glassTint = Color(0xFF121A1E),
-            glassOff = Color(0xFF121A1C),
-            ok = Color(0xFF7BE3A4),
+            text = Color(0xFFF6EFE9),
+            muted = Color(0xFFAB9C8F),
+            dim = Color(0xFF8A7B6F),
+            itemText = Color(0xFFE7DDD5),
+            menuItemText = Color(0xFFEDE4DC),
+            tagText = Color(0xFFD6C9BE),
+            ink = Color(0xFFFFE9DB),
+            page = Color(0xFF0D0906),
+            glassTint = Color(0xFF15100C),
+            glassOff = Color(0xFF15100C),
+            ok = Color(0xFF5BD68A),
             warn = Color(0xFFFFB86B),
-            danger = Color(0xFFFF8A7A),
-            body = Color(0xFFC9D3CF),
-            navText = Color(0xFFC4CFCA),
-            fxText = Color.White,
-            fxLine = Color(0xFFD9E6E1),
-            scrim = Color(2, 5, 6).copy(alpha = 0.55f),
-            wash = Color(5, 8, 10),
+            danger = Color(0xFFFF5A45),
+            body = Color(0xFFD9CCC1),
+            navText = Color(0xFFCDBFB4),
+            fxText = Color(0xFFFFF6EE), // sobre o rastro laranja translúcido do foco (FX), como no protótipo
+            fxLine = Color(0xFFFFE9DB),
+            scrim = Color(8, 5, 3).copy(alpha = 0.60f),
+            wash = Color(13, 9, 6),
             shadowTint = Color.Black,
             shadowScale = 1f,
-            segmentOn = Color.White.copy(alpha = 0.13f),
-            knobOff = Color(0xFFCFD8D4),
-            keycap = Color.White.copy(alpha = 0.08f),
-            chipWarnText = Color(0xFFFFD27A),
-            chipWarnFill = Color(255, 200, 80).copy(alpha = 0.14f),
+            segmentOn = Color(0xFFFFE9DB).copy(alpha = 0.13f),
+            knobOff = Color(0xFFE7DDD5),
+            keycap = Color(0xFFFFE9DB).copy(alpha = 0.08f),
+            chipWarnText = Color(0xFFFFE9DB),
+            chipWarnFill = Color(242, 96, 12).copy(alpha = 0.16f),
         )
         val Light = StagePalette(
             isLight = true,
@@ -213,17 +215,19 @@ fun stageShadow(alpha: Float): Color = LocalStagePalette.current.shadow(alpha)
 
 /** Corner radii, in design pixels (rail, video, guide cell…). */
 object StageRadii {
-    val Sheet = 32.mpx
-    val Menu = 28.mpx
-    val Button = 22.mpx
-    val Row = 20.mpx
-    val Pill = 17.mpx
-    val Poster = 16.mpx
-    val SheetItem = 16.mpx
-    val Tool = 15.mpx
-    val MenuItem = 14.mpx
-    val Plate = 12.mpx
-    val Tag = 6.mpx
+    // LOBBUS: raios do design system da Lobbus (cards 6px, painéis 8px, botões e chips em pílula),
+    // um pouco maiores que no site porque a TV é vista de longe.
+    val Sheet = 20.mpx
+    val Menu = 16.mpx
+    val Button = 999.mpx
+    val Row = 10.mpx
+    val Pill = 999.mpx
+    val Poster = 8.mpx
+    val SheetItem = 10.mpx
+    val Tool = 999.mpx
+    val MenuItem = 10.mpx
+    val Plate = 6.mpx
+    val Tag = 4.mpx
 }
 
 /** The accent triple every Stage treatment is built from. */

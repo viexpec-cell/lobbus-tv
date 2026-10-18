@@ -857,7 +857,7 @@ private fun TrendingHero(
             Spacer(Modifier.height(18.mpx))
             Row(horizontalArrangement = Arrangement.spacedBy(16.mpx), verticalAlignment = Alignment.CenterVertically) {
                 val metaStyle = stageText(21, 600)
-                val metaColor = stageTone(Color(0xFFD3DCD8), StageColors.Body)
+                val metaColor = stageTone(Color(0xFFD9CCC1), StageColors.Body)
                 meta.forEachIndexed { i, part ->
                     if (i > 0) Text("•", style = metaStyle, color = metaColor.copy(alpha = 0.4f))
                     Text(part, style = metaStyle, color = metaColor, maxLines = 1, overflow = TextOverflow.Ellipsis)

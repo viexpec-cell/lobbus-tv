@@ -666,7 +666,7 @@ internal fun AboutPage(vm: MoreCountsViewModel, entry: FocusRequester, onOpenLan
                 )
             }
         }
-        Text(stringResource(R.string.more_about_description), style = stageText(18, 500).copy(lineHeight = 29.mpxSp), color = stageTone(Color(0xFFD3DCD8), StageColors.Body),
+        Text(stringResource(R.string.more_about_description), style = stageText(18, 500).copy(lineHeight = 29.mpxSp), color = stageTone(Color(0xFFD9CCC1), StageColors.Body),
             modifier = Modifier.padding(top = 26.mpx).widthIn(max = 860.mpx))
         Text(stringResource(R.string.settings_contributions), style = stageText(16, 500), color = StageColors.Dim,
             modifier = Modifier.padding(top = 10.mpx, bottom = 24.mpx).widthIn(max = 860.mpx))

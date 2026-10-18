@@ -4,16 +4,16 @@ Checklist vivo. Toda sessão começa aqui e termina atualizando "Estado atual".
 
 ## Estado atual
 
-- Fase: **2 · Fork e rebrand** (código concluído; falta o CI publicar releases)
-- Último passo (17/10): v0.1.0 assinada com a chave da Lobbus, compilada localmente e publicada no ramo `apk` para teste na TV:
-  `https://github.com/viexpec-cell/lobbus-tv/raw/apk/LobbusTV.apk` (SHA-256 c160df1f…5fc7c).
+- Fase: **3 · Reskin** (primeira passada concluída) e **2** com pendências do Vitor
+- Último passo (18/10): tokens da Lobbus aplicados (cores, laranja, Montserrat, raios); v0.2.0 assinada no ramo `apk`:
+  `https://github.com/viexpec-cell/lobbus-tv/raw/apk/LobbusTV.apk` (instala por cima da v0.1.0).
 - Próximos itens, em ordem:
-  1. Vitor testar a v0.1.0 na TV (Downloader com o link acima) e dar retorno da moldura da imagem.
+  1. Vitor testar a v0.2.0 na TV: visual, moldura da imagem, canais, filmes e séries.
   2. Vitor cadastrar os 4 segredos (LEIA-ME em `lobbus-work/lobbus-tv-assinatura`) e ativar o Actions no fork.
-  3. Tag `v0.1.1` para o CI publicar o primeiro release; conferir que atualiza por cima da v0.1.0; apagar o ramo `apk`.
-  4. Fase 3 (reskin).
+  3. Fase 4: telas assinatura do protótipo, uma por vez (Início, Ao vivo, Filmes, Detalhe, Player).
+  4. Depois do item 2: tag para o CI publicar o release e apagar o ramo `apk`.
 - Bloqueios: itens 1 e 2 dependem do Vitor.
-- Observação de build local: o release precisa de uma JVM só (`-Pkotlin.compiler.execution.strategy=in-process`, `-Xmx5g`, `--max-workers=1`) em máquinas com 8 GB; com o daemon do Kotlin separado, o sistema mata o processo por falta de memória.
+- Build local de release em máquina de 8 GB: `--no-daemon --max-workers=1 -Dorg.gradle.jvmargs=-Xmx5g -Pkotlin.compiler.execution.strategy=in-process` (com o daemon do Kotlin separado o sistema mata o processo).
 
 ## Fase 0 · Validação na TV (Vitor, sem código)
 
@@ -56,11 +56,16 @@ Problema: canal Full HD numa TV 4K é ampliado 2× e perde nitidez ao ocupar a t
 - [ ] (Opcional) Memorizar a moldura por canal
 - [ ] (Opcional) Mostrar na sobreposição de informações: resolução do sinal e moldura ativa
 
-## Fase 3 · Reskin Lobbus
+## Fase 3 · Reskin Lobbus (primeira passada pelos tokens, 18/10)
 
-- [ ] Tema: cores, fontes (Montserrat e Geist Mono em res/font), raios e foco laranja
-- [ ] Menu lateral no padrão do protótipo
-- [ ] Cards, chips, botões e listas no padrão do protótipo
+- [x] Neutros quentes do design system no tema escuro (`ui/theme/Color.kt` e `StagePalette.Dark` em `StageTokens.kt`)
+- [x] Acento sempre laranja #F2600C com texto on-orange #140C06; cores prontas do OwnTV viram "Laranja Lobbus" (`AccentColor.kt`, `OwnTVColors.kt`, `AccentPopup.kt`); hex personalizado continua valendo
+- [x] Montserrat como fonte padrão (no lugar da Plus Jakarta Sans) e Geist Mono disponível (`LobbusMonoFamily`)
+- [x] Raios do design system (`StageRadii`): botões, chips e ferramentas em pílula; cards 8, painéis 10
+- [x] Tons esverdeados soltos nas telas trocados por equivalentes quentes
+- [ ] Vitor conferir na TV (v0.2.0) e apontar o que destoa
+- [ ] Rótulos técnicos em Geist Mono caixa alta (entra junto com as telas da Fase 4)
+- [ ] Tema claro: hoje segue o do OwnTV com acento laranja; adaptar ao tema "Claro" do design system se o Vitor usar
 
 ## Fase 4 · Telas assinatura
 

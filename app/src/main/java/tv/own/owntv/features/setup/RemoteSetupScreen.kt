@@ -141,4 +141,4 @@ private fun RemotePanel(state: CompanionServerState) {
     Box(Modifier.size(18.mpx))
 }
 
-private val PanelText: Color @Composable get() = stageTone(Color(0xFFD3DCD8), StageColors.Body)
+private val PanelText: Color @Composable get() = stageTone(Color(0xFFD9CCC1), StageColors.Body)
