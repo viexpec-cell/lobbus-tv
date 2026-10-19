@@ -130,6 +130,13 @@ enum class LobbusTitulo {
      * cheio, "passando." laranja).
      */
     CABECALHO,
+
+    /**
+     * O título de uma fileira: sem contorno e o laranja só na última palavra. A ligação fica cheia,
+     * porque aqui ela não forma expressão com o que vem depois ("Top 10 da" cheio, "semana."
+     * laranja, como o protótipo de Filmes desenha).
+     */
+    FILEIRA,
 }
 
 /**
@@ -296,7 +303,7 @@ fun LobbusTituloFileira(titulo: String, contador: String?, ordem: Int?, altura: 
         horizontalArrangement = Arrangement.spacedBy(14.mpx),
     ) {
         Text(
-            text = lobbusTituloDestaque(titulo),
+            text = lobbusTituloDestaque(titulo, LobbusTitulo.FILEIRA),
             style = stageText(30, 800),
             color = StageColors.Text,
             maxLines = 1,
