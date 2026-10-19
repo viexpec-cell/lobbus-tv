@@ -84,7 +84,10 @@ Problema: canal Full HD numa TV 4K é ampliado 2× e perde nitidez ao ocupar a t
       `docs/lobbus/prints/01-inicio.png`; já na `main`
 - [x] Ao vivo com card "No ar agora" estilo IMDb e "A seguir": aprovado pelo Vitor em 18/10/2026
       pelo print `docs/lobbus/prints/02-ao-vivo.png`; já na `main`
-- [ ] Filmes com Top 10 de números vazados e fileira 4K/HDR/Atmos
+- [ ] Filmes com Top 10 de números vazados e fileira 4K/HDR/Atmos: desenho escrito em
+      `lobbus/movies/LobbusFilmes.kt` e renderizado (print `docs/lobbus/prints/04-filmes.png`), mas
+      **ainda não ligado à tela**: a Filmes de hoje é uma grade de cartazes, sem fileiras. Falta
+      trazer o Top 10 do "em alta" e filtrar a fileira pelas capacidades do provedor
 - [ ] Detalhe da série com episódios e "Continuar T:E"
 - [ ] Player com painel de informações técnicas
 

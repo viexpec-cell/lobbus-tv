@@ -64,6 +64,18 @@ class PrintsDasTelasTest {
         compose.gravarTela("02-ao-vivo")
     }
 
+    /**
+     * A tela Filmes da Fase 4, com o segundo cartaz do Top 10 em foco.
+     * Comparar com `docs/lobbus/design/LobbusTV-04-filmes.jpg`.
+     */
+    @Test
+    fun filmes() {
+        compose.montarTela { TelaFilmes() }
+        compose.onNodeWithTag(TAG_CARTAZ_TOP10).requestFocus()
+        compose.onNodeWithTag(TAG_CARTAZ_TOP10).assertIsFocused()
+        compose.gravarTela("04-filmes")
+    }
+
     /** Tela inteira, 1920×1080, para comparar lado a lado com `docs/lobbus/design/`. */
     @Test
     fun telaDeExemplo() {
