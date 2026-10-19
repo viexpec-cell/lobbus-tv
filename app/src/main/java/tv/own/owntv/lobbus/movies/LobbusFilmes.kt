@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -83,7 +84,15 @@ fun LobbusItemTop10(
         LobbusNumeroVazado(numero, modifier = Modifier.padding(bottom = 10.mpx))
         Box(
             Modifier
-                .padding(start = (-34).mpx)
+                // O cartaz corre 34 px para a esquerda e cobre o número, como no protótipo. Não dá
+                // para escrever isso como padding negativo, que o Compose recusa, nem como offset,
+                // que desloca o desenho mas deixa a folga na conta da fileira e afasta um item do
+                // outro. Aqui o recuo sai dos dois: da posição e da largura medida.
+                .layout { medivel, restricoes ->
+                    val recuo = 34.mpx.roundToPx()
+                    val posto = medivel.measure(restricoes)
+                    layout(posto.width - recuo, posto.height) { posto.place(-recuo, 0) }
+                }
                 .size(larguraDoCartaz, alturaDoCartaz)
                 .clip(RoundedCornerShape(StageRadii.Poster))
                 .then(
