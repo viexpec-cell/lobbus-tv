@@ -4,8 +4,8 @@ Checklist vivo. Toda sessão começa aqui e termina atualizando "Estado atual".
 
 ## Estado atual
 
-- Fase: **4 · Telas assinatura** (Início e Ao vivo aprovados) e **2** com pendências do Vitor
-- Último passo (18/10): **Ao vivo aprovado pelo Vitor** pelo print `docs/lobbus/prints/02-ao-vivo.png`,
+- Fase: **4 · Telas assinatura** (Início aprovado, Ao vivo à espera do Vitor) e **2** com pendências do Vitor
+- Último passo (18/10): Ao vivo escrito e renderizado (print `docs/lobbus/prints/02-ao-vivo.png`),
   no ramo `claude/fase4-ao-vivo`, que também leva dois acertos do Início feitos depois da mesclagem:
   o título do destaque em duas linhas e o acento do cabeçalho de tela. Esse ramo ainda não está na
   `main`. Antes disso, no mesmo dia: Início aprovado e mesclado, máquina de prints rodando de verdade,
@@ -14,7 +14,8 @@ Checklist vivo. Toda sessão começa aqui e termina atualizando "Estado atual".
 - Próximos itens, em ordem:
   1. Vitor testar a v0.2.0 na TV: visual, moldura da imagem, canais, filmes e séries.
   2. Vitor cadastrar os 4 segredos (LEIA-ME em `lobbus-work/lobbus-tv-assinatura`) e ativar o Actions no fork.
-  3. Fase 4: telas assinatura do protótipo, uma por vez. Feitos o Início e o Ao vivo; a próxima é
+  3. Fase 4: telas assinatura do protótipo, uma por vez. Feito o Início; o Ao vivo espera a palavra
+     do Vitor. Depois dele vem
      **Filmes**, depois Detalhe da série e Player. Antes de escrever Filmes, levar
      `claude/fase4-ao-vivo` para a `main`, senão a próxima tela nasce sobre uma pilha de ramos. A
      máquina de prints (`./gradlew :app:lobbusPrints`) está verificada: ver `docs/lobbus/PRINTS.md`.
@@ -83,8 +84,8 @@ Problema: canal Full HD numa TV 4K é ampliado 2× e perde nitidez ao ocupar a t
       PNGs de exemplo conferidos em `docs/lobbus/prints/`. Comando: `./gradlew :app:lobbusPrints`
 - [x] Início com destaque estilo Netflix e fileiras: aprovado pelo Vitor em 18/10/2026 pelo print
       `docs/lobbus/prints/01-inicio.png`; já na `main`
-- [x] Ao vivo com card "No ar agora" estilo IMDb e "A seguir": aprovado pelo Vitor em 18/10/2026
-      pelo print `docs/lobbus/prints/02-ao-vivo.png`, no ramo `claude/fase4-ao-vivo`
+- [ ] Ao vivo com card "No ar agora" estilo IMDb e "A seguir": escrito e renderizado em 18/10/2026
+      no ramo `claude/fase4-ao-vivo` (print `docs/lobbus/prints/02-ao-vivo.png`), aguardando o Vitor
 - [ ] Filmes com Top 10 de números vazados e fileira 4K/HDR/Atmos
 - [ ] Detalhe da série com episódios e "Continuar T:E"
 - [ ] Player com painel de informações técnicas
