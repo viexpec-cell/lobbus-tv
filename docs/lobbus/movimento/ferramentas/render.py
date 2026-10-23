@@ -1,11 +1,12 @@
 """Renderiza o protótipo quadro a quadro (Playwright + Chromium) e monta o MP4 com ffmpeg.
 Uso: PAGE="intro.html?t=encaixe" FPS=60 python3 render.py video saida.mp4
+     SITE=../interface/prototipo PAGE="motion.html?m=canal" FPS=30 python3 render.py video canal.mp4
      PAGE="intro.html?t=encaixe" python3 render.py stills pasta 2.84,4.2,5.0"""
-import sys, subprocess, threading, http.server, functools, json, time
+import os, sys, subprocess, threading, http.server, functools, json, time
 from playwright.sync_api import sync_playwright
 
 from pathlib import Path
-SITE = str(Path(__file__).resolve().parent.parent / 'abertura' / 'prototipo')
+SITE = os.environ.get('SITE') or str(Path(__file__).resolve().parent.parent / 'abertura' / 'prototipo')
 mode = sys.argv[1]            # "stills" or "video"
 out = sys.argv[2]
 times = [float(x) for x in sys.argv[3].split(',')] if mode == 'stills' else None
