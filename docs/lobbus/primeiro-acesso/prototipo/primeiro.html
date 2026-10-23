@@ -1,0 +1,1105 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Lobbus TV · Primeiro acesso</title>
+<style>
+@font-face{font-family:'Geist Mono';font-weight:400;src:url(assets/geist-mono-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Geist Mono';font-weight:500;src:url(assets/geist-mono-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:M;src:url(assets/montserrat_regular.ttf);font-weight:400}
+@font-face{font-family:M;src:url(assets/montserrat_medium.ttf);font-weight:500}
+@font-face{font-family:M;src:url(assets/montserrat_semibold.ttf);font-weight:600}
+@font-face{font-family:M;src:url(assets/montserrat_bold.ttf);font-weight:700}
+@font-face{font-family:M;src:url(assets/montserrat_extrabold.ttf);font-weight:800}
+@font-face{font-family:M;src:url(assets/montserrat_black.ttf);font-weight:900}
+@font-face{font-family:G;src:url(assets/geist_mono_regular.ttf);font-weight:400}
+@font-face{font-family:G;src:url(assets/geist_mono_medium.ttf);font-weight:500}
+:root{
+  --ink:#0D0906;--ink2:#15100C;--gr:#221A14;--gr2:#2E241C;
+  --text:#F6EFE9;--muted:#AB9C8F;--dim:#8A7B6F;--amber:#FFE9DB;
+  --or:#F2600C;--or2:#FF7A2E;--on:#140C06;
+  --line:rgba(255,233,219,.10);--line2:rgba(255,233,219,.18);--ok:#5BD68A;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ink)}
+body{font-family:M;color:var(--text);position:relative;-webkit-font-smoothing:antialiased}
+canvas{position:absolute;left:0;top:0;width:1920px;height:1080px;display:block}
+#bgl,#ui{position:absolute;inset:0}
+.scr{position:absolute;inset:0;display:none}
+.lc{position:absolute;inset:0}
+#qrbox{visibility:hidden}
+.mono{font-family:G;font-weight:500;text-transform:uppercase;letter-spacing:.15em}
+.dc{white-space:pre}
+.or{color:var(--or)}
+
+/* fundo */
+.glow{position:absolute;border-radius:50%;opacity:0;background:radial-gradient(closest-side,rgba(242,96,12,.20),rgba(242,96,12,.06) 55%,transparent)}
+#g1{width:1500px;height:1500px;left:960px;top:-300px}
+#g2{width:1300px;height:1300px;left:1000px;top:-120px}
+#g3{width:1200px;height:1200px;left:1100px;top:-200px}
+#g4{width:1400px;height:1400px;left:-300px;top:200px}
+#g5{width:1300px;height:1300px;left:880px;top:-140px}
+#w1{position:absolute;width:760px;left:1290px;top:250px;opacity:0}
+
+/* passos */
+.steps{position:absolute;right:200px;top:86px;display:flex;gap:14px}
+.step{width:170px}
+.step .bar{position:relative;height:3px;background:var(--line2);border-radius:2px;margin-bottom:12px;transform-origin:0 50%}
+.step .bar i{position:absolute;inset:0;background:var(--or);border-radius:2px;transform-origin:0 50%;transform:scaleX(0)}
+.step .lbl{font-size:13px;color:var(--dim);letter-spacing:.15em}
+.step .lbl b{font-weight:500;margin-right:8px}
+
+/* textos */
+.eyebrow{display:flex;align-items:center;gap:18px;font-size:17px;color:var(--text)}
+.eyebrow .n{color:var(--or)}
+.eyebrow .rule{width:64px;height:1px;background:var(--line2);transform-origin:0 50%}
+.eyebrow .sec{color:var(--muted)}
+.title{font-weight:900;letter-spacing:-.035em;line-height:.94}
+.ln{display:block;overflow:hidden;padding:.1em .06em .18em 0;margin:-.1em 0 -.18em}
+.ln .in{display:block}
+.pd{display:inline-block;transform-origin:50% 80%}
+.outline{color:transparent;-webkit-text-stroke:2.5px var(--text)}
+.sub{font-weight:500;font-size:27px;line-height:1.45;color:var(--muted)}
+
+/* botões */
+.btns{display:flex;gap:18px;align-items:center}
+.btn{height:72px;padding:0 34px;border-radius:999px;display:inline-flex;align-items:center;gap:14px;
+  font-weight:700;font-size:25px;border:1.5px solid var(--line2);background:rgba(34,26,20,.85);color:var(--text);
+  outline:2px solid rgba(242,96,12,0);outline-offset:3px}
+.btn svg{width:26px;height:26px}
+.btn.pri{background:var(--or);color:var(--on);border-color:var(--or)}
+
+/* moldura compartilhada do painel */
+#frame{position:absolute;left:0;top:0;width:0;height:0;display:none}
+#frame .bg{position:absolute;inset:0;background:rgba(21,16,12,.88);border:1px solid var(--line)}
+#frame .k{position:absolute;width:20px;height:20px;border-color:var(--or);border-style:solid}
+#frame .k1{left:-1px;top:-1px;border-width:2px 0 0 2px}
+#frame .k2{right:-1px;top:-1px;border-width:2px 2px 0 0}
+#frame .k3{left:-1px;bottom:-1px;border-width:0 0 2px 2px}
+#frame .k4{right:-1px;bottom:-1px;border-width:0 2px 2px 0}
+.pc{position:absolute}
+.ph{display:flex;justify-content:space-between;align-items:center;font-size:15px;padding-bottom:22px;position:relative}
+.ph .t{color:var(--or)}
+.ph .hl{position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--line);transform-origin:0 50%}
+.dot{display:inline-block;position:relative;width:10px;height:10px;border-radius:50%;margin-right:10px;vertical-align:1px}
+.dot.ok{background:var(--ok)}
+.dot.wait{background:var(--or)}
+.dot i{position:absolute;inset:0;border-radius:50%;border:1.5px solid var(--or);opacity:0}
+.dot.ok i{border-color:var(--ok)}
+
+/* rodapé */
+.foot{position:absolute;left:200px;right:200px;bottom:56px;display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--dim)}
+.keys{display:flex;gap:28px;align-items:center}
+.key{display:inline-flex;align-items:center;gap:10px}
+.key i{font-style:normal;border:1px solid var(--line2);border-radius:5px;padding:4px 8px 3px;color:var(--muted);font-size:12px}
+.legal{font-weight:500;font-size:19px;color:var(--dim);text-transform:none;letter-spacing:0;font-family:M}
+
+/* ---------- 1 · Boas-vindas ---------- */
+#s1 .eyebrow{position:absolute;left:200px;top:268px}
+#s1 .title{position:absolute;left:196px;top:318px;font-size:150px}
+#s1 .sub{position:absolute;left:200px;top:660px;width:780px}
+#s1 .btns{position:absolute;left:200px;top:836px}
+#s1 .pc{left:1130px;top:268px;width:590px;padding:36px 40px 34px}
+.need{list-style:none;margin-top:8px}
+.need li{display:flex;gap:22px;padding:22px 0;border-bottom:1px solid var(--line)}
+.need li:last-child{border-bottom:0}
+.need .n{font-family:G;font-weight:500;font-size:15px;letter-spacing:.14em;color:var(--or);padding-top:7px;width:34px;flex:none}
+.need .h{font-weight:700;font-size:27px}
+.need .d{font-weight:500;font-size:20px;color:var(--muted);margin-top:6px;line-height:1.4}
+.code{font-family:G;font-weight:400;font-size:18px;color:var(--amber);background:var(--gr);border-radius:4px;padding:2px 8px}
+.tip{display:flex;gap:18px;align-items:flex-start;margin-top:14px;padding:22px 24px;background:var(--gr);border-radius:8px}
+.tip svg{flex:none;width:30px;height:30px;color:var(--or);margin-top:2px}
+.tip .h{font-weight:700;font-size:22px}
+.tip .d{font-weight:500;font-size:19px;color:var(--muted);margin-top:4px;line-height:1.4}
+
+/* ---------- 2 · Sua lista ---------- */
+#s2 .eyebrow{position:absolute;left:200px;top:236px}
+#s2 .title{position:absolute;left:197px;top:280px;font-size:104px}
+#s2 .sub{position:absolute;left:200px;top:506px;width:760px;font-size:25px}
+.how{position:absolute;left:200px;top:610px;width:800px;list-style:none}
+.how li{display:flex;gap:24px;align-items:flex-start;padding:12px 0}
+.how .n{flex:none;width:52px;height:52px;border-radius:6px;background:var(--gr);border:1px solid var(--line2);
+  display:flex;align-items:center;justify-content:center;font-family:G;font-weight:500;font-size:17px;letter-spacing:.08em;color:var(--or)}
+.how .h{font-weight:700;font-size:26px;padding-top:2px}
+.how .d{font-weight:500;font-size:20px;color:var(--muted);margin-top:4px}
+#s2 .btns{position:absolute;left:200px;top:888px}
+#s2 .btn{height:64px;font-size:22px;padding:0 30px}
+#s2 .pc{left:1110px;top:236px;width:610px;padding:34px 40px 36px}
+.qrbox{margin:30px auto 0;width:330px;height:330px;background:#FFF6EE;border-radius:8px;padding:26px}
+.or-open{display:flex;align-items:center;gap:16px;margin-top:28px;font-size:14px;color:var(--dim)}
+.or-open span.l{flex:1;height:1px;background:var(--line)}
+.or-open span.l.a{transform-origin:100% 50%}
+.or-open span.l.b{transform-origin:0 50%}
+.addr{display:flex;justify-content:space-between;align-items:flex-end;margin-top:24px}
+.addr .k{font-size:13px;color:var(--dim);margin-bottom:10px}
+.addr .url{font-weight:800;font-size:34px;letter-spacing:-.01em;white-space:pre}
+.addr .pin{font-family:G;font-weight:500;font-size:46px;letter-spacing:.22em;color:var(--or);line-height:1;white-space:pre}
+.note{margin-top:26px;padding-top:20px;border-top:1px solid var(--line);font-weight:500;font-size:18px;color:var(--dim);line-height:1.45}
+#s2 .foot,#s3 .foot,#s4 .foot,#s5 .foot{bottom:40px}
+
+/* ---------- 3 · Conferir ---------- */
+#s3 .eyebrow{position:absolute;left:200px;top:236px}
+#s3 .title{position:absolute;left:197px;top:280px;font-size:96px}
+.form{position:absolute;left:200px;top:418px;width:870px}
+.row{display:flex;align-items:center;gap:22px;margin-bottom:14px}
+.row .k{width:150px;flex:none;font-size:15px;color:var(--dim)}
+.field{flex:1;height:64px;border-radius:8px;background:var(--gr);border:1.5px solid var(--line);position:relative;
+  display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-weight:600;font-size:25px}
+.field .val{white-space:pre}
+.field .fl{position:absolute;inset:-1.5px;border-radius:8px;border:1.5px solid var(--or);opacity:0}
+.field .pw{letter-spacing:.18em;font-weight:700}
+.field .tag{font-size:13px;color:var(--muted);border:1px solid var(--line2);border-radius:999px;padding:6px 12px 5px}
+.chips{display:flex;flex-wrap:nowrap;gap:10px;flex:1}
+.chip{height:50px;border-radius:999px;padding:0 18px 0 14px;display:inline-flex;align-items:center;gap:10px;
+  background:var(--gr);border:1.5px solid var(--line2);font-weight:600;font-size:18px;white-space:nowrap}
+.chip svg{width:20px;height:20px;color:var(--or)}
+.adv{display:flex;align-items:center;justify-content:space-between;margin:10px 0 0 172px;padding:14px 0;border-top:1px solid var(--line);font-weight:500;font-size:20px;color:var(--muted)}
+.adv b{color:var(--text);font-weight:700;margin-right:12px}
+.adv svg{width:24px;height:24px;color:var(--dim)}
+#s3 .btns{position:absolute;left:200px;top:902px}
+#s3 .btn{height:68px;font-size:24px}
+#s3 .pc{left:1130px;top:236px;width:590px;padding:34px 40px 30px}
+.tips{list-style:none;margin-top:6px}
+.tips li{padding:22px 0;border-bottom:1px solid var(--line)}
+.tips li:last-of-type{border-bottom:0}
+.tips .k{font-size:14px;color:var(--or)}
+.tips .d{font-weight:500;font-size:21px;color:var(--text);margin-top:10px;line-height:1.45}
+.tips .d span{color:var(--muted)}
+.safe{display:flex;gap:16px;align-items:center;margin-top:8px;padding:18px 22px;background:var(--gr);border-radius:8px;font-weight:500;font-size:19px;color:var(--muted)}
+.safe svg{flex:none;width:26px;height:26px;color:var(--or)}
+
+/* ---------- 4 · Importando ---------- */
+#s4 .eyebrow{position:absolute;left:200px;top:236px}
+#s4 .title{position:absolute;left:197px;top:280px;font-size:112px}
+#s4 .sub{position:absolute;left:200px;top:520px;width:760px;font-size:25px}
+.prog{position:absolute;left:200px;top:672px;width:820px}
+.prog .top{display:flex;justify-content:space-between;align-items:flex-end}
+.prog .k{font-size:16px;color:var(--muted)}
+.prog .pct{font-family:G;font-weight:500;font-size:88px;letter-spacing:.04em;line-height:.9;color:var(--text);transform-origin:100% 100%}
+.prog .pct small{font-size:36px;color:var(--dim);margin-left:6px}
+.track{margin-top:22px;height:4px;background:var(--line2);border-radius:2px;position:relative;overflow:hidden;transform-origin:0 50%}
+.track i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--or)}
+.track u{position:absolute;top:0;bottom:0;width:140px;background:linear-gradient(90deg,transparent,rgba(255,233,219,.55),transparent);opacity:0}
+.prog .eta{display:flex;justify-content:space-between;margin-top:16px;font-size:14px;color:var(--dim)}
+#s4 .btns{position:absolute;left:200px;top:902px}
+#s4 .btn{height:64px;font-size:22px;padding:0 30px}
+#s4 .pc{left:1130px;top:236px;width:590px;padding:34px 40px 26px}
+.log{list-style:none;margin-top:4px}
+.log li{display:flex;align-items:center;justify-content:space-between;padding:24px 0;border-bottom:1px solid var(--line)}
+.log li:last-child{border-bottom:0}
+.log .k{font-size:15px;color:var(--dim)}
+.log .v{font-weight:700;font-size:26px;display:flex;align-items:center;gap:14px}
+.log .v .s{font-family:G;font-weight:500;font-size:13px;letter-spacing:.14em;padding:5px 10px 4px;border-radius:999px;white-space:pre}
+.s.ok{color:var(--ok);border:1px solid rgba(91,214,138,.35)}
+.s.run{color:var(--or);border:1px solid rgba(242,96,12,.45)}
+.s.wait{color:var(--dim);border:1px solid var(--line2)}
+.log li.cur .k{color:var(--text)}
+.log li.idle .v .x{color:var(--dim);font-weight:600}
+
+/* ---------- 5 · Pronto ---------- */
+#s5 .eyebrow{position:absolute;left:200px;top:236px}
+#s5 .title{position:absolute;left:196px;top:282px;font-size:150px}
+#s5 .sub{position:absolute;left:200px;top:470px;width:820px;font-size:27px}
+.stats{position:absolute;left:200px;top:608px;display:flex}
+.stats .hl{position:absolute;left:0;right:0;height:1px;background:var(--line);transform-origin:0 50%}
+.stats .hl.t{top:0}.stats .hl.b{bottom:0}
+.stat{padding:28px 44px 26px 0;margin-right:44px;border-right:1px solid var(--line)}
+.stat:last-of-type{border-right:0;margin-right:0}
+.stat .v{font-weight:900;font-size:72px;letter-spacing:-.03em;line-height:1;white-space:pre}
+.stat .v small{font-size:34px;font-weight:800;color:var(--muted);letter-spacing:0;margin-right:6px;display:inline-block}
+.stat .k{font-size:15px;color:var(--dim);margin-top:12px}
+#s5 .btns{position:absolute;left:200px;top:856px}
+.tag{position:absolute;left:1180px;top:842px;width:700px;text-align:center;font-size:16px;color:var(--muted)}
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+
+<div id="bgl">
+  <div class="glow" id="g1"></div><div class="glow" id="g2"></div><div class="glow" id="g3"></div><div class="glow" id="g4"></div><div class="glow" id="g5"></div>
+  <img id="w1" src="assets/wolf_white.png">
+</div>
+
+<div id="ui">
+  <div class="steps mono" id="steps">
+    <div class="step"><div class="bar"><i></i></div><div class="lbl"><b class="dc">01</b><span class="dc">BOAS-VINDAS</span></div></div>
+    <div class="step"><div class="bar"><i></i></div><div class="lbl"><b class="dc">02</b><span class="dc">SUA LISTA</span></div></div>
+    <div class="step"><div class="bar"><i></i></div><div class="lbl"><b class="dc">03</b><span class="dc">IMPORTAR</span></div></div>
+    <div class="step"><div class="bar"><i></i></div><div class="lbl"><b class="dc">04</b><span class="dc">PRONTO</span></div></div>
+  </div>
+
+  <div id="frame"><i class="bg"></i><i class="k k1"></i><i class="k k2"></i><i class="k k3"></i><i class="k k4"></i></div>
+
+  <!-- ============ 1 · BOAS-VINDAS ============ -->
+  <section class="scr" id="s1" data-in="4.6" data-out="7.70">
+    <div class="lc">
+    <div class="eyebrow mono">
+      <span><span class="n dc" data-a="dec" data-t="4.75" data-d=".25">[01]</span><span class="dc" data-a="dec" data-t="4.78" data-d=".35"> PRIMEIRO ACESSO</span></span>
+      <span class="rule" data-a="scalex" data-t="4.82"></span>
+      <span class="sec dc" data-a="dec" data-t="4.88" data-d=".3">3 MINUTOS</span>
+    </div>
+    <div class="title">
+      <span class="ln" data-a="mask" data-t="4.81"><span class="in">Bem-vindo</span></span>
+      <span class="ln" data-a="mask" data-t="4.87"><span class="in"><span class="outline">à</span> <span class="or">sua TV<span class="pd" data-a="pop" data-t="5.42">.</span></span></span></span>
+    </div>
+    <p class="sub" data-a="rise" data-t="4.93">Falta só a sua lista. Em três passos ela entra no app com canais ao vivo, guia de programação, filmes e séries.</p>
+    <div class="btns" data-a="rise" data-t="4.99">
+      <span class="btn pri" data-focus="5.6" data-press="7.6"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12.5-7.5z"/></svg>Começar</span>
+      <span class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Restaurar backup</span>
+    </div>
+    <div class="foot mono" data-a="fade" data-t="5.1" data-d=".4">
+      <span class="legal">O Lobbus TV é só o player: nenhuma lista, canal ou conteúdo vem com o app.</span>
+      <span class="keys"><span class="key"><i>OK</i>CONFIRMAR</span><span class="key"><i>◀ ▶</i>NAVEGAR</span></span>
+    </div>
+    </div>
+    <div class="pc">
+      <div class="ph mono"><span class="t dc" data-a="dec" data-t="5.08" data-d=".35">[ANTES DE COMEÇAR]</span><span class="dc" style="color:var(--dim)" data-a="dec" data-t="5.14" data-d=".3">TENHA EM MÃOS</span><i class="hl" data-a="scalex" data-t="5.1"></i></div>
+      <ul class="need">
+        <li data-a="rise" data-t="5.15"><span class="n">01</span><div><div class="h">Endereço do servidor</div><div class="d">Começa com <span class="code">http://</span> e costuma ter uma porta, como <span class="code">:8080</span></div></div></li>
+        <li data-a="rise" data-t="5.21"><span class="n">02</span><div><div class="h">Usuário e senha</div><div class="d">Vêm no e-mail ou no app do provedor da sua lista.</div></div></li>
+      </ul>
+      <div class="tip" data-a="rise" data-t="5.27"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+        <div><div class="h">Celular no mesmo Wi-Fi</div><div class="d">Você cola os dados no celular em vez de digitar com o controle.</div></div></div>
+    </div>
+  </section>
+
+  <!-- ============ 2 · SUA LISTA ============ -->
+  <section class="scr" id="s2" data-in="7.8" data-out="11.85">
+    <div class="lc">
+    <div class="eyebrow mono">
+      <span><span class="n dc" data-a="dec" data-t="7.84" data-d=".25">[02]</span><span class="dc" data-a="dec" data-t="7.87" data-d=".3"> SUA LISTA</span></span>
+      <span class="rule" data-a="scalex" data-t="7.9"></span>
+      <span class="sec dc" data-a="dec" data-t="7.95" data-d=".3">LOGIN XTREAM</span>
+    </div>
+    <div class="title">
+      <span class="ln" data-a="mask" data-t="7.86"><span class="in">Conecte pelo</span></span>
+      <span class="ln" data-a="mask" data-t="7.93"><span class="in"><span class="or">celular<span class="pd" data-a="pop" data-t="8.42">.</span></span></span></span>
+    </div>
+    <p class="sub" data-a="rise" data-t="8.0">Digitar endereço e senha com o controle cansa. No celular você cola os dados e manda direto para a TV.</p>
+    <ol class="how">
+      <li data-a="rise" data-t="8.06"><span class="n">01</span><div><div class="h">Aponte a câmera para o código</div><div class="d">O celular precisa estar no mesmo Wi-Fi da TV.</div></div></li>
+      <li data-a="rise" data-t="8.12"><span class="n">02</span><div><div class="h">Cole servidor, usuário e senha</div><div class="d">Copie do e-mail do provedor: zero erro de digitação.</div></div></li>
+      <li data-a="rise" data-t="8.18"><span class="n">03</span><div><div class="h">Toque em Enviar</div><div class="d">Os dados aparecem aqui na TV para você conferir.</div></div></li>
+    </ol>
+    <div class="btns" data-a="rise" data-t="8.24">
+      <span class="btn" data-focus="8.6" data-blur="11.6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"/></svg>Digitar com o controle</span>
+      <span class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Novo PIN</span>
+    </div>
+    <div class="foot mono" data-a="fade" data-t="7.9" data-d=".4">
+      <span>LOBBUS.CORE // CONFIGURAÇÃO</span>
+      <span class="keys"><span class="key"><i>OK</i>CONFIRMAR</span><span class="key"><i>VOLTAR</i>BOAS-VINDAS</span></span>
+    </div>
+    </div>
+    <div class="pc" id="pc2">
+      <div class="ph mono"><span class="t dc" data-a="dec" data-t="7.98" data-d=".35">[CELULAR] ESCANEIE</span><span style="color:var(--text)"><span class="dot wait" id="st2dot"><i></i></span><span class="dc" id="st2">AGUARDANDO</span></span><i class="hl" data-a="scalex" data-t="8.0"></i></div>
+      <div class="qrbox" id="qrbox"></div>
+      <div class="or-open mono"><span class="l a" data-a="scalex" data-t="8.6"></span><span class="dc" data-a="dec" data-t="8.62" data-d=".35">OU ABRA NO NAVEGADOR</span><span class="l b" data-a="scalex" data-t="8.6"></span></div>
+      <div class="addr">
+        <div><div class="k mono dc" data-a="dec" data-t="8.68" data-d=".25">ENDEREÇO</div><div class="url" id="url">192.168.0.25:8686</div></div>
+        <div style="text-align:right"><div class="k mono dc" data-a="dec" data-t="8.7" data-d=".2">PIN</div><div class="pin" id="pin">4821</div></div>
+      </div>
+      <div class="note" data-a="rise" data-t="8.9">Os dados vão do celular direto para a TV, pela sua rede Wi-Fi. Nada passa pela internet.</div>
+    </div>
+  </section>
+
+  <!-- ============ 3 · CONFERIR ============ -->
+  <section class="scr" id="s3" data-in="11.95" data-out="15.1">
+    <div class="lc">
+    <div class="eyebrow mono">
+      <span><span class="n dc" data-a="dec" data-t="11.98" data-d=".25">[03]</span><span class="dc" data-a="dec" data-t="12.01" data-d=".3"> IMPORTAR</span></span>
+      <span class="rule" data-a="scalex" data-t="12.04"></span>
+      <span style="color:var(--text)"><span class="dot ok" id="st3dot" data-a="pop" data-t="12.08"><i></i></span><span class="dc" data-a="dec" data-t="12.1" data-d=".35">RECEBIDO DO CELULAR</span></span>
+    </div>
+    <div class="title">
+      <span class="ln" data-a="mask" data-t="12.0"><span class="in">Confira os <span class="or">dados<span class="pd" data-a="pop" data-t="12.5">.</span></span></span></span>
+    </div>
+    <div class="form">
+      <div class="row" data-a="rise" data-t="12.06"><span class="k mono">NOME</span><span class="field" id="f0"><span class="val">Minha lista</span><span class="tag mono" data-a="fade" data-t="12.6" data-d=".3">OPCIONAL</span><i class="fl"></i></span></div>
+      <div class="row" data-a="rise" data-t="12.11"><span class="k mono">SERVIDOR</span><span class="field" id="f1"><span class="val">http://servidor.exemplo.com:8080</span><i class="fl"></i></span></div>
+      <div class="row" data-a="rise" data-t="12.16"><span class="k mono">USUÁRIO</span><span class="field" id="f2"><span class="val">usuario.exemplo</span><i class="fl"></i></span></div>
+      <div class="row" data-a="rise" data-t="12.21"><span class="k mono">SENHA</span><span class="field" id="f3"><span class="val pw">••••••••••</span><span class="tag mono" data-a="fade" data-t="12.95" data-d=".3">MOSTRAR</span><i class="fl"></i></span></div>
+      <div class="row" style="margin-top:20px" data-a="rise" data-t="12.26"><span class="k mono">IMPORTAR</span>
+        <div class="chips">
+          <span class="chip" data-a="pop" data-t="12.85"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Canais</span>
+          <span class="chip" data-a="pop" data-t="12.9"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Filmes</span>
+          <span class="chip" data-a="pop" data-t="12.95"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Séries</span>
+          <span class="chip" data-a="pop" data-t="13.0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Guia de programação</span>
+        </div>
+      </div>
+      <div class="adv" data-a="fade" data-t="13.05" data-d=".35"><span><b>Opções avançadas</b>guia externo, user agent, atualização</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></div>
+    </div>
+    <div class="btns" data-a="rise" data-t="12.95">
+      <span class="btn pri" data-focus="13.25" data-press="15.0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>Importar lista</span>
+      <span class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>Voltar</span>
+    </div>
+    <div class="foot mono" data-a="fade" data-t="12.05" data-d=".4">
+      <span>LOBBUS.CORE // CONFIGURAÇÃO</span>
+      <span class="keys"><span class="key"><i>OK</i>IMPORTAR</span><span class="key"><i>VOLTAR</i>SUA LISTA</span></span>
+    </div>
+    </div>
+    <div class="pc">
+      <div class="ph mono"><span class="t dc" data-a="dec" data-t="12.4" data-d=".35">[DICA] SE NÃO CONECTAR</span><span class="dc" style="color:var(--dim)" data-a="dec" data-t="12.45" data-d=".25">3 CAUSAS</span><i class="hl" data-a="scalex" data-t="12.42"></i></div>
+      <ul class="tips">
+        <li data-a="rise" data-t="12.47"><div class="k mono">SERVIDOR</div><div class="d">Precisa do <span class="code">http://</span> e da porta. <span>Sem a porta, o servidor não responde.</span></div></li>
+        <li data-a="rise" data-t="12.53"><div class="k mono">USUÁRIO E SENHA</div><div class="d">Diferenciam maiúsculas. <span>Copie do e-mail em vez de digitar.</span></div></li>
+        <li data-a="rise" data-t="12.59"><div class="k mono">TELAS</div><div class="d">Lista de uma tela só? <span>Feche-a no outro aparelho antes de importar.</span></div></li>
+      </ul>
+      <div class="safe" data-a="rise" data-t="12.65"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Login e senha ficam salvos só nesta TV.</div>
+    </div>
+  </section>
+
+  <!-- ============ 4 · IMPORTANDO ============ -->
+  <section class="scr" id="s4" data-in="15.2" data-out="20.55" data-pcout="20.62">
+    <div class="lc">
+    <div class="eyebrow mono">
+      <span><span class="n dc" data-a="dec" data-t="15.22" data-d=".25">[03]</span><span class="dc" data-a="dec" data-t="15.25" data-d=".3"> IMPORTAR</span></span>
+      <span class="rule" data-a="scalex" data-t="15.28"></span>
+      <span class="sec dc" data-a="dec" data-t="15.32" data-d=".3">MINHA LISTA</span>
+    </div>
+    <div class="title">
+      <span class="ln" data-a="mask" data-t="15.24"><span class="in">Montando</span></span>
+      <span class="ln" data-a="mask" data-t="15.31"><span class="in"><span class="or">sua TV<span class="pd" data-a="pop" data-t="15.8">.</span></span></span></span>
+    </div>
+    <p class="sub" data-a="rise" data-t="15.38">Na primeira vez leva de 1 a 3 minutos, conforme o tamanho da lista. O guia pode terminar em segundo plano.</p>
+    <div class="prog">
+      <div class="top"><span class="k mono dc" data-a="dec" data-t="15.42" data-d=".3">IMPORTANDO</span><span class="pct" id="pct" data-a="fade" data-t="15.42" data-d=".25"><span id="pctn">000</span><small>%</small></span></div>
+      <div class="track" data-a="scalex" data-t="15.45"><i id="fill"></i><u id="shine"></u></div>
+      <div class="eta mono" data-a="fade" data-t="15.5" data-d=".25"><span class="dc" id="etaL"> </span><span class="dc" id="etaR"> </span></div>
+    </div>
+    <div class="btns" data-a="rise" data-t="15.5">
+      <span class="btn" data-focus="15.9"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>Continuar em segundo plano</span>
+      <span class="btn">Cancelar</span>
+    </div>
+    <div class="foot mono" data-a="fade" data-t="15.3" data-d=".4">
+      <span>LOBBUS.CORE // CONFIGURAÇÃO</span>
+      <span class="keys"><span class="key"><i>OK</i>CONTINUAR</span><span class="key"><i>VOLTAR</i>CANCELAR</span></span>
+    </div>
+    </div>
+    <div class="pc" id="pc4">
+      <div class="ph mono"><span class="t dc" data-a="dec" data-t="15.3" data-d=".35">[LOG] IMPORTAÇÃO</span><span style="color:var(--text)"><span class="dot wait" id="st4dot"><i></i></span><span class="dc" id="st4">EM ANDAMENTO</span></span><i class="hl" data-a="scalex" data-t="15.32"></i></div>
+      <ul class="log" id="log">
+        <li data-a="rise" data-t="15.40"><span class="k mono">SERVIDOR</span><span class="v"><span class="x"></span><span class="s mono"></span></span></li>
+        <li data-a="rise" data-t="15.46"><span class="k mono">CANAIS</span><span class="v"><span class="x"></span><span class="s mono"></span></span></li>
+        <li data-a="rise" data-t="15.52"><span class="k mono">FILMES</span><span class="v"><span class="x"></span><span class="s mono"></span></span></li>
+        <li data-a="rise" data-t="15.58"><span class="k mono">SÉRIES</span><span class="v"><span class="x"></span><span class="s mono"></span></span></li>
+        <li data-a="rise" data-t="15.64"><span class="k mono">GUIA DE PROGRAMAÇÃO</span><span class="v"><span class="x"></span><span class="s mono"></span></span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ 5 · PRONTO ============ -->
+  <section class="scr" id="s5" data-in="21.9" data-out="25.70">
+    <div class="lc">
+    <div class="tag mono dc" data-a="dec" data-t="22.5" data-d=".6">LOBBUS TV · O MARKETING COMO DEVE SER.</div>
+    <div class="eyebrow mono">
+      <span><span class="n dc" data-a="dec" data-t="21.97" data-d=".25">[04]</span><span class="dc" data-a="dec" data-t="22.0" data-d=".25"> PRONTO</span></span>
+      <span class="rule" data-a="scalex" data-t="22.03"></span>
+      <span style="color:var(--text)"><span class="dot ok" id="st5dot" data-a="pop" data-t="22.08"><i></i></span><span class="dc" data-a="dec" data-t="22.1" data-d=".3">TUDO CERTO</span></span>
+    </div>
+    <div class="title">
+      <span class="ln" data-a="mask" data-t="22.0"><span class="in">Tudo <span class="or">pronto<span class="pd" data-a="pop" data-t="22.55">.</span></span></span></span>
+    </div>
+    <p class="sub" data-a="rise" data-t="22.12">Sua lista está no Lobbus TV. Ela se atualiza sozinha uma vez por dia, sem você fazer nada.</p>
+    <div class="stats">
+      <i class="hl t" data-a="scalex" data-t="22.2" data-d=".9"></i><i class="hl b" data-a="scalex" data-t="22.26" data-d=".9"></i>
+      <div class="stat" data-a="fade" data-t="22.24" data-d=".2"><div class="v" data-a="count" data-t="22.3" data-d="1.1" data-v="312">312</div><div class="k mono dc" data-a="dec" data-t="22.34" data-d=".3">CANAIS</div></div>
+      <div class="stat" data-a="fade" data-t="22.36" data-d=".2"><div class="v" data-a="count" data-t="22.42" data-d="1.1" data-v="1840">1.840</div><div class="k mono dc" data-a="dec" data-t="22.46" data-d=".3">FILMES</div></div>
+      <div class="stat" data-a="fade" data-t="22.48" data-d=".2"><div class="v" data-a="count" data-t="22.54" data-d="1.1" data-v="214">214</div><div class="k mono dc" data-a="dec" data-t="22.58" data-d=".3">SÉRIES</div></div>
+      <div class="stat" data-a="fade" data-t="22.6" data-d=".2"><div class="v"><small data-a="fade" data-t="22.62" data-d=".3">ATÉ</small><span class="dc" data-a="dec" data-t="22.66" data-d=".4">06:00</span></div><div class="k mono dc" data-a="dec" data-t="22.7" data-d=".4">GUIA DE PROGRAMAÇÃO</div></div>
+    </div>
+    <div class="btns" data-a="rise" data-t="22.7">
+      <span class="btn pri" data-focus="23.0" data-press="25.6"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12.5-7.5z"/></svg>Começar a assistir</span>
+    </div>
+    <div class="foot mono" data-a="fade" data-t="22.3" data-d=".4">
+      <span>LOBBUS.CORE // CONFIGURAÇÃO CONCLUÍDA</span>
+      <span class="keys"><span class="key"><i>OK</i>IR PARA O INÍCIO</span></span>
+    </div>
+    </div>
+  </section>
+</div>
+
+<canvas id="fx" width="1920" height="1080"></canvas>
+<canvas id="cap" width="1920" height="1080"></canvas>
+
+<script>
+(async function () {
+  'use strict';
+  const W = 1920, H = 1080, CX = 960, CY = 540;
+  const C = { ink: '#0D0906', ink2: '#15100C', text: '#F6EFE9', muted: '#AB9C8F', dim: '#8A7B6F', or: '#F2600C', on: '#140C06', ok: '#5BD68A', line: 'rgba(255,233,219,0.09)', line2: 'rgba(255,233,219,0.17)' };
+  const MONO = '"Geist Mono", monospace';
+  const MAIN = document.getElementById('c').getContext('2d');
+  const FX = document.getElementById('fx').getContext('2d');
+  const CAP = document.getElementById('cap').getContext('2d');
+  let cx = MAIN;
+  const G = { gridA: 1, hudA: 1, tagA: 1, wolfA: 1, dustA: 1, hideLockup: false, hideWolf: false };
+  const TL = await (await fetch('timeline.json')).json();
+  const P1 = await (await fetch('primeiro.json')).json();
+  const QR = await (await fetch('qr.json')).json();
+  const wolfData = await (await fetch('assets/wolf_pts.json')).json();
+  const loadImg = s => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = s; });
+  const [IMG_WOLF, IMG_WM, IMG_HOME] = await Promise.all([loadImg('assets/wolf_white.png'), loadImg('assets/wordmark_white.png'), loadImg('assets/home.jpg')]);
+  await Promise.all(['500 20px "Geist Mono"', '400 20px "Geist Mono"', '500 20px G', '400 20px G', '400 20px M', '500 20px M', '600 20px M', '700 20px M', '800 20px M', '900 20px M'].map(f => document.fonts.load(f)));
+  await document.fonts.ready;
+
+  /* ---------- utilidades (as mesmas da abertura) ---------- */
+  const cl = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+  const pr = (t, r) => cl((t - r[0]) / (r[1] - r[0]));
+  const pr2 = (t, a, b) => cl((t - a) / (b - a));
+  const sm = x => x * x * (3 - 2 * x);
+  const lerp = (a, b, e) => a + (b - a) * e;
+  const power2InOut = x => x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+  const power2In = x => x * x;
+  const expoOut = x => x >= 1 ? 1 : 1 - Math.pow(2, -10 * x);
+  const expoInOut = x => x <= 0 ? 0 : x >= 1 ? 1 : x < .5 ? Math.pow(2, 20 * x - 10) / 2 : (2 - Math.pow(2, -20 * x + 10)) / 2;
+  const backOut = (x, s = 1.7) => 1 + (s + 1) * Math.pow(x - 1, 3) + s * Math.pow(x - 1, 2);
+  function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  const hash = (a, b) => { let h = (a * 374761393 + b * 668265263) | 0; h = (h ^ (h >>> 13)) * 1274126177 | 0; return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
+  function txt(s, x, y, size, color, { weight = 500, align = 'left', ls = 0.14, alpha = 1 } = {}) {
+    if (alpha <= 0) return 0;
+    cx.globalAlpha = cl(alpha); cx.font = `${weight} ${size}px ${MONO}`; cx.fillStyle = color; cx.textAlign = align;
+    cx.letterSpacing = (ls * size) + 'px'; cx.fillText(s, x, y); const w = cx.measureText(s).width; cx.letterSpacing = '0px'; cx.globalAlpha = 1; return w;
+  }
+  function measure(s, size, { weight = 500, ls = 0.14 } = {}) { cx.font = `${weight} ${size}px ${MONO}`; cx.letterSpacing = (ls * size) + 'px'; const w = cx.measureText(s).width; cx.letterSpacing = '0px'; return w; }
+  const SCR = '01<>/#_LOBUS';
+  function scramble(str, t, start, dur) {
+    if (t < start) return str.replace(/./g, ' ');
+    const p = (t - start) / dur, n = str.length; let out = '';
+    for (let i = 0; i < n; i++) {
+      const ch = str[i];
+      if (ch === ' ') { out += ' '; continue; }
+      const shown = p > (i / n) * 0.55;
+      const solved = p > 0.35 + (i / n) * 0.65;
+      if (!shown) out += ' '; else if (solved) out += ch; else out += SCR[Math.floor(hash(Math.floor(t * 30), i) * SCR.length)];
+    }
+    return out;
+  }
+  const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+  /* =====================================================================
+     ABERTURA (cópia fiel de intro.html, com o log sem fonte cadastrada)
+     ===================================================================== */
+  const N = wolfData.pts.length / 2, rnd = mulberry(20261022);
+  const gauss = () => { let u = 0, v = 0; while (!u) u = rnd(); while (!v) v = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(6.2831853 * v); };
+  const WA = 2.5, CAMZ = 6, PX = H / 2 * (1 / Math.tan(22.5 * Math.PI / 180)) / CAMZ;
+  const P = [];
+  for (let i = 0; i < N; i++) {
+    const r = [rnd(), rnd(), rnd(), rnd()];
+    if (i % 13 === 0) { P.push({ dust: 1, x: (rnd() - .5) * 13, y: (rnd() - .5) * 7.5, z: 1.5 - rnd() * 5.5, r }); continue; }
+    const X = wolfData.pts[i * 2] * WA, Y = -wolfData.pts[i * 2 + 1] * WA;
+    const Z = (rnd() - .5) * .16 + .28 * (1 - Math.min(1, (X * X + Y * Y) / 1.9));
+    P.push({ dust: 0, wx: X, wy: Y, wz: Z, nx: gauss() * 2.9, ny: gauss() * 1.55, nz: gauss() * 1.4 - .4, r });
+  }
+  const TONES = 16, SPR = [];
+  const c1 = [.79, .29, .02], c2 = [.95, .38, .05], c3 = [1, .9, .84];
+  for (let k = 0; k < TONES; k++) {
+    const v = k / (TONES - 1);
+    const col = v < .62 ? c1.map((a, j) => a + (c2[j] - a) * (v / .62)) : c2.map((a, j) => a + (c3[j] - a) * ((v - .62) / .38));
+    const s = document.createElement('canvas'); s.width = s.height = 32; const g = s.getContext('2d');
+    const id = g.createImageData(32, 32);
+    for (let y = 0; y < 32; y++) for (let x = 0; x < 32; x++) {
+      const d = Math.hypot(x + .5 - 16, y + .5 - 16) / 32; const a = sm(cl((0.5 - d) / (0.5 - 0.04)));
+      const o = (y * 32 + x) * 4; id.data[o] = col[0] * 255; id.data[o + 1] = col[1] * 255; id.data[o + 2] = col[2] * 255; id.data[o + 3] = a * 255;
+    }
+    g.putImageData(id, 0, 0); SPR.push(s);
+  }
+  function drawParticles(t) {
+    const appear = sm(pr(t, TL.noiseIn));
+    if (appear <= 0) return;
+    const m = sm(pr(t, TL.morph));
+    const dis = pr(t, TL.dissolve), disE = expoOut(dis);
+    const fadeOut = 1 - sm(dis);
+    const ry = 1.1 * Math.pow(1 - m, 2) + 0.05 * Math.sin(t * .35);
+    const cy = Math.cos(ry), sy = Math.sin(ry);
+    cx.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < N; i++) {
+      const p = P[i], r = p.r; let x, y, z, a;
+      if (p.dust) {
+        x = p.x + 0.04 * Math.sin(t * .7 + r[1] * 50); y = p.y + 0.04 * Math.cos(t * .6 + r[2] * 50); z = p.z;
+        a = 0.55 * appear * (1 - .5 * dis) * G.dustA;
+      } else {
+        if (fadeOut <= 0) continue;
+        let lf = cl((m - r[0] * .45) / .55); lf = sm(lf);
+        x = p.nx + (p.wx - p.nx) * lf; y = p.ny + (p.wy - p.ny) * lf; z = p.nz + (p.wz - p.nz) * lf;
+        const tr = Math.sin(Math.PI * lf);
+        x += (r[1] - .5) * tr * 1.7; y += (r[2] - .5) * tr * 1.7; z += (r[3] - .5) * tr * 1.7;
+        x += .022 * Math.sin(t * .7 + r[1] * 50); y += .022 * Math.cos(t * .6 + r[2] * 50);
+        if (dis > 0) { const k = 1 + disE * (0.10 + r[3] * 0.22); x *= k; y *= k; z += disE * (r[1] - .5) * 1.2; }
+        a = appear * fadeOut;
+        const xr = cy * x + sy * z, zr = -sy * x + cy * z; x = xr; z = zr;
+      }
+      if (a <= 0.002) continue;
+      const dd = Math.max(CAMZ - z, .05);
+      const k = CAMZ / dd;
+      const sx = CX + x * PX * k, sy2 = CY - y * PX * k;
+      if (sx < -10 || sx > W + 10 || sy2 < -10 || sy2 > H + 10) continue;
+      const fog = cl(1.25 - (dd - CAMZ) * .14, .12, 1);
+      const tw = .68 + .32 * Math.sin(t * 2.2 + r[3] * 60);
+      const size = 3.8 * (.55 + r[0] * .9) * k;
+      cx.globalAlpha = cl(a * fog * tw);
+      cx.drawImage(SPR[Math.min(TONES - 1, Math.floor(r[1] * TONES))], sx - size / 2, sy2 - size / 2, size, size);
+    }
+    cx.globalAlpha = 1; cx.globalCompositeOperation = 'source-over';
+  }
+  const WOLF_ASP = IMG_WOLF.width / IMG_WOLF.height;
+  const bigH = WA * PX;
+  const LK = (() => {
+    const h = 300, s = h / 697, w = h * WOLF_ASP;
+    const wmW = IMG_WM.width * s, wmH = IMG_WM.height * s, gap = (696 - 598) * s;
+    const pillH = 54, pillW = 108, pillGap = 26;
+    const total = w + gap + wmW + pillGap + pillW;
+    const x0 = CX - total / 2, top = CY - h / 2 - 14;
+    return { h, w, s, x0, top, wmX: x0 + w + gap, wmY: top + 177 * s, wmW, wmH, pillX: x0 + w + gap + wmW + pillGap, pillY: top + 177 * s + wmH * 0.56 - pillH / 2, pillW, pillH, tagY: top + 474 * s + 36 };
+  })();
+  const TINT_OR = (() => { const o = document.createElement('canvas'); o.width = IMG_WOLF.width; o.height = IMG_WOLF.height; const g = o.getContext('2d'); g.drawImage(IMG_WOLF, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = C.or; g.fillRect(0, 0, o.width, o.height); return o; })();
+  function drawWolfSolid(t) {
+    if (t < TL.scan[0] || G.hideWolf || G.wolfA <= 0) return;
+    const sp = pr(t, TL.scan);
+    const mv = expoInOut(pr(t, TL.wolfToLockup));
+    const bump = 1 + 0.035 * Math.sin(Math.PI * pr(t, [TL.hit, TL.hit + 0.28]));
+    const h = (bigH + (LK.h - bigH) * mv) * bump, w = h * WOLF_ASP;
+    const cX = CX + ((LK.x0 + LK.w / 2) - CX) * mv, cY = CY + ((LK.top + LK.h / 2) - CY) * mv;
+    const x = cX - w / 2, y = cY - h / 2;
+    const revealY = y + h * sp;
+    cx.save(); cx.beginPath(); cx.rect(0, 0, W, revealY); cx.clip();
+    cx.globalAlpha = G.wolfA; cx.drawImage(IMG_WOLF, x, y, w, h); cx.globalAlpha = 1;
+    const fl = 1 - sm(pr(t, [TL.hit + 0.04, TL.hit + 0.42]));
+    if (fl > 0) { cx.globalAlpha = fl; cx.drawImage(TINT_OR, x, y, w, h); cx.globalAlpha = 1; }
+    cx.restore();
+    if (sp > 0 && sp < 1) {
+      cx.fillStyle = C.or; cx.globalAlpha = 0.95; cx.fillRect(x - 40, revealY - 1.5, w + 80, 3); cx.globalAlpha = 1;
+      cx.globalAlpha = 0.18; cx.fillRect(x - 40, revealY - 14, w + 80, 12); cx.globalAlpha = 1;
+    }
+  }
+  function drawLockupText(t) {
+    const wp = pr(t, TL.wordmark);
+    if (wp > 0 && !G.hideLockup) {
+      const e = expoOut(wp);
+      cx.save(); cx.beginPath(); cx.rect(LK.wmX - 4, LK.wmY - 6, LK.wmW + 8, LK.wmH + 12); cx.clip();
+      cx.drawImage(IMG_WM, LK.wmX, LK.wmY + (1 - e) * LK.wmH * 1.12, LK.wmW, LK.wmH); cx.restore();
+    }
+    const pp = pr(t, TL.pill);
+    if (pp > 0 && !G.hideLockup) {
+      const e = backOut(pp, 1.8), a = cl(pp * 2.5);
+      const pw = LK.pillW * (0.35 + 0.65 * e), ph = LK.pillH * (0.6 + 0.4 * e);
+      const px = LK.pillX, py = LK.pillY + (LK.pillH - ph) / 2;
+      cx.globalAlpha = a; cx.fillStyle = C.or; cx.beginPath(); cx.roundRect(px, py, pw, ph, ph / 2); cx.fill(); cx.globalAlpha = 1;
+      if (pp > 0.45) txt('TV', px + pw / 2 + 2, py + ph / 2 + 11, 30, C.on, { weight: 500, align: 'center', ls: 0.08, alpha: cl((pp - .45) / .3) });
+    }
+    if (t > TL.tagline[0]) txt(scramble('O MARKETING COMO DEVE SER.', t, TL.tagline[0], TL.tagline[1] - TL.tagline[0]), LK.wmX + 4, LK.tagY, 19, C.muted, { weight: 400, ls: 0.3, alpha: G.tagA });
+  }
+  function drawGrid(t) {
+    const a = sm(pr(t, TL.hudIn)) * 0.55 * G.gridA; if (a <= 0) return;
+    cx.globalAlpha = a; cx.fillStyle = 'rgba(255,233,219,0.09)';
+    const x0 = 96, w = W - 192;
+    for (let i = 0; i <= 6; i++) cx.fillRect(Math.round(x0 + w * i / 6), 0, 1, H);
+    cx.globalAlpha = 1;
+  }
+  function clockAt(t) { const s = 10 * 3600 + 29 * 60 + 54 + Math.floor(t); const hh = Math.floor(s / 3600), mm = Math.floor(s / 60) % 60, ss = s % 60; return [hh, mm, ss].map(v => String(v).padStart(2, '0')).join(':'); }
+  function drawHud(t) {
+    const a = sm(pr(t, TL.hudIn)) * G.hudA; if (a <= 0) return;
+    const m = 72, y1 = 84, y2 = H - 64, sz = 16;
+    const core = scramble('LOBBUS.CORE', t, 0.05, 0.9);
+    let w = txt(core, m, y1, sz, C.text, { alpha: a });
+    txt('  //  TV v0.3', m + w, y1, sz, C.dim, { alpha: a });
+    const clock = clockAt(t);
+    const wc = txt(clock, W - m, y1, sz, C.text, { align: 'right', alpha: a });
+    txt('SEX · 23 OUT  ·  ', W - m - wc, y1, sz, C.dim, { align: 'right', alpha: a });
+    txt('31°46′S · 52°20′W', m, y2, sz, C.dim, { alpha: a });
+    const wo = txt('ONLINE', W - m, y2, sz, C.ok, { align: 'right', alpha: a });
+    const dotX = W - m - wo - 18;
+    const ping = (t * 0.45) % 1;
+    cx.globalAlpha = a; cx.fillStyle = C.ok; cx.beginPath(); cx.arc(dotX, y2 - 6, 4.5, 0, 7); cx.fill();
+    cx.globalAlpha = a * 0.5 * (1 - ping); cx.strokeStyle = C.ok; cx.lineWidth = 1.5; cx.beginPath(); cx.arc(dotX, y2 - 6, 4.5 + ping * 12, 0, 7); cx.stroke(); cx.globalAlpha = 1;
+    txt('STATUS  ', dotX - 14, y2, sz, C.dim, { align: 'right', alpha: a });
+  }
+  /* sem fonte cadastrada: o log mostra AGUARDANDO e zeros (regra 3 da 4b.1) */
+  const LOG = [['NÚCLEO LOBBUS', 'OK', 'ok'], ['FONTE XTREAM', 'AGUARDANDO', 'or'], ['CANAIS', '0', 'dim'], ['GUIA DE PROGRAMAÇÃO', 'SEM GUIA', 'dim'], ['FILMES', '0', 'dim'], ['SÉRIES', '0', 'dim']];
+  function drawLoader(t) {
+    const out = pr(t, TL.loaderOut); if (out >= 1) return;
+    const a = 1 - power2In(out), dy = -24 * power2In(out);
+    if (t < TL.counter[0] - 0.15) return;
+    const ain = sm(pr(t, [TL.counter[0] - 0.15, TL.counter[0] + 0.1]));
+    const v = Math.round(100 * power2InOut(pr(t, TL.counter)));
+    const num = String(v).padStart(3, '0');
+    const sz = 20, y = CY - 70 + dy;
+    cx.font = `500 ${sz}px ${MONO}`; cx.letterSpacing = (0.14 * sz) + 'px';
+    const lw = cx.measureText('INICIANDO ').width, nw = cx.measureText(num).width; cx.letterSpacing = '0px';
+    const x0 = CX - (lw + nw) / 2;
+    txt('INICIANDO ', x0, y, sz, C.muted, { alpha: a * ain });
+    txt(num, x0 + lw, y, sz, C.text, { alpha: a * ain });
+    const bw = 300, by = y + 30;
+    cx.globalAlpha = a * ain; cx.fillStyle = C.line2; cx.fillRect(CX - bw / 2, by, bw, 2);
+    cx.fillStyle = C.or; cx.fillRect(CX - bw / 2, by, bw * v / 100, 2); cx.globalAlpha = 1;
+    const lx = CX - 300, rx = CX + 300, ly0 = by + 70, lh = 34, lsz = 16;
+    LOG.forEach((l, i) => {
+      const st = TL.logLines[i]; if (t < st) return;
+      const la = a * sm(cl((t - st) / 0.08));
+      const yy = ly0 + i * lh;
+      const lt = '> ' + l[0];
+      const w1 = txt(lt, lx, yy, lsz, C.dim, { weight: 400, alpha: la });
+      const val = t < st + 0.16 ? scramble(l[1], t, st, 0.16) : l[1];
+      cx.font = `500 ${lsz}px ${MONO}`; cx.letterSpacing = (0.14 * lsz) + 'px'; const w2 = cx.measureText(l[1]).width; const dw = cx.measureText('.').width; cx.letterSpacing = '0px';
+      const n = Math.max(2, Math.floor((rx - lx - w1 - w2 - 24) / dw));
+      txt('.'.repeat(n), lx + w1 + 10, yy, lsz, 'rgba(255,233,219,0.22)', { weight: 400, alpha: la });
+      txt(val, rx, yy, lsz, C[l[2]], { align: 'right', alpha: la });
+    });
+  }
+  function introLayer(t) {
+    cx = MAIN; cx.setTransform(1, 0, 0, 1, 0, 0); cx.globalAlpha = 1; cx.globalCompositeOperation = 'source-over';
+    cx.fillStyle = C.ink; cx.fillRect(0, 0, W, H);
+    drawGrid(t); drawParticles(t); drawLoader(t); drawWolfSolid(t); drawLockupText(t); drawHud(t);
+  }
+
+  /* =====================================================================
+     CABEÇALHO: o Encaixe da abertura pousa aqui (mesma posição do Início)
+     ===================================================================== */
+  const TR = P1.encaixe;
+  const HDR = { wm: { x: 202, y: 96, w: 131, h: 24 }, pill: { x: 350, y: 98, w: 42, h: 21 } };
+  function homeSlice(sx, sy, sw, sh, dx, dy, a = 1) { if (a <= 0) return; cx.globalAlpha = cl(a); cx.drawImage(IMG_HOME, sx, sy, sw, sh, dx, dy, sw, sh); cx.globalAlpha = 1; }
+  function drawHeader(t) {
+    if (t < TR[0]) return;
+    const p0 = TR[0];
+    /* lobo da abertura vira brasas */
+    const ep = pr(t, [p0, p0 + 0.55]);
+    if (ep > 0 && ep < 1) {
+      const k = LK.h / bigH, ccx = LK.x0 + LK.w / 2, ccy = LK.top + LK.h / 2;
+      cx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < N; i += 2) {
+        const q = P[i]; if (q.dust) continue; const r = q.r;
+        const lp = cl((ep - r[0] * 0.25) / 0.75); if (lp <= 0 || lp >= 1) continue;
+        const e = expoOut(lp);
+        const bx = q.wx * PX * k, by = -q.wy * PX * k, len = Math.hypot(bx, by) + 1;
+        const sx = ccx + bx + (bx / len) * e * (40 + r[3] * 110) + (r[1] - .5) * e * 40;
+        const sy = ccy + by + (by / len) * e * (40 + r[3] * 110) - e * (30 + r[2] * 70);
+        const a = Math.min(1, lp * 12) * Math.pow(1 - lp, 2.2);
+        const size = 3.2 * (.55 + r[0] * .9);
+        cx.globalAlpha = cl(a); cx.drawImage(SPR[Math.min(TONES - 1, Math.floor(r[1] * TONES))], sx - size / 2, sy - size / 2, size, size);
+      }
+      cx.globalAlpha = 1; cx.globalCompositeOperation = 'source-over';
+    }
+    /* assinatura voando para o cabeçalho */
+    const fe = expoInOut(pr(t, [p0 + 0.05, TR[1] - 0.1]));
+    const tw = 124, th = 24.5, tcx = HDR.wm.x + HDR.wm.w / 2, tcy = HDR.wm.y + HDR.wm.h / 2;
+    const ww = lerp(LK.wmW, tw, fe), wh = lerp(LK.wmH, th, fe);
+    const wcx = lerp(LK.wmX + LK.wmW / 2, tcx, fe), wcy = lerp(LK.wmY + LK.wmH / 2, tcy, fe);
+    const pw = lerp(LK.pillW, HDR.pill.w, fe), ph = lerp(LK.pillH, HDR.pill.h, fe);
+    const pcx = lerp(LK.pillX + LK.pillW / 2, HDR.pill.x + HDR.pill.w / 2, fe), pcy = lerp(LK.pillY + LK.pillH / 2, HDR.pill.y + HDR.pill.h / 2, fe);
+    /* no app o cabeçalho é o mesmo componente do Início (BrandMark e Wordmark); aqui ele fica desenhado */
+    cx.drawImage(IMG_WM, wcx - ww / 2, wcy - wh / 2, ww, wh);
+    cx.fillStyle = C.or; cx.beginPath(); cx.roundRect(pcx - pw / 2, pcy - ph / 2, pw, ph, ph / 2); cx.fill();
+    const fs = lerp(30, 11.5, fe);
+    txt('TV', pcx + 2 * (1 - fe) + 0.5, pcy + fs * 0.37, fs, C.on, { weight: 500, align: 'center', ls: 0.08 });
+    /* data do cabeçalho (a do Início, ao vivo) */
+    const de = sm(pr(t, [TR[1] - 0.12, TR[1] + 0.25]));
+    txt('SEX · 23 OUT · 10:30', 423 - (1 - de) * 12, 113, 13, C.muted, { ls: 0.155, alpha: de });
+  }
+
+  /* =====================================================================
+     DOM: animações declaradas nos atributos data-a / data-t / data-d
+     ===================================================================== */
+  const SECTIONS = [...document.querySelectorAll('.scr')].map(el => ({ el, lc: el.querySelector('.lc'), pc: el.querySelector(':scope > .pc'), tin: +el.dataset.in, tout: +el.dataset.out, pcout: el.dataset.pcout ? +el.dataset.pcout : +el.dataset.out }));
+  const ANIMS = [...document.querySelectorAll('[data-a]')].map(el => ({ el, kinds: el.dataset.a.split(' '), t0: +el.dataset.t, d: el.dataset.d ? +el.dataset.d : null, inner: el.querySelector(':scope > .in') }));
+  ANIMS.forEach(a => { if (a.kinds.includes('dec') || a.kinds.includes('count')) a.final = a.el.textContent; });
+  const FOCUS = [...document.querySelectorAll('[data-focus]')].map(el => ({ el, t0: +el.dataset.focus, t1: el.dataset.blur ? +el.dataset.blur : 1e9, press: el.dataset.press ? +el.dataset.press : null, pri: el.classList.contains('pri') }));
+
+  /* mede tudo na posição final, com as seções visíveis */
+  SECTIONS.forEach(s => { s.el.style.display = 'block'; s.el.style.opacity = '0'; });
+  const rectOf = el => { const r = el.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; };
+  const PC = { 1: rectOf(document.querySelector('#s1 .pc')), 2: rectOf(document.querySelector('#s2 .pc')), 3: rectOf(document.querySelector('#s3 .pc')), 4: rectOf(document.querySelector('#s4 .pc')) };
+  const RINGBOX = { x: 1240, y: 220, w: 580, h: 580 };
+  const QBOX = rectOf(document.getElementById('qrbox'));
+  const QRB = { x: QBOX.x + 26, y: QBOX.y + 26, s: (QBOX.w - 52) / QR.length };
+  const FIELDS = [0, 1, 2, 3].map(i => { const f = document.getElementById('f' + i), v = f.querySelector('.val'); const rf = rectOf(f), rv = rectOf(v); return { el: f, val: v, fl: f.querySelector('.fl'), final: v.textContent, x: rv.x, y: rf.y + rf.h / 2, w: rv.w }; });
+  const LOGROWS = [...document.querySelectorAll('#log li')].map(li => rectOf(li));
+  ANIMS.forEach(a => { if (a.kinds.includes('mask')) a.h = a.el.offsetHeight; });
+  document.querySelectorAll('.stat .v[data-v]').forEach(v => { v.style.minWidth = v.getBoundingClientRect().width + 'px'; });
+  SECTIONS.forEach(s => { s.el.style.display = 'none'; s.el.style.opacity = ''; });
+
+  function applyAnim(a, t) {
+    const el = a.el, t0 = a.t0;
+    let tf = '', op = 1;
+    for (const k of a.kinds) {
+      if (k === 'rise') { const e = expoOut(pr2(t, t0, t0 + (a.d || 0.8))); tf += ` translateY(${(1 - e) * 24}px)`; op *= Math.min(1, e * 1.6); }
+      else if (k === 'mask') { const e = expoOut(pr2(t, t0, t0 + (a.d || 0.8))); a.inner.style.transform = `translateY(${(1 - e) * 1.12 * a.h}px)`; }
+      else if (k === 'fade') { op *= sm(pr2(t, t0, t0 + (a.d || 0.3))); }
+      else if (k === 'scalex') { const e = expoOut(pr2(t, t0, t0 + (a.d || 0.6))); tf += ` scaleX(${e})`; }
+      else if (k === 'pop') { const p = pr2(t, t0, t0 + (a.d || 0.32)); const e = p <= 0 ? 0 : backOut(p, 1.8); tf += ` scale(${Math.max(0, e)})`; op *= cl(p * 3); }
+      else if (k === 'dec') { el.textContent = scramble(a.final, t, t0, a.d || 0.3); }
+      else if (k === 'count') { const e = expoOut(pr2(t, t0, t0 + (a.d || 1))); el.textContent = fmt(Math.round(+el.dataset.v * e)); op *= sm(pr2(t, t0 - 0.05, t0 + 0.1)); }
+    }
+    if (tf) el.style.transform = tf; else if (!a.kinds.includes('mask')) el.style.transform = '';
+    el.style.opacity = op;
+  }
+
+  /* passos: [entra/fica atual, concluído] */
+  const STEPS = [...document.querySelectorAll('#steps .step')].map(el => ({ el, bar: el.querySelector('.bar'), fill: el.querySelector('.bar i'), lbl: el.querySelector('.lbl'), dcs: [...el.querySelectorAll('.dc')].map(d => ({ d, f: d.textContent })) }));
+  const STEP_ON = [4.52, P1.s1.out + 0.02, P1.s3.in, P1.s4.out], STEP_DONE = [P1.s1.out + 0.02, P1.s3.in, P1.s4.out, 1e9];
+  const RIPPLE = 22.3, STEPS_OUT = P1.s5.ok + 0.1;
+  function steps(t) {
+    const out = 1 - sm(pr2(t, STEPS_OUT, STEPS_OUT + 0.2));
+    STEPS.forEach((s, i) => {
+      const t0 = 4.52 + i * 0.06;
+      s.el.style.opacity = t < t0 ? 0 : out;
+      s.bar.style.transform = `scaleX(${expoOut(pr2(t, t0, t0 + 0.7))})`;
+      s.dcs.forEach((d, j) => { d.d.textContent = scramble(d.f, t, t0 + 0.08 + j * 0.04, 0.3); });
+      const on = t >= STEP_ON[i], done = t >= STEP_DONE[i];
+      const fe = on ? expoOut(pr2(t, STEP_ON[i], STEP_ON[i] + 0.5)) : 0;
+      let fo = done ? lerp(1, 0.45, sm(pr2(t, STEP_DONE[i], STEP_DONE[i] + 0.3))) : 1;
+      const rp = pr2(t, RIPPLE + i * 0.08, RIPPLE + i * 0.08 + 0.55); if (rp > 0 && rp < 1) fo = Math.max(fo, Math.sin(Math.PI * rp));
+      s.fill.style.transform = `scaleX(${fe})`; s.fill.style.opacity = fo;
+      s.lbl.style.color = on && !done ? C.text : done ? C.muted : C.dim;
+      s.lbl.querySelector('b').style.color = on && !done ? C.or : '';
+    });
+  }
+
+  /* moldura compartilhada: os cantos laranja passam de um painel ao outro */
+  const FRAME = document.getElementById('frame'), FBG = FRAME.querySelector('.bg'), FK = [...FRAME.querySelectorAll('.k')];
+  const MORPHS = [[P1.s1.out + 0.02, 0.35, PC[1], PC[2]], [P1.s3.in, 0.35, PC[2], PC[3]], [P1.s3.out + 0.02, 0.35, PC[3], PC[4]], [P1.s5.dissolveLog, 0.4, PC[4], RINGBOX]];
+  const lerpR = (a, b, e) => ({ x: lerp(a.x, b.x, e), y: lerp(a.y, b.y, e), w: lerp(a.w, b.w, e), h: lerp(a.h, b.h, e) });
+  function frame(t) {
+    const f0 = P1.s1.frame;
+    if (t < f0) { FRAME.style.display = 'none'; return; }
+    FRAME.style.display = 'block';
+    let r;
+    const g = expoOut(pr2(t, f0, f0 + 0.6));
+    const c = { x: PC[1].x + PC[1].w / 2 - 20, y: PC[1].y + PC[1].h / 2 - 20, w: 40, h: 40 };
+    r = lerpR(c, PC[1], g);
+    for (const [m0, d, a, b] of MORPHS) if (t >= m0) r = lerpR(a, b, expoInOut(pr2(t, m0, m0 + d)));
+    Object.assign(FRAME.style, { left: r.x + 'px', top: r.y + 'px', width: r.w + 'px', height: r.h + 'px' });
+    const ka = sm(pr2(t, f0, f0 + 0.1)) * (1 - sm(pr2(t, 20.85, 21.2)));
+    FK.forEach(k => k.style.opacity = ka);
+    FBG.style.opacity = sm(pr2(t, f0 + 0.15, f0 + 0.45)) * (1 - sm(pr2(t, P1.s5.dissolveLog, P1.s5.dissolveLog + 0.2)));
+  }
+
+  /* foco: anel laranja de 2 px a 3 px, escala 1,05 em 120 ms; OK afunda 3% */
+  function focus(t) {
+    FOCUS.forEach(f => {
+      const k = sm(pr2(t, f.t0, f.t0 + 0.12)) * (1 - sm(pr2(t, f.t1, f.t1 + 0.12)));
+      const press = f.press != null ? 1 - 0.03 * Math.sin(Math.PI * pr2(t, f.press, f.press + 0.18)) : 1;
+      f.el.style.transform = `scale(${(1 + 0.05 * k) * press})`;
+      f.el.style.outlineColor = `rgba(242,96,12,${k})`;
+      if (f.pri) { const br = 0.34 + 0.12 * Math.sin((t - f.t0) * 2 * Math.PI / 2.4); f.el.style.boxShadow = `0 10px 50px rgba(242,96,12,${(k * br).toFixed(3)})`; }
+      else { f.el.style.background = k > 0 ? `rgb(${lerp(34, 42, k)},${lerp(26, 29, k)},${lerp(20, 20, k)})` : ''; f.el.style.borderColor = `rgba(242,96,12,${0.55 * k})`; if (k <= 0) f.el.style.borderColor = ''; }
+    });
+  }
+
+  /* pulso do ponto de status */
+  function ping(el, t, t0, period) {
+    const i = el.querySelector('i'); if (t < t0) { i.style.opacity = 0; return; }
+    const q = period ? ((t - t0) % period) / period : pr2(t, t0, t0 + 0.9);
+    i.style.transform = `scale(${1 + q * 1.8})`; i.style.opacity = 0.7 * Math.pow(1 - q, 1.5);
+  }
+
+  /* glows e lobo de fundo */
+  const GL = [1, 2, 3, 4, 5].map(i => document.getElementById('g' + i)), W1 = document.getElementById('w1');
+  function glows(t) {
+    const win = [[4.5, P1.s1.out], [P1.s2.in - 0.1, P1.s2.out], [P1.s3.in - 0.1, P1.s3.out], [P1.s4.in - 0.1, P1.s4.out], [20.5, P1.s5.out]];
+    win.forEach(([a, b], i) => { GL[i].style.opacity = sm(pr2(t, a, a + 0.6)) * (1 - sm(pr2(t, b, b + 0.35))) * (i === 2 ? 0.8 : i === 3 ? 0.7 : 1); });
+    GL[4].style.opacity = (0.35 + 0.65 * sm(pr2(t, P1.s5.hit, P1.s5.hit + 0.45))) * sm(pr2(t, 20.5, 21.1)) * (1 - sm(pr2(t, P1.s5.out, P1.s5.out + 0.35)));
+    const wa = sm(pr2(t, 5.3, 6.8)) * (1 - sm(pr2(t, P1.s1.out, P1.s1.out + 0.3)));
+    W1.style.opacity = 0.05 * wa; W1.style.transform = `scale(${1.04 - 0.04 * expoOut(pr2(t, 5.3, 7.0))})`;
+  }
+
+  /* ---------- 2 · QR que nasce do ruído ---------- */
+  const QN = QR.length, QCELLS = [];
+  for (let y = 0; y < QN; y++) for (let x = 0; x < QN; x++) QCELLS.push({ x, y, on: QR[y][x] });
+  /* cada módulo escuro vira uma partícula que voa até um campo */
+  const fr = mulberry(1023), FLY = [];
+  const FW = [0.14, 0.42, 0.26, 0.18];
+  QCELLS.forEach((c, i) => {
+    if (!c.on) return;
+    let u = fr(), fi = 0, acc = FW[0]; while (u > acc && fi < 3) { fi++; acc += FW[fi]; }
+    const f = FIELDS[fi];
+    const base = P1.flight[0] + 0.05 + (c.y / QN) * 0.18 + fr() * 0.2 + fi * 0.05;
+    for (let j = 0; j < 3; j++) {
+      const sx = QRB.x + (c.x + .5 + (fr() - .5) * .7) * QRB.s, sy = QRB.y + (c.y + .5 + (fr() - .5) * .7) * QRB.s;
+      const tx = f.x + fr() * f.w, ty = f.y + (fr() - .5) * 18;
+      const t0 = base + j * 0.025 + fr() * 0.03;
+      FLY.push({ i, sx, sy, tx, ty, t0, t1: t0 + 0.55, fi, r: [fr(), fr(), fr()], mx: (sx + tx) / 2 + (fr() - .5) * 160, my: Math.min(sy, ty) - 140 - fr() * 160 });
+    }
+  });
+  const DEPART = new Map(); FLY.forEach(p => DEPART.set(p.i, Math.min(DEPART.get(p.i) ?? 1e9, p.t0)));
+  const FIELD_IN = [0, 1, 2, 3].map(fi => Math.min(...FLY.filter(p => p.fi === fi).map(p => p.t1)) - 0.08);
+  function qr(t) {
+    const n0 = P1.s2.qrNoise, sc = P1.s2.qrScan;
+    const ba = sm(pr2(t, 8.0, 8.3)) * (1 - sm(pr2(t, 12.2, 12.45)));
+    if (ba <= 0) return;
+    const bs = 0.96 + 0.04 * expoOut(pr2(t, 8.0, 8.4)), bcx = QBOX.x + QBOX.w / 2, bcy = QBOX.y + QBOX.h / 2;
+    cx.save(); cx.translate(bcx, bcy); cx.scale(bs, bs); cx.translate(-bcx, -bcy);
+    cx.globalAlpha = ba; cx.fillStyle = '#FFF6EE'; rr(QBOX.x, QBOX.y, QBOX.w, QBOX.h, 8); cx.fill();
+    if (t < n0[0]) { cx.restore(); cx.globalAlpha = 1; return; }
+    const boxA = ba;
+    const sy = QRB.y + QN * QRB.s * pr2(t, sc[0], sc[1]);
+    const tq = Math.floor(t * 30);
+    const dens = 0.2 + 0.3 * pr2(t, n0[0], n0[1]);
+    for (let k = 0; k < QCELLS.length; k++) {
+      const c = QCELLS[k];
+      const x = QRB.x + c.x * QRB.s, y = QRB.y + c.y * QRB.s;
+      if (y + QRB.s * 0.5 < sy) {
+        if (!c.on) continue;
+        if (t >= (DEPART.get(k) || 1e9)) continue;
+        cx.globalAlpha = boxA; cx.fillStyle = C.on; cx.fillRect(x, y, QRB.s + 0.4, QRB.s + 0.4);
+      } else if (t < sc[1]) {
+        const h = hash(tq, k); if (h > dens) continue;
+        cx.globalAlpha = boxA * (0.18 + 0.5 * hash(tq + 7, k)); cx.fillStyle = h < dens * 0.12 ? C.or : C.on; cx.fillRect(x, y, QRB.s + 0.4, QRB.s + 0.4);
+      }
+    }
+    cx.globalAlpha = 1;
+    if (t >= sc[0] && t < sc[1]) {
+      const x0 = QRB.x - 26, w = QN * QRB.s + 52;
+      cx.fillStyle = C.or; cx.globalAlpha = 0.95; cx.fillRect(x0, sy - 1.5, w, 3); cx.globalAlpha = 0.18; cx.fillRect(x0, sy - 14, w, 12); cx.globalAlpha = 1;
+    }
+    cx.restore(); cx.globalAlpha = 1;
+  }
+  const URL_EL = document.getElementById('url'), PIN_EL = document.getElementById('pin');
+  const URL_F = URL_EL.textContent, PIN_F = PIN_EL.textContent, QRBOX = document.getElementById('qrbox');
+  function s2(t) {
+    const u0 = 8.72;
+    URL_EL.textContent = t < u0 ? ' ' : URL_F.split('').map((ch, i) => (t > u0 + 0.12 + i * 0.016 || ch === '.' || ch === ':') ? ch : String(Math.floor(hash(Math.floor(t * 30), i) * 10))).join('');
+    URL_EL.style.opacity = sm(pr2(t, u0, u0 + 0.1));
+    const p0 = P1.s2.pin;
+    PIN_EL.textContent = PIN_F.split('').map((ch, i) => t < p0 ? ' ' : t > p0 + 0.14 + i * 0.08 ? ch : String(Math.floor(hash(Math.floor(t * 30), i + 40) * 10))).join('');
+    /* AGUARDANDO pulsa a cada 1,2 s; RECEBIDO pinga uma vez, em verde */
+    const st = document.getElementById('st2'), dot = document.getElementById('st2dot'), rc = P1.s2.recebido;
+    if (t < rc) { st.textContent = scramble('AGUARDANDO', t, 8.04, 0.3); dot.className = 'dot wait'; ping(dot, t, 9.0, 1.2); }
+    else { st.textContent = scramble('RECEBIDO  ', t, rc, 0.25); dot.className = 'dot ok'; ping(dot, t, rc, 0); }
+    dot.style.opacity = sm(pr2(t, 8.0, 8.15));
+  }
+  function flight(t) {
+    if (t < P1.flight[0] || t > P1.flight[1] + 0.2) return;
+    cx.globalCompositeOperation = 'lighter';
+    for (const p of FLY) {
+      const q = pr2(t, p.t0, p.t1); if (q <= 0 || q >= 1.0) continue;
+      const e = expoInOut(q), u = 1 - e;
+      const x = u * u * p.sx + 2 * u * e * p.mx + e * e * p.tx, y = u * u * p.sy + 2 * u * e * p.my + e * e * p.ty;
+      const a = Math.min(1, q * 8) * (1 - sm(pr2(q, 0.85, 1)));
+      const size = 3.4 + p.r[0] * 3.2;
+      cx.globalAlpha = a; cx.drawImage(SPR[Math.floor(4 + p.r[1] * 11)], x - size / 2, y - size / 2, size, size);
+    }
+    cx.globalAlpha = 1; cx.globalCompositeOperation = 'source-over';
+  }
+  function s3(t) {
+    FIELDS.forEach((f, i) => {
+      const t0 = FIELD_IN[i];
+      if (i === 3) { const n = f.final.length; const k = Math.floor(n * pr2(t, t0, t0 + 0.3)); f.val.textContent = '•'.repeat(k) + ' '.repeat(n - k); }
+      else f.val.textContent = scramble(f.final, t, t0, 0.3);
+      f.fl.style.opacity = 0.9 * sm(pr2(t, t0, t0 + 0.06)) * (1 - sm(pr2(t, t0 + 0.12, t0 + 0.55)));
+    });
+    const dot = document.getElementById('st3dot'); ping(dot, t, 12.1, 0);
+  }
+
+  /* ---------- 4 · Importando ---------- */
+  const SG = P1.s4.stages;
+  const LOGDEF = [
+    { run: 'CONECTANDO', vRun: () => 'Conectando', vDone: 'Conectado', tag: 'SERVIDOR · CONECTANDO' },
+    { run: 'CONTANDO', n: 312 }, { run: 'CONTANDO', n: 1840 }, { run: 'CONTANDO', n: 214 },
+    { run: 'BAIXANDO', vRun: () => 'Baixando', vDone: 'Até 06:00', tag: 'GUIA · BAIXANDO' }];
+  const NAMES = ['SERVIDOR', 'CANAIS', 'FILMES', 'SÉRIES', 'GUIA'];
+  const LIS = [...document.querySelectorAll('#log li')];
+  function s4(t) {
+    let detail = '';
+    LIS.forEach((li, i) => {
+      const def = LOGDEF[i], a = SG[i], b = SG[i + 1];
+      const x = li.querySelector('.x'), s = li.querySelector('.s');
+      const state = t < a ? 'idle' : t < b ? 'cur' : 'done';
+      li.className = state === 'idle' ? 'idle' : state === 'cur' ? 'cur' : '';
+      if (state === 'idle') { x.textContent = 'Na fila'; s.className = 's mono wait'; s.textContent = 'AGUARDANDO'; s.style.transform = ''; }
+      else if (state === 'cur') {
+        const v = def.n ? Math.round(def.n * power2InOut(pr2(t, a, b))) : null;
+        x.textContent = def.n ? fmt(v) : def.vRun();
+        s.className = 's mono run'; s.textContent = scramble(def.run, t, a, 0.2);
+        detail = def.n ? `${NAMES[i]} · ${fmt(v)} DE ${fmt(def.n)}` : def.tag;
+      } else {
+        x.textContent = def.n ? fmt(def.n) : def.vDone;
+        s.className = 's mono ok'; s.textContent = scramble('OK', t, b, 0.15);
+        const pp = pr2(t, b, b + 0.3); s.style.transform = `scale(${1 + 0.14 * Math.sin(Math.PI * pp)})`;
+      }
+    });
+    const p = pr2(t, SG[0], SG[5]);
+    document.getElementById('pctn').textContent = String(Math.floor(p * 100 + 1e-6)).padStart(3, '0');
+    document.getElementById('fill').style.width = (p * 100) + '%';
+    const pb = pr2(t, SG[5], SG[5] + 0.3); document.getElementById('pct').style.transform = `scale(${1 + 0.045 * Math.sin(Math.PI * pb)})`;
+    const sh = document.getElementById('shine'), sq = ((t - 15.9) % 1.4) / 1.4;
+    sh.style.left = `${(sq * 1.4 - 0.2) * p * 820}px`; sh.style.opacity = t > 15.9 && p < 1 ? 0.8 * Math.sin(Math.PI * sq) : 0;
+    const done = t >= SG[5];
+    document.getElementById('etaL').textContent = done ? 'TUDO IMPORTADO' : (detail || 'PREPARANDO');
+    document.getElementById('etaR').textContent = done ? 'CONCLUÍDO' : `CERCA DE ${Math.max(1, Math.ceil((SG[5] - t) * 9))} S`;
+    const st = document.getElementById('st4'), dot = document.getElementById('st4dot');
+    if (!done) { st.textContent = scramble('EM ANDAMENTO', t, 15.36, 0.3); dot.className = 'dot wait'; ping(dot, t, 15.6, 1.2); }
+    else { st.textContent = scramble('CONCLUÍDO   ', t, SG[5], 0.25); dot.className = 'dot ok'; ping(dot, t, SG[5], 0); }
+    dot.style.opacity = sm(pr2(t, 15.34, 15.5));
+    /* o log se desfaz em partículas */
+    const dl = P1.s5.dissolveLog;
+    document.getElementById('log').style.opacity = 1 - sm(pr2(t, dl, dl + 0.15));
+    document.querySelector('#s4 .pc .ph').style.opacity = 1 - sm(pr2(t, dl, dl + 0.15));
+  }
+
+  /* ---------- 5 · os dados importados viram o lobo ---------- */
+  const WCX = 1530, WCY = 510, WH = 385, WW = WH * WOLF_ASP;
+  const pr5 = mulberry(5150), PW = [];
+  for (let i = 0; i < N; i += 3) {
+    const row = LOGROWS[Math.floor(pr5() * LOGROWS.length)];
+    PW.push({ tx: WCX + wolfData.pts[i * 2] * WH, ty: WCY + wolfData.pts[i * 2 + 1] * WH, sx: row.x + pr5() * row.w, sy: row.y + 18 + pr5() * (row.h - 36), r: [pr5(), pr5(), pr5(), pr5()] });
+  }
+  function wolf(t) {
+    const S = P1.s5, hit = S.hit;
+    if (t < S.dissolveLog || t > P1.inicio.embers[1] + 0.1) return;
+    /* partículas: do log ao lobo, depois se espalham */
+    const appear = sm(pr2(t, S.dissolveLog, S.dissolveLog + 0.15));
+    const m = sm(pr(t, S.morph));
+    const dis = pr2(t, hit, hit + 0.85), disE = expoOut(dis);
+    if (dis < 1) {
+      cx.globalCompositeOperation = 'lighter';
+      for (const p of PW) {
+        const r = p.r;
+        let lf = sm(cl((m - r[0] * .45) / .55));
+        let x = lerp(p.sx, p.tx, lf), y = lerp(p.sy, p.ty, lf);
+        const tr = Math.sin(Math.PI * lf);
+        x += (r[1] - .5) * tr * 220; y += (r[2] - .5) * tr * 220;
+        const ang = 1.3 * Math.sin(Math.PI * lf) * (1 - lf), dx = x - WCX, dy = y - WCY;
+        x = WCX + dx * Math.cos(ang) - dy * Math.sin(ang); y = WCY + dx * Math.sin(ang) + dy * Math.cos(ang);
+        x += 2.4 * Math.sin(t * .7 + r[1] * 50); y += 2.4 * Math.cos(t * .6 + r[2] * 50);
+        if (dis > 0) { const k = 1 + disE * (0.10 + r[3] * 0.22); x = WCX + (x - WCX) * k; y = WCY + (y - WCY) * k; }
+        const a = appear * (1 - sm(dis)) * (.68 + .32 * Math.sin(t * 2.2 + r[3] * 60));
+        if (a <= 0.003) continue;
+        const size = 3.4 * (.55 + r[0] * .9);
+        cx.globalAlpha = cl(a); cx.drawImage(SPR[Math.min(TONES - 1, Math.floor(r[1] * TONES))], x - size / 2, y - size / 2, size, size);
+      }
+      cx.globalAlpha = 1; cx.globalCompositeOperation = 'source-over';
+    }
+    /* anéis: dois pings no impacto, depois ficam */
+    const out = 1 - sm(pr2(t, S.ok + 0.1, S.ok + 0.35));
+    const ra = sm(pr2(t, hit + 0.1, hit + 0.55)) * out;
+    if (ra > 0) {
+      cx.globalAlpha = ra; cx.strokeStyle = 'rgba(255,233,219,0.10)'; cx.lineWidth = 1; cx.beginPath(); cx.arc(WCX, WCY, 290, 0, 7); cx.stroke();
+      cx.strokeStyle = 'rgba(242,96,12,0.25)'; cx.beginPath(); cx.arc(WCX, WCY, 240, 0, 7); cx.stroke(); cx.globalAlpha = 1;
+    }
+    [hit, hit + 0.22].forEach(p0 => {
+      const q = pr2(t, p0, p0 + 0.9); if (q <= 0 || q >= 1) return;
+      cx.globalAlpha = 0.55 * Math.pow(1 - q, 1.5); cx.strokeStyle = C.or; cx.lineWidth = 2; cx.beginPath(); cx.arc(WCX, WCY, lerp(170, 380, expoOut(q)), 0, 7); cx.stroke(); cx.globalAlpha = 1;
+    });
+    /* lobo sólido: varredura laranja, impacto, esfria para branco */
+    const sc = S.scan; if (t < sc[0]) return;
+    const sp = pr(t, sc);
+    const bump = 1 + 0.035 * Math.sin(Math.PI * pr2(t, hit, hit + 0.28));
+    const h = WH * bump, w = h * WOLF_ASP, x = WCX - w / 2, y = WCY - h / 2, revealY = y + h * sp;
+    const wa = 1 - sm(pr2(t, S.ok + 0.1, S.ok + 0.28));
+    if (wa > 0) {
+      cx.save(); cx.beginPath(); cx.rect(0, 0, W, revealY); cx.clip();
+      cx.globalAlpha = wa; cx.shadowColor = 'rgba(242,96,12,0.35)'; cx.shadowBlur = 60 * sm(pr2(t, hit, hit + 0.4)); cx.drawImage(IMG_WOLF, x, y, w, h); cx.shadowBlur = 0; cx.shadowColor = 'transparent';
+      const fl = 1 - sm(pr2(t, hit + 0.04, hit + 0.42));
+      if (fl > 0) { cx.globalAlpha = fl * wa; cx.drawImage(TINT_OR, x, y, w, h); }
+      cx.restore(); cx.globalAlpha = 1;
+    }
+    if (sp > 0 && sp < 1) {
+      cx.fillStyle = C.or; cx.globalAlpha = 0.95; cx.fillRect(x - 40, revealY - 1.5, w + 80, 3); cx.globalAlpha = 0.18; cx.fillRect(x - 40, revealY - 14, w + 80, 12); cx.globalAlpha = 1;
+    }
+  }
+  /* ---------- 6 · Começar a assistir: o lobo vira brasas e o Início se monta ---------- */
+  const ROWS = [[166, 200, 'mask'], [208, 320, 'mask'], [326, 452, 'mask'], [458, 502, 'rise'], [510, 582, 'rise'], [598, 708, 'rise'], [738, 778, 'rise'], [802, 1030, 'rise']];
+  function inicio(t) {
+    const I = P1.inicio;
+    const ep = pr(t, I.embers);
+    if (ep > 0 && ep < 1) {
+      cx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < PW.length; i += 2) {
+        const q = PW[i], r = q.r;
+        const lp = cl((ep - r[0] * 0.25) / 0.75); if (lp <= 0 || lp >= 1) continue;
+        const e = expoOut(lp);
+        const bx = q.tx - WCX, by = q.ty - WCY, len = Math.hypot(bx, by) + 1;
+        const sx = WCX + bx + (bx / len) * e * (40 + r[3] * 110) + (r[1] - .5) * e * 40;
+        const sy = WCY + by + (by / len) * e * (40 + r[3] * 110) - e * (30 + r[2] * 70);
+        const a = Math.min(1, lp * 12) * Math.pow(1 - lp, 2.2);
+        const size = 3.2 * (.55 + r[0] * .9);
+        cx.globalAlpha = cl(a); cx.drawImage(SPR[Math.min(TONES - 1, Math.floor(r[1] * TONES))], sx - size / 2, sy - size / 2, size, size);
+      }
+      cx.globalAlpha = 1; cx.globalCompositeOperation = 'source-over';
+    }
+    const me = expoOut(pr(t, I.menu));
+    if (me > 0) homeSlice(0, 0, 128, H, -128 * (1 - me), 0, Math.min(1, me * 1.6));
+    ROWS.forEach(([y0, y1, kind], i) => {
+      const st = I.rows + i * 0.06, e = expoOut(pr2(t, st, st + 1.0));
+      if (e <= 0) return;
+      const hgt = y1 - y0;
+      if (kind === 'mask') { cx.save(); cx.beginPath(); cx.rect(140, y0, W - 140, hgt); cx.clip(); homeSlice(140, y0, W - 140, hgt, 140, y0 + (1 - e) * hgt * 1.12); cx.restore(); }
+      else homeSlice(140, y0, W - 140, hgt, 140, y0 + (1 - e) * 34, Math.min(1, e * 1.4));
+    });
+  }
+
+  /* ---------- legenda e tecla do controle (as mesmas das prévias) ---------- */
+  function rr(x, y, w, h, r) { cx.beginPath(); cx.roundRect(x, y, w, h, r); }
+  function caption(t, t0, t1, label, text) {
+    const a = sm(pr2(t, t0, t0 + 0.2)) * (1 - sm(pr2(t, t1 - 0.2, t1))); if (a <= 0) return;
+    const lw = measure(label, 18), tw = measure(text, 18, { weight: 400 }), gap = 24, padX = 28;
+    const w = lw + gap + tw + padX * 2, h = 54, x = CX - w / 2, y = H - 92;
+    cx.globalAlpha = a * 0.94; cx.fillStyle = C.ink2; rr(x, y, w, h, 27); cx.fill();
+    cx.globalAlpha = a; cx.strokeStyle = C.line2; cx.lineWidth = 1; rr(x, y, w, h, 27); cx.stroke(); cx.globalAlpha = 1;
+    txt(label, x + padX, y + 34, 18, C.or, { alpha: a });
+    txt(text, x + padX + lw + gap, y + 34, 18, C.muted, { weight: 400, alpha: a });
+  }
+  function keyChip(t, t0, label) {
+    const a = sm(pr2(t, t0 - 0.06, t0)) * (1 - sm(pr2(t, t0 + 0.45, t0 + 0.6))); if (a <= 0) return;
+    const press = 1 - 0.06 * Math.sin(Math.PI * pr2(t, t0, t0 + 0.14));
+    const w = measure(label, 18) + 44, h = 48, x = W - 64 - w, y = 150;
+    cx.save(); cx.translate(x + w / 2, y + h / 2); cx.scale(press, press);
+    cx.globalAlpha = a * 0.94; cx.fillStyle = C.ink2; rr(-w / 2, -h / 2, w, h, 24); cx.fill();
+    cx.globalAlpha = a; cx.strokeStyle = C.or; cx.lineWidth = 2; rr(-w / 2, -h / 2, w, h, 24); cx.stroke(); cx.globalAlpha = 1;
+    txt(label, 0, 7, 18, C.text, { align: 'center', alpha: a });
+    cx.restore();
+  }
+  const SHOW_CAPTIONS = new URLSearchParams(location.search).get('legenda') !== '0';
+  function captions(t) {
+    if (!SHOW_CAPTIONS) return;
+    const S = P1;
+    keyChip(t, S.s1.ok, 'OK'); keyChip(t, S.s2.recebido, 'CELULAR: ENVIAR'); keyChip(t, S.s3.ok, 'OK'); keyChip(t, S.s5.ok, 'OK');
+    caption(t, 0.3, 4.2, 'ABERTURA', 'SEM LISTA AINDA: O LOG MOSTRA FONTE XTREAM AGUARDANDO');
+    caption(t, 4.3, 6.0, 'ENCAIXE', 'A ASSINATURA POUSA NO CABEÇALHO E AS BOAS-VINDAS SE MONTAM EM VOLTA');
+    caption(t, 6.0, 7.55, 'FOCO', 'SÓ DEPOIS QUE TUDO POUSA · O BRILHO DO BOTÃO RESPIRA');
+    caption(t, 7.6, 9.4, 'SUA LISTA', 'O QR NASCE DO RUÍDO E A VARREDURA O REVELA, COMO O LOBO');
+    caption(t, 9.4, 11.5, 'AGUARDANDO', 'NADA SE MEXE SOBRE O CÓDIGO: O CELULAR LÊ DE PRIMEIRA');
+    caption(t, 11.6, 13.3, 'RECEBIDO', 'OS DADOS VOAM DO CÓDIGO PARA OS CAMPOS');
+    caption(t, 13.3, 14.95, 'CONFERIR', 'TUDO PREENCHIDO · FOCO EM IMPORTAR LISTA');
+    caption(t, 15.0, 20.25, 'IMPORTANDO', 'CONTAGEM REAL, ETAPA POR ETAPA · ACELERADO NO VÍDEO');
+    caption(t, 20.3, 22.9, 'PRONTO', 'OS DADOS IMPORTADOS VIRAM O LOBO');
+    caption(t, 22.9, 25.5, 'TUDO PRONTO', 'OS NÚMEROS DA SUA LISTA CONTAM ATÉ O VALOR REAL');
+    caption(t, 25.6, 28.5, 'INÍCIO', 'O LOBO VIRA BRASAS E O INÍCIO SE MONTA, COMO NA ABERTURA');
+  }
+
+  /* =====================================================================
+     QUADRO
+     ===================================================================== */
+  function renderAt(t) {
+    Object.assign(G, { gridA: 1, hudA: 1, tagA: 1, wolfA: 1, dustA: 1, hideLockup: false, hideWolf: false });
+    const p0 = TR[0];
+    if (t >= p0) {
+      G.hudA = 1 - sm(pr2(t, p0, p0 + 0.3)); G.tagA = 1 - sm(pr2(t, p0, p0 + 0.15)); G.wolfA = 1 - sm(pr2(t, p0, p0 + 0.18)); G.dustA = G.hudA; G.hideLockup = true;
+      G.gridA = lerp(1, 0.7, sm(pr2(t, p0, p0 + 0.3))) * (1 - sm(pr2(t, P1.s5.out, P1.s5.out + 0.3)));
+    }
+    introLayer(t);
+    /* DOM */
+    SECTIONS.forEach(s => {
+      const vis = t >= s.tin && t < Math.max(s.tout, s.pcout) + 0.13;
+      s.el.style.display = vis ? 'block' : 'none'; if (!vis) return;
+      [[s.lc, s.tout], [s.pc, s.pcout]].forEach(([el, to]) => {
+        if (!el) return; const q = pr2(t, to, to + 0.12);
+        el.style.opacity = 1 - sm(q); el.style.transform = q > 0 ? `translateY(${-10 * expoOut(q)}px)` : '';
+      });
+    });
+    ANIMS.forEach(a => applyAnim(a, t));
+    steps(t); frame(t); focus(t); glows(t); s2(t); s3(t); s4(t);
+    /* FX */
+    cx = FX; cx.setTransform(1, 0, 0, 1, 0, 0); cx.globalAlpha = 1; cx.globalCompositeOperation = 'source-over'; cx.clearRect(0, 0, W, H);
+    inicio(t); qr(t); wolf(t); flight(t); drawHeader(t);
+    cx = CAP; cx.setTransform(1, 0, 0, 1, 0, 0); cx.globalAlpha = 1; cx.clearRect(0, 0, W, H);
+    captions(t);
+    cx = MAIN;
+  }
+  window.renderAt = renderAt;
+  window.TL = { videoEnd: P1.videoEnd };
+  window.P1 = P1; window.FIELD_IN = FIELD_IN;
+  renderAt(+(new URLSearchParams(location.search).get('t') || 0));
+  window.READY = true;
+})();
+</script>
+</body>
+</html>

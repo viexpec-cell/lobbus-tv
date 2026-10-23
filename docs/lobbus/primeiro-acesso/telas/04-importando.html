@@ -1,0 +1,72 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+.glow.a{width:1400px;height:1400px;left:-300px;top:200px;opacity:.7}
+.eyebrow{position:absolute;left:200px;top:236px}
+.title{position:absolute;left:197px;top:280px;font-size:112px}
+.sub{position:absolute;left:200px;top:520px;width:760px;font-size:25px}
+.prog{position:absolute;left:200px;top:672px;width:820px}
+.prog .top{display:flex;justify-content:space-between;align-items:flex-end}
+.prog .k{font-size:16px;color:var(--muted)}
+.prog .pct{font-family:G;font-weight:500;font-size:88px;letter-spacing:.04em;line-height:.9;color:var(--text)}
+.prog .pct small{font-size:36px;color:var(--dim);margin-left:6px}
+.track{margin-top:22px;height:4px;background:var(--line2);border-radius:2px;position:relative;overflow:hidden}
+.track i{position:absolute;left:0;top:0;bottom:0;width:64%;background:var(--or)}
+.track b{position:absolute;top:-6px;left:calc(64% - 8px);width:16px;height:16px}
+.prog .eta{display:flex;justify-content:space-between;margin-top:16px;font-size:14px;color:var(--dim)}
+.btns{position:absolute;left:200px;top:902px}
+.btn{height:64px;font-size:22px;padding:0 30px}
+.panel{left:1130px;top:236px;width:590px;padding:34px 40px 26px}
+.log{list-style:none;margin-top:4px}
+.log li{display:flex;align-items:center;justify-content:space-between;padding:24px 0;border-bottom:1px solid var(--line)}
+.log li:last-child{border-bottom:0}
+.log .k{font-size:15px;color:var(--dim)}
+.log .v{font-weight:700;font-size:26px;display:flex;align-items:center;gap:14px}
+.log .v .s{font-family:G;font-weight:500;font-size:13px;letter-spacing:.14em;padding:5px 10px 4px;border-radius:999px}
+.s.ok{color:var(--ok);border:1px solid rgba(91,214,138,.35)}
+.s.run{color:var(--or);border:1px solid rgba(242,96,12,.45)}
+.s.wait{color:var(--dim);border:1px solid var(--line2)}
+.log li.cur .k{color:var(--text)}
+.log li.idle .v{color:var(--dim);font-weight:600}
+.foot{bottom:40px}
+</style></head><body>
+<div class="grid"></div><div class="glow a"></div>
+
+<div class="head"><span class="brand">Lobbus</span><span class="pill-tv">TV</span><span class="mono clock">SEX · 23 OUT · 10:33</span></div>
+<div class="steps mono">
+  <div class="step done"><div class="bar"></div><div class="lbl"><b>01</b>BOAS-VINDAS</div></div>
+  <div class="step done"><div class="bar"></div><div class="lbl"><b>02</b>SUA LISTA</div></div>
+  <div class="step on"><div class="bar"></div><div class="lbl"><b>03</b>IMPORTAR</div></div>
+  <div class="step"><div class="bar"></div><div class="lbl"><b>04</b>PRONTO</div></div>
+</div>
+
+<div class="eyebrow mono"><span><span class="n">[03]</span> IMPORTAR</span><span class="rule"></span><span class="sec">MINHA LISTA</span></div>
+<div class="title">Montando<br><span class="or">sua TV.</span></div>
+<p class="sub">Na primeira vez leva de 1 a 3 minutos, conforme o tamanho da lista. O guia pode terminar em segundo plano.</p>
+
+<div class="prog">
+  <div class="top"><span class="k mono">IMPORTANDO</span><span class="pct">064<small>%</small></span></div>
+  <div class="track"><i></i></div>
+  <div class="eta mono"><span>SÉRIES · 128 DE 214</span><span>CERCA DE 40 S</span></div>
+</div>
+
+<div class="btns">
+  <span class="btn focus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>Continuar em segundo plano</span>
+  <span class="btn">Cancelar</span>
+</div>
+
+<div class="panel"><i class="c3"></i><i class="c4"></i>
+  <div class="ph mono"><span class="t">[LOG] IMPORTAÇÃO</span><span style="color:var(--text)"><span class="dot wait"></span>EM ANDAMENTO</span></div>
+  <ul class="log">
+    <li><span class="k mono">SERVIDOR</span><span class="v">Conectado<span class="s ok">OK</span></span></li>
+    <li><span class="k mono">CANAIS</span><span class="v">312<span class="s ok">OK</span></span></li>
+    <li><span class="k mono">FILMES</span><span class="v">1.840<span class="s ok">OK</span></span></li>
+    <li class="cur"><span class="k mono">SÉRIES</span><span class="v">128<span class="s run">CONTANDO</span></span></li>
+    <li class="idle"><span class="k mono">GUIA DE PROGRAMAÇÃO</span><span class="v">Na fila<span class="s wait">AGUARDANDO</span></span></li>
+  </ul>
+</div>
+
+<div class="foot mono">
+  <span>LOBBUS.CORE // CONFIGURAÇÃO</span>
+  <span class="keys"><span class="key"><i>OK</i>CONTINUAR</span><span class="key"><i>VOLTAR</i>CANCELAR</span></span>
+</div>
+</body></html>
