@@ -366,7 +366,7 @@ private fun RailItem(
                 Modifier.fillMaxWidth().heightIn(min = 60.mpx)
             } else {
                 // LOBBUS: o item do menu de 128 px do protótipo: ícone e, embaixo, o rótulo em mono.
-                Modifier.width(112.mpx).heightIn(min = 96.mpx)
+                Modifier.width(112.mpx).heightIn(min = 84.mpx)
             },
         ),
         idle = if (active && open) Modifier.background(a.accent.copy(alpha = 0.14f), RoundedCornerShape(r)) else Modifier,
@@ -514,7 +514,7 @@ private fun LobbusItemDeMenu(
     ) {
         Box(
             Modifier
-                .size(64.mpx)
+                .size(56.mpx)
                 .then(
                     if (active && !focused) {
                         Modifier
@@ -528,7 +528,7 @@ private fun LobbusItemDeMenu(
         ) {
             OwnTVIcon(icon, iconTint, Modifier.size(28.mpx))
         }
-        Spacer(Modifier.height(10.mpx))
+        Spacer(Modifier.height(8.mpx))
         tv.own.owntv.lobbus.home.LobbusRotuloMono(
             texto = label.uppercase(tv.own.owntv.lobbus.lobbusLocale()),
             cor = when {
@@ -536,7 +536,7 @@ private fun LobbusItemDeMenu(
                 active -> StageColors.Text
                 else -> StageColors.NavText
             },
-            tamanho = 12,
+            tamanho = 11,
         )
     }
 }

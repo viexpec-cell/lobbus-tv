@@ -651,7 +651,9 @@ fun LiveScreen(
             // Header tools + channel list: one focus group.
             Column(
                 modifier = Modifier
-                    .padding(start = listX, top = 118.mpx)
+                    // LOBBUS: o cabeçalho de tela ficou mais alto (sobrancelha mais título), então as
+                    // ferramentas e a lista descem: antes a busca subia por cima do título.
+                    .padding(start = listX, top = 152.mpx)
                     .width(listWidth)
                     .fillMaxHeight()
                     .onFocusChanged { channelPaneFocused = it.hasFocus }
