@@ -21,7 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.tv.material3.Text
-import java.util.Locale
+import tv.own.owntv.lobbus.lobbusLocale
 import tv.own.owntv.R
 import tv.own.owntv.lobbus.home.LobbusRotuloMono
 import tv.own.owntv.lobbus.home.LobbusSobrancelha
@@ -93,12 +93,12 @@ fun LobbusNoArAgora(
                 LobbusRotuloMono(
                     texto = stringResource(
                         R.string.lobbus_rotulo_entre_colchetes,
-                        stringResource(R.string.lobbus_no_ar_agora).uppercase(Locale.getDefault()),
+                        stringResource(R.string.lobbus_no_ar_agora).uppercase(lobbusLocale()),
                     ),
                     cor = stageAccent.accent,
                     tamanho = 13,
                 )
-                LobbusRotuloMono(faixaDeHorario.uppercase(Locale.getDefault()), StageColors.Muted, tamanho = 13)
+                LobbusRotuloMono(faixaDeHorario.uppercase(lobbusLocale()), StageColors.Muted, tamanho = 13)
             }
             Spacer(Modifier.height(12.mpx))
             Text(
@@ -136,7 +136,7 @@ fun LobbusNoArAgora(
             Spacer(Modifier.height(18.mpx))
             Row(horizontalArrangement = Arrangement.spacedBy(18.mpx), verticalAlignment = Alignment.CenterVertically) {
                 LobbusBarraDeProgresso(progresso, Modifier.weight(1f))
-                if (restante != null) LobbusRotuloMono(restante.uppercase(Locale.getDefault()), StageColors.Muted, tamanho = 13)
+                if (restante != null) LobbusRotuloMono(restante.uppercase(lobbusLocale()), StageColors.Muted, tamanho = 13)
             }
         }
     }
@@ -173,7 +173,7 @@ fun LobbusBarraDeProgresso(progresso: Float, modifier: Modifier = Modifier, altu
 fun LobbusRotuloASeguir(modifier: Modifier = Modifier) {
     Box(modifier) {
         LobbusRotuloMono(
-            stringResource(R.string.lobbus_a_seguir_no_canal).uppercase(Locale.getDefault()),
+            stringResource(R.string.lobbus_a_seguir_no_canal).uppercase(lobbusLocale()),
             StageColors.Dim,
             tamanho = 13,
         )

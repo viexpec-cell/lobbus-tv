@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.tv.material3.Text
 import tv.own.owntv.lobbus.home.LobbusRotuloMono
+import tv.own.owntv.lobbus.lobbusLocale
 import tv.own.owntv.ui.theme.StageColors
 import tv.own.owntv.ui.theme.StageRadii
 import tv.own.owntv.ui.theme.mpx
@@ -128,7 +129,7 @@ fun LobbusItemTop10(
                 }
             }
             Text(
-                titulo.uppercase(java.util.Locale.getDefault()),
+                titulo.uppercase(lobbusLocale()),
                 style = stageText(22, 800),
                 color = Color.White,
                 maxLines = 2,

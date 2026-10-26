@@ -67,6 +67,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import tv.own.owntv.core.trending.ProviderVariantParser
+import tv.own.owntv.lobbus.lobbusLocale
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -1332,7 +1333,7 @@ private fun LobbusFileiraTecnica(
                 val sinais = ProviderVariantParser.displaySignals(filme.name)
                 tv.own.owntv.lobbus.movies.LobbusCartaoLargo(
                     titulo = filme.name,
-                    linhaTecnica = metaLine(filme).uppercase(java.util.Locale.getDefault()),
+                    linhaTecnica = metaLine(filme).uppercase(lobbusLocale()),
                     etiquetas = (listOfNotNull(sinais.quality.label) + sinais.capabilities).take(2),
                     focado = focado,
                     modifier = Modifier

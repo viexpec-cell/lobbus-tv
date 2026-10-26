@@ -84,6 +84,7 @@ import tv.own.owntv.ui.stage.drawInnerRing
 import tv.own.owntv.ui.stage.stageGlass
 import tv.own.owntv.ui.stage.stageSelectedBar
 import tv.own.owntv.lobbus.home.LobbusRotuloMono
+import tv.own.owntv.lobbus.lobbusLocale
 import tv.own.owntv.lobbus.live.LobbusCabecalhoDeTela
 import tv.own.owntv.lobbus.live.LobbusLinhaASeguir
 import tv.own.owntv.lobbus.live.LobbusNoArAgora
@@ -174,7 +175,7 @@ internal fun LiveStageRow(
                 if (left != null) {
                     Spacer(Modifier.weight(1f))
                     LobbusRotuloMono(
-                        texto = left.uppercase(java.util.Locale.getDefault()),
+                        texto = left.uppercase(lobbusLocale()),
                         cor = if (focused) StageColors.FxLine else StageColors.Dim,
                         tamanho = 13,
                     )

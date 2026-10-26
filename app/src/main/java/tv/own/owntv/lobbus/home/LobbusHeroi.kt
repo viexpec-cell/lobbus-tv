@@ -30,7 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.tv.material3.Text
-import java.util.Locale
+import tv.own.owntv.lobbus.lobbusLocale
 import tv.own.owntv.R
 import tv.own.owntv.ui.components.OwnTVIcon
 import tv.own.owntv.ui.theme.LobbusMonoFamily
@@ -99,7 +99,7 @@ fun LobbusSobrancelha(ordem: Int, rotulo: String, tipo: String?) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         LobbusRotuloMono(stringResource(R.string.lobbus_indice_secao, ordem), stageAccent.accent)
-        LobbusRotuloMono(rotulo.uppercase(Locale.getDefault()), StageColors.Text)
+        LobbusRotuloMono(rotulo.uppercase(lobbusLocale()), StageColors.Text)
         if (tipo != null) {
             Box(
                 Modifier
@@ -107,7 +107,7 @@ fun LobbusSobrancelha(ordem: Int, rotulo: String, tipo: String?) {
                     .height(1.mpx)
                     .background(StageColors.Ink.copy(alpha = 0.18f)),
             )
-            LobbusRotuloMono(tipo.uppercase(Locale.getDefault()), StageColors.Muted)
+            LobbusRotuloMono(tipo.uppercase(lobbusLocale()), StageColors.Muted)
         }
     }
 }
@@ -158,7 +158,7 @@ fun lobbusTituloDestaque(
     val inicioDoAcento = if (
         tratamento == LobbusTitulo.CABECALHO &&
         palavras.size >= 3 &&
-        palavras[ultima - 1].lowercase(Locale.getDefault()) in LIGACOES
+        palavras[ultima - 1].lowercase(lobbusLocale()) in LIGACOES
     ) {
         ultima - 1
     } else {
@@ -174,7 +174,7 @@ fun lobbusTituloDestaque(
                 palavras.size >= 3 &&
                 indice != 0 &&
                 indice != ultima &&
-                palavra.lowercase(Locale.getDefault()) in LIGACOES
+                palavra.lowercase(lobbusLocale()) in LIGACOES
             val estilo = when {
                 indice >= inicioDoAcento -> SpanStyle(color = acento)
                 ligacao -> SpanStyle(drawStyle = Stroke(width = contorno))
