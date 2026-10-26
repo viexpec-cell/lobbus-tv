@@ -1,0 +1,67 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+.glow.a{width:1300px;height:1300px;left:1000px;top:-120px}
+.eyebrow{position:absolute;left:200px;top:236px}
+.title{position:absolute;left:197px;top:280px;font-size:104px}
+.sub{position:absolute;left:200px;top:506px;width:760px;font-size:25px}
+.how{position:absolute;left:200px;top:610px;width:800px;list-style:none}
+.how li{display:flex;gap:24px;align-items:flex-start;padding:12px 0}
+.how .n{flex:none;width:52px;height:52px;border-radius:6px;background:var(--gr);border:1px solid var(--line2);
+  display:flex;align-items:center;justify-content:center;font-family:G;font-weight:500;font-size:17px;letter-spacing:.08em;color:var(--or)}
+.how .h{font-weight:700;font-size:26px;padding-top:2px}
+.how .d{font-weight:500;font-size:20px;color:var(--muted);margin-top:4px}
+.btns{position:absolute;left:200px;top:888px}
+.btn{height:64px;font-size:22px;padding:0 30px}
+.panel{left:1110px;top:236px;width:610px;padding:34px 40px 36px}
+.qrbox{margin:30px auto 0;width:330px;height:330px;background:#FFF6EE;border-radius:8px;padding:26px}
+.qrbox img{width:100%;height:100%;display:block}
+.or-open{display:flex;align-items:center;gap:16px;margin-top:28px;font-size:14px;color:var(--dim)}
+.or-open span.l{flex:1;height:1px;background:var(--line)}
+.addr{display:flex;justify-content:space-between;align-items:flex-end;margin-top:24px}
+.addr .k{font-size:13px;color:var(--dim);margin-bottom:10px}
+.addr .url{font-weight:800;font-size:34px;letter-spacing:-.01em}
+.addr .pin{font-family:G;font-weight:500;font-size:46px;letter-spacing:.22em;color:var(--or);line-height:1}
+.note{margin-top:26px;padding-top:20px;border-top:1px solid var(--line);font-weight:500;font-size:18px;color:var(--dim);line-height:1.45}
+.foot{bottom:40px}
+</style></head><body>
+<div class="grid"></div><div class="glow a"></div>
+
+<div class="head"><span class="brand">Lobbus</span><span class="pill-tv">TV</span><span class="mono clock">SEX · 23 OUT · 10:31</span></div>
+<div class="steps mono">
+  <div class="step done"><div class="bar"></div><div class="lbl"><b>01</b>BOAS-VINDAS</div></div>
+  <div class="step on"><div class="bar"></div><div class="lbl"><b>02</b>SUA LISTA</div></div>
+  <div class="step"><div class="bar"></div><div class="lbl"><b>03</b>IMPORTAR</div></div>
+  <div class="step"><div class="bar"></div><div class="lbl"><b>04</b>PRONTO</div></div>
+</div>
+
+<div class="eyebrow mono"><span><span class="n">[02]</span> SUA LISTA</span><span class="rule"></span><span class="sec">LOGIN XTREAM</span></div>
+<div class="title">Conecte pelo<br><span class="or">celular.</span></div>
+<p class="sub">Digitar endereço e senha com o controle cansa. No celular você cola os dados e manda direto para a TV.</p>
+
+<ol class="how">
+  <li><span class="n">01</span><div><div class="h">Aponte a câmera para o código</div><div class="d">O celular precisa estar no mesmo Wi-Fi da TV.</div></div></li>
+  <li><span class="n">02</span><div><div class="h">Cole servidor, usuário e senha</div><div class="d">Copie do e-mail do provedor: zero erro de digitação.</div></div></li>
+  <li><span class="n">03</span><div><div class="h">Toque em Enviar</div><div class="d">Os dados aparecem aqui na TV para você conferir.</div></div></li>
+</ol>
+
+<div class="btns">
+  <span class="btn focus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"/></svg>Digitar com o controle</span>
+  <span class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Novo PIN</span>
+</div>
+
+<div class="panel"><i class="c3"></i><i class="c4"></i>
+  <div class="ph mono"><span class="t">[CELULAR] ESCANEIE</span><span style="color:var(--text)"><span class="dot wait"></span>AGUARDANDO</span></div>
+  <div class="qrbox"><img src="qr.svg"></div>
+  <div class="or-open mono"><span class="l"></span>OU ABRA NO NAVEGADOR<span class="l"></span></div>
+  <div class="addr">
+    <div><div class="k mono">ENDEREÇO</div><div class="url">192.168.0.25:8686</div></div>
+    <div style="text-align:right"><div class="k mono">PIN</div><div class="pin">4821</div></div>
+  </div>
+  <div class="note">Os dados vão do celular direto para a TV, pela sua rede Wi-Fi. Nada passa pela internet.</div>
+</div>
+
+<div class="foot mono">
+  <span>LOBBUS.CORE // CONFIGURAÇÃO</span>
+  <span class="keys"><span class="key"><i>OK</i>CONFIRMAR</span><span class="key"><i>VOLTAR</i>BOAS-VINDAS</span></span>
+</div>
+</body></html>
