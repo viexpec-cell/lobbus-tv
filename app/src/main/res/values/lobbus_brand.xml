@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- LOBBUS: nome e cores de marca. Sobrescrevem os valores do OwnTV (:core e app). -->
     <string name="app_name" translatable="false">Lobbus TV</string>
     <string name="lobbus_about_based_on" translatable="false">Baseado no OwnTV</string>
@@ -52,12 +52,13 @@
     <!-- Moldura da imagem (player em tela cheia). -->
     <string name="lobbus_frame_title" translatable="false">Moldura da imagem</string>
     <string name="lobbus_frame_description" translatable="false">Mostra o vídeo um pouco menor, com bordas pretas, para ganhar nitidez em canais Full HD numa TV 4K. Nunca estica a imagem.</string>
-    <string name="lobbus_frame_auto" translatable="false">Automática (90% em canais HD)</string>
+    <!-- O "%" aqui é por cento, não marcador de formato: estes textos nunca passam por String.format. -->
+    <string name="lobbus_frame_auto" translatable="false" tools:ignore="StringFormatInvalid">Automática (90% em canais HD)</string>
     <string name="lobbus_frame_off" translatable="false">Desligada (tela cheia)</string>
-    <string name="lobbus_frame_95" translatable="false">Moldura 95%</string>
-    <string name="lobbus_frame_90" translatable="false">Moldura 90%</string>
-    <string name="lobbus_frame_85" translatable="false">Moldura 85%</string>
-    <string name="lobbus_frame_80" translatable="false">Moldura 80%</string>
+    <string name="lobbus_frame_95" translatable="false" tools:ignore="StringFormatInvalid">Moldura 95%</string>
+    <string name="lobbus_frame_90" translatable="false" tools:ignore="StringFormatInvalid">Moldura 90%</string>
+    <string name="lobbus_frame_85" translatable="false" tools:ignore="StringFormatInvalid">Moldura 85%</string>
+    <string name="lobbus_frame_80" translatable="false" tools:ignore="StringFormatInvalid">Moldura 80%</string>
     <color name="lobbus_ink">#0D0906</color>
     <color name="lobbus_orange">#F2600C</color>
     <color name="owntv_icon_bg_eggshell">#0D0906</color>
