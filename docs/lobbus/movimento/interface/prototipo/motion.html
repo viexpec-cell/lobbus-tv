@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Lobbus TV · Movimento</title>
+<style>
+@font-face{font-family:'Geist Mono';font-weight:400;src:url(assets/geist-mono-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Geist Mono';font-weight:500;src:url(assets/geist-mono-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:800;src:url(assets/montserrat-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:500;src:url(assets/montserrat-latin-500-normal.woff2) format('woff2')}
+html,body{margin:0;background:#0D0906;overflow:hidden}
+canvas{display:block;width:1920px;height:1080px}
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+(async function () {
+  'use strict';
+  const W = 1920, H = 1080, CX = 960, CY = 540;
+  const C = { ink: '#0D0906', ink2: '#15100C', graphite: '#221A14', g2: '#2E241C', text: '#F6EFE9', muted: '#AB9C8F', dim: '#8A7B6F', or: '#F2600C', on: '#140C06', ok: '#5BD68A', line: 'rgba(255,233,219,0.10)', line2: 'rgba(255,233,219,0.18)' };
+  const MONO = '"Geist Mono", monospace', SANS = 'Montserrat, sans-serif';
+  const cv = document.getElementById('c'); let cx = cv.getContext('2d');
+  const MODE = new URLSearchParams(location.search).get('m') || 'movimento';
+  const loadImg = s => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = s; });
+  const [INI, AOV, FIL, DET, DETF, WOLF] = await Promise.all(['telas/inicio.jpg', 'telas/aovivo.jpg', 'telas/filmes_sem_foco.jpg', 'telas/detalhe_app.jpg', 'telas/detalhe_fundo.jpg', 'assets/wolf_white.png'].map(loadImg));
+  const wolfData = await (await fetch('assets/wolf_pts.json')).json();
+  await Promise.all(['500 20px "Geist Mono"', '400 20px "Geist Mono"', '800 40px Montserrat', '500 20px Montserrat'].map(f => document.fonts.load(f)));
+  const IMG = { inicio: INI, aovivo: AOV, filmes: FIL, detalhe: DET };
+
+  /* ---------- utilidades (as mesmas da abertura) ---------- */
+  const cl = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+  const pr = (t, a, b) => cl((t - a) / (b - a));
+  const sm = x => x * x * (3 - 2 * x);
+  const lerp = (a, b, e) => a + (b - a) * e;
+  const expoOut = x => x >= 1 ? 1 : 1 - Math.pow(2, -10 * x);
+  const expoInOut = x => x <= 0 ? 0 : x >= 1 ? 1 : x < .5 ? Math.pow(2, 20 * x - 10) / 2 : (2 - Math.pow(2, -20 * x + 10)) / 2;
+  const backOut = (x, s = 1.7) => 1 + (s + 1) * Math.pow(x - 1, 3) + s * Math.pow(x - 1, 2);
+  const hash = (a, b) => { let h = (a * 374761393 + b * 668265263) | 0; h = (h ^ (h >>> 13)) * 1274126177 | 0; return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
+  function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function txt(s, x, y, size, color, { weight = 500, align = 'left', ls = 0.14, alpha = 1, font = MONO } = {}) {
+    if (alpha <= 0 || !s) return 0;
+    cx.globalAlpha = cl(alpha); cx.font = `${weight} ${size}px ${font}`; cx.fillStyle = color; cx.textAlign = align;
+    cx.letterSpacing = (ls * size) + 'px'; cx.fillText(s, x, y); const w = cx.measureText(s).width; cx.letterSpacing = '0px'; cx.globalAlpha = 1; return w;
+  }
+  function measure(s, size, { weight = 500, ls = 0.14, font = MONO } = {}) { cx.font = `${weight} ${size}px ${font}`; cx.letterSpacing = (ls * size) + 'px'; const w = cx.measureText(s).width; cx.letterSpacing = '0px'; return w; }
+  const SCR = '01<>/#_LOBUS';
+  function scramble(str, t, start, dur) {
+    if (t < start) return '';
+    const p = (t - start) / dur, n = str.length; let out = '';
+    for (let i = 0; i < n; i++) {
+      const ch = str[i]; if (ch === ' ') { out += ' '; continue; }
+      if (p <= (i / n) * 0.55) out += ' '; else if (p > 0.35 + (i / n) * 0.65) out += ch; else out += SCR[Math.floor(hash(Math.floor(t * 30), i) * SCR.length)];
+    }
+    return out;
+  }
+  function rr(x, y, w, h, r) { cx.beginPath(); cx.roundRect(x, y, w, h, r); }
+  function slice(img, sx, sy, sw, sh, dx, dy, dw = sw, dh = sh, a = 1) { if (a <= 0) return; cx.globalAlpha = cl(a); cx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh); cx.globalAlpha = 1; }
+
+  /* ---------- legenda e tecla do controle ---------- */
+  const EVENTS = [];
+  const CHIP_Y = { movimento: 56, canal: H - 92, descanso: H - 170, volume: H - 92 };
+  function caption(t, t0, t1, label, text) {
+    const a = sm(pr(t, t0, t0 + 0.2)) * (1 - sm(pr(t, t1 - 0.2, t1))); if (a <= 0) return;
+    const lw = measure(label, 18), tw = measure(text, 18, { weight: 400 }), gap = 24, padX = 28;
+    const w = lw + gap + tw + padX * 2, h = 54, x = CX - w / 2, y = H - 92;
+    cx.globalAlpha = a * 0.94; cx.fillStyle = C.ink2; rr(x, y, w, h, 27); cx.fill();
+    cx.globalAlpha = a; cx.strokeStyle = C.line2; cx.lineWidth = 1; rr(x, y, w, h, 27); cx.stroke(); cx.globalAlpha = 1;
+    txt(label, x + padX, y + 34, 18, C.or, { alpha: a });
+    txt(text, x + padX + lw + gap, y + 34, 18, C.muted, { weight: 400, alpha: a });
+  }
+  function keyChip(t, t0, label) {
+    const a = sm(pr(t, t0 - 0.06, t0)) * (1 - sm(pr(t, t0 + 0.45, t0 + 0.6))); if (a <= 0) return;
+    const press = 1 - 0.06 * Math.sin(Math.PI * pr(t, t0, t0 + 0.14));
+    const w = measure(label, 18) + 44, h = 48, x = W - 64 - w, y = CHIP_Y[MODE] ?? 56;
+    cx.save(); cx.translate(x + w / 2, y + h / 2); cx.scale(press, press);
+    cx.globalAlpha = a * 0.94; cx.fillStyle = C.ink2; rr(-w / 2, -h / 2, w, h, 24); cx.fill();
+    cx.globalAlpha = a; cx.strokeStyle = C.or; cx.lineWidth = 2; rr(-w / 2, -h / 2, w, h, 24); cx.stroke(); cx.globalAlpha = 1;
+    txt(label, 0, 7, 18, C.text, { align: 'center', alpha: a });
+    cx.restore();
+  }
+  function focusRing(x, y, w, h, r, a) {
+    if (a <= 0) return;
+    cx.globalAlpha = cl(a); cx.strokeStyle = C.or; cx.lineWidth = 2; rr(x - 4, y - 4, w + 8, h + 8, r + 3); cx.stroke(); cx.globalAlpha = 1;
+  }
+
+  /* =====================================================================
+     1 · LINGUAGEM DE MOVIMENTO
+     ===================================================================== */
+  const MENU_Y = { buscar: 40, inicio: 166, aovivo: 292, guia: 419, filmes: 545, series: 671, lista: 797 };
+  const CARDS_INI = [[203, 809, 372, 214], [605, 809, 372, 214], [1007, 809, 372, 214], [1409, 809, 372, 214]];
+  const TOP10 = [[240, 300, 196, 300], [562, 300, 198, 300], [887, 300, 196, 300], [1235, 300, 194, 300], [1559, 300, 196, 300]];
+  const ROW4K = [[176, 726, 374, 210], [570, 726, 374, 210], [964, 726, 375, 210], [1359, 726, 373, 210]];
+  const TITLE_ROWS = [[44, 64], [76, 124]];
+  const DET_ROWS = [[56, 86, 1010], [124, 154, 1010], [162, 272, 1010], [282, 330, 1010], [336, 402, 1010], [404, 524, 1010], [656, 724, 1010], [724, 1040, 1920]];
+  /* foco: [tempo, tela, tipo, alvo] */
+  const FOCUS = [
+    [0.30, 'inicio', 'card', CARDS_INI[0]], [0.90, 'inicio', 'card', CARDS_INI[1]], [1.40, 'inicio', 'card', CARDS_INI[2]],
+    [3.10, 'inicio', 'menu', 'inicio'], [3.50, 'inicio', 'menu', 'aovivo'],
+    [3.83, 'aovivo', 'menu', 'aovivo'], [5.00, 'aovivo', 'menu', 'guia'], [5.35, 'aovivo', 'menu', 'filmes'],
+    [5.63, 'filmes', 'menu', 'filmes'], [6.60, 'filmes', 'card', TOP10[1]], [7.05, 'filmes', 'card', ROW4K[1]], [7.40, 'filmes', 'card', ROW4K[2]], [7.75, 'filmes', 'card', ROW4K[3]]
+  ];
+  const KEYS_M = [[0.9, 'DIREITA'], [1.4, 'DIREITA'], [2.1, 'OK'], [3.1, 'ESQUERDA'], [3.5, 'BAIXO'], [3.95, 'OK'], [5.0, 'BAIXO'], [5.35, 'BAIXO'], [5.75, 'OK'], [6.6, 'DIREITA'], [7.05, 'BAIXO'], [7.4, 'DIREITA'], [7.75, 'DIREITA'], [8.2, 'OK'], [10.6, 'VOLTAR']];
+  const SCREENS = [[0, 'inicio'], [3.95, 'aovivo'], [5.75, 'filmes']];
+  const OPEN = 8.3, BACK = 10.6;
+  if (MODE === 'movimento') { [2.1, 3.95, 5.75, 8.2].forEach(t => EVENTS.push({ t, s: 'ok' })); EVENTS.push({ t: BACK, s: 'voltar' }); }
+
+  function pressScale(t, rect) {
+    let s = 1;
+    [[2.1, CARDS_INI[2]], [8.2, ROW4K[3]]].forEach(([tp, r]) => { if (r === rect) s *= 1 - 0.03 * Math.sin(Math.PI * pr(t, tp, tp + 0.18)); });
+    return s;
+  }
+  function drawScreen(name, t, a = 1, dy = 0, hideTitles = false) {
+    const img = IMG[name];
+    cx.save(); cx.globalAlpha = a; cx.drawImage(img, 128, 0, W - 128, H, 128, dy, W - 128, H);
+    if (hideTitles && name !== 'inicio') { cx.fillStyle = C.ink; TITLE_ROWS.forEach(([y0, y1]) => cx.fillRect(150, y0 + dy, 900, y1 - y0)); }
+    cx.restore(); cx.globalAlpha = 1;
+  }
+  function drawMenu(name, a = 1) { slice(IMG[name], 0, 0, 128, H, 0, 0, 128, H, a); }
+  function drawFocused(t, name, kind, target, k) {
+    if (k <= 0) return;
+    if (kind === 'card') {
+      const [x, y, w, h] = target, s = (1 + 0.05 * k) * pressScale(t, target);
+      const nw = w * s, nh = h * s, nx = x + w / 2 - nw / 2, ny = y + h / 2 - nh / 2;
+      cx.drawImage(IMG[name], x, y, w, h, nx, ny, nw, nh);
+      focusRing(nx, ny, nw, nh, 6, k);
+    } else {
+      const y = MENU_Y[target], s = 1 + 0.06 * k;
+      const nw = 62 * s, nh = 63 * s;
+      cx.drawImage(IMG[name], 32, y, 62, 63, 63 - nw / 2, y + 31.5 - nh / 2, nw, nh);
+      focusRing(63 - nw / 2, y + 31.5 - nh / 2, nw, nh, 8, k);
+    }
+  }
+  function screenAt(t) { let s = SCREENS[0]; for (const e of SCREENS) if (t >= e[0]) s = e; return s; }
+  function prevScreen(t) { let p = null, s = SCREENS[0]; for (const e of SCREENS) if (t >= e[0]) { p = s; s = e; } return p; }
+
+  function mMovimento(t) {
+    cx.fillStyle = C.ink; cx.fillRect(0, 0, W, H);
+    const inDetail = t >= OPEN - 0.1 && t < BACK + 0.45;
+    /* telas com troca de 240 ms e títulos subindo da máscara */
+    const [st, sname] = screenAt(t), prev = prevScreen(t);
+    const tp = t - st;
+    if (!inDetail || t < OPEN + 0.05 || t >= BACK) {
+      if (prev && tp < 0.24 && prev[1] !== sname) drawScreen(prev[1], t, 1 - sm(cl(tp / 0.12)), -10 * expoOut(cl(tp / 0.12)));
+      const e = st > 0 ? expoOut(cl(tp / 0.24)) : 1;
+      drawScreen(sname, t, st > 0 ? cl(tp / 0.24) : 1, (1 - e) * 24, st > 0);
+      if (st > 0 && sname !== 'inicio') TITLE_ROWS.forEach(([y0, y1], i) => {
+        const ee = expoOut(pr(tp, 0.06 + i * 0.07, 0.86 + i * 0.07)); const hh = y1 - y0;
+        cx.save(); cx.beginPath(); cx.rect(150, y0, 900, hh); cx.clip(); cx.drawImage(IMG[sname], 150, y0, 900, hh, 150, y0 + (1 - ee) * hh * 1.12, 900, hh); cx.restore();
+      });
+      const ma = prev && prev[1] !== sname ? sm(cl(tp / 0.12)) : 1;
+      if (prev && ma < 1) drawMenu(prev[1]);
+      drawMenu(sname, ma);
+      /* foco */
+      let cur = null, last = null;
+      for (const f of FOCUS) if (t >= f[0] && f[1] === sname) { last = cur; cur = f; }
+      if (cur && !(t >= OPEN && t < BACK)) {
+        const k = sm(cl((t - cur[0]) / 0.12));
+        if (last && k < 1) drawFocused(t, sname, last[2], last[3], 1 - k);
+        drawFocused(t, sname, cur[2], cur[3], k);
+      }
+    }
+    /* filme para detalhe: o pôster cresce até virar o fundo */
+    const [rx, ry, rw, rh] = ROW4K[3];
+    if (t >= OPEN && t < BACK) {
+      const g = expoInOut(pr(t, OPEN, OPEN + 0.35));
+      const x = lerp(rx, 0, g), y = lerp(ry, 0, g), w = lerp(rw, W, g), h = lerp(rh, H, g);
+      if (g < 1) { drawScreen('filmes', t, 1); drawMenu('filmes'); }
+      cx.save(); rr(x, y, w, h, lerp(6, 0, g)); cx.clip();
+      cx.drawImage(FIL, rx, ry, rw, rh, x, y, w, h);
+      cx.globalAlpha = sm(pr(t, OPEN + 0.08, OPEN + 0.35)); cx.drawImage(DETF, 0, 0, W, H); cx.globalAlpha = 1;
+      cx.restore();
+      if (g < 1) focusRing(x, y, w, h, lerp(6, 0, g), 1 - sm(cl(g * 3)));
+      if (g >= 1) drawMenu('detalhe');
+      DET_ROWS.forEach(([y0, y1, x1], i) => {
+        const ee = expoOut(pr(t, OPEN + 0.3 + i * 0.05, OPEN + 1.1 + i * 0.05)); if (ee <= 0) return; const hh = y1 - y0;
+        if (i < 6) { cx.save(); cx.beginPath(); cx.rect(130, y0, x1 - 130, hh); cx.clip(); cx.drawImage(DET, 130, y0, x1 - 130, hh, 130, y0 + (1 - ee) * hh * 1.12, x1 - 130, hh); cx.restore(); }
+        else slice(DET, 130, y0, x1 - 130, hh, 130, y0 + (1 - ee) * 34, x1 - 130, hh, Math.min(1, ee * 1.4));
+      });
+    }
+    /* voltar: o mesmo caminho ao contrário */
+    if (t >= BACK && t < BACK + 0.45) {
+      const g = 1 - expoInOut(pr(t, BACK, BACK + 0.32));
+      drawScreen('filmes', t, 1); drawMenu('filmes');
+      const x = lerp(rx, 0, g), y = lerp(ry, 0, g), w = lerp(rw, W, g), h = lerp(rh, H, g);
+      cx.save(); rr(x, y, w, h, lerp(6, 0, g)); cx.clip();
+      cx.drawImage(FIL, rx, ry, rw, rh, x, y, w, h);
+      cx.globalAlpha = sm(cl(g * 1.6)); cx.drawImage(DETF, 0, 0, W, H);
+      cx.globalAlpha = sm(cl(g * 1.6)) * (1 - sm(pr(t, BACK, BACK + 0.1))); cx.drawImage(DET, 0, 0, W, H); cx.globalAlpha = 1;
+      cx.restore();
+      if (g < 1) focusRing(x, y, w, h, lerp(6, 0, g), sm(cl((0.35 - g) * 3)));
+      if (g <= 0.02) drawFocused(t, 'filmes', 'card', ROW4K[3], 1);
+    }
+    KEYS_M.forEach(([tk, l]) => keyChip(t, tk, l));
+    caption(t, 0.3, 2.0, 'FOCO', 'ANEL LARANJA E ESCALA 1,05 EM 120 MS · SEM SOM');
+    caption(t, 2.0, 3.0, 'OK', 'O CARD AFUNDA 3% EM 90 MS · SOM OK');
+    caption(t, 3.1, 6.5, 'TROCA DE TELA', 'O MENU FICA PARADO · TÍTULOS SOBEM DA MÁSCARA, COMO NA ABERTURA');
+    caption(t, 6.6, 8.15, 'NAVEGAÇÃO', 'O FOCO SEGUE O CONTROLE, SEM ATRASO');
+    caption(t, 8.2, 10.5, 'FILME PARA DETALHE', 'O PÔSTER CRESCE E VIRA O FUNDO EM 350 MS');
+    caption(t, 10.6, 12.4, 'VOLTAR', 'O MESMO CAMINHO, AO CONTRÁRIO · SOM VOLTAR');
+  }
+
+  /* =====================================================================
+     2 · CARREGAMENTO DO CANAL
+     ===================================================================== */
+  const fr = document.createElement('canvas'); fr.width = W; fr.height = H; const fx = fr.getContext('2d');
+  function frameCanvas(draw) { const c = document.createElement('canvas'); c.width = W; c.height = H; draw(c.getContext('2d')); return c; }
+  const FR_CINE = frameCanvas(g => {
+    g.fillStyle = '#140D09'; g.fillRect(0, 0, W, H);
+    g.fillStyle = '#1C130E'; g.fillRect(0, 0, W, 560);
+    g.fillStyle = 'rgba(242,96,12,0.10)'; g.beginPath(); g.arc(1180, 470, 260, 0, 7); g.fill();
+    g.fillStyle = '#F2600C'; g.beginPath(); g.arc(1180, 470, 120, 0, 7); g.fill();
+    g.fillStyle = '#140D09'; g.fillRect(0, 600, W, H - 600);
+    for (let y = 600; y < H; y += 14) { g.fillStyle = `rgba(255,233,219,${0.03 + 0.05 * (y - 600) / 480})`; g.fillRect(0, y, W, 2); }
+    g.fillStyle = 'rgba(242,96,12,0.35)'; for (let y = 610; y < 800; y += 14) g.fillRect(1080 + (y - 610) * 0.2, y, 200 - (y - 610) * 0.5, 2);
+  });
+  const FR_FIELD = frameCanvas(g => {
+    g.fillStyle = '#1E3826'; g.fillRect(0, 0, W, H);
+    g.fillStyle = '#23412C'; for (let i = 0; i < 12; i += 2) g.fillRect(i * 160, 0, 160, H);
+    g.strokeStyle = 'rgba(246,239,233,0.55)'; g.lineWidth = 4;
+    g.strokeRect(80, 80, W - 160, H - 160); g.beginPath(); g.moveTo(CX, 80); g.lineTo(CX, H - 80); g.stroke();
+    g.beginPath(); g.arc(CX, CY, 150, 0, 7); g.stroke();
+    g.strokeRect(80, CY - 220, 260, 440); g.strokeRect(W - 340, CY - 220, 260, 440);
+    g.fillStyle = '#F6EFE9'; g.beginPath(); g.arc(1210, 610, 14, 0, 7); g.fill();
+  });
+  const FR_DOC = frameCanvas(g => {
+    g.fillStyle = '#1F140D'; g.fillRect(0, 0, W, H);
+    g.fillStyle = '#F2600C'; g.beginPath(); g.arc(640, 420, 90, 0, 7); g.fill();
+    const layer = (col, pts) => { g.fillStyle = col; g.beginPath(); g.moveTo(0, H); pts.forEach(([x, y]) => g.lineTo(x, y)); g.lineTo(W, H); g.closePath(); g.fill(); };
+    layer('#3A2416', [[0, 600], [300, 420], [560, 560], [820, 380], [1100, 560], [1400, 400], [1700, 540], [1920, 470]]);
+    layer('#2A1A10', [[0, 720], [260, 600], [600, 700], [900, 560], [1240, 720], [1560, 600], [1920, 700]]);
+    layer('#160E09', [[0, 860], [400, 780], [800, 880], [1200, 800], [1600, 900], [1920, 820]]);
+  });
+  const CH = { 203: ['Cine Autoral', 'FILMES · HD', 'Cidade Acesa', '22:10 ÀS 00:05', 0.62, FR_CINE], 204: ['Esporte Mais', 'ESPORTES · HD', 'Semifinal do Estadual', '22:30 ÀS 00:30', 0.55, FR_FIELD], 205: ['Notícias 24', 'NOTÍCIAS · HD', 'Jornal da Noite', '23:00 ÀS 00:00', 0.33, null], 206: ['Abertos 1', 'VARIEDADES · HD', 'Noite de Auditório', '23:00 ÀS 00:30', 0.25, null], 207: ['Doc Mundo', 'DOCUMENTÁRIOS · 4K', 'Mar Profundo', '23:10 ÀS 00:40', 0.18, FR_DOC], 208: ['Clássicos 24h', 'FILMES · HD', 'Noite de Suspense', '23:00 ÀS 01:00', 0.30, null] };
+  /* eventos: [tempo da tecla, canal, abre em, primeiro quadro em (null = erro)] */
+  const ZAP = [[1.0, 204, 1.0, 2.2], [5.0, 205, null, null], [5.3, 206, null, null], [5.6, 207, 6.2, 7.0], [8.4, 208, 8.4, null]];
+  const ERR_T = 9.5;
+  if (MODE === 'canal') { ZAP.forEach(z => EVENTS.push({ t: z[0], s: 'canal' })); EVENTS.push({ t: ERR_T, s: 'erro' }); }
+  function zapState(t) { let cur = null; for (const z of ZAP) if (t >= z[0]) cur = z; return cur; }
+  function burstStart(z) { let i = ZAP.indexOf(z); while (i > 0 && ZAP[i][0] - ZAP[i - 1][0] < 0.8) i--; return ZAP[i][0]; }
+  function revealFrame(img, t0, t) {
+    const sp = pr(t, t0, t0 + 0.16), edge = H * sp;
+    cx.save(); cx.beginPath(); cx.rect(0, 0, W, edge); cx.clip(); cx.drawImage(img, 0, 0); cx.restore();
+    if (sp > 0 && sp < 1) { cx.fillStyle = C.or; cx.fillRect(0, edge - 1.5, W, 3); cx.globalAlpha = 0.18; cx.fillRect(0, edge - 16, W, 14); cx.globalAlpha = 1; }
+  }
+  function infoOverlay(t, num, t0, loading, status, hideAt, slideT0 = t0) {
+    const [name, cat, prog, hour, progP] = CH[num];
+    const show = hideAt == null ? 1 : 1 - sm(pr(t, hideAt, hideAt + 0.18));
+    if (show <= 0) return;
+    const slide = (1 - expoOut(pr(t, slideT0, slideT0 + 0.18))) * 40 + (hideAt == null ? 0 : sm(pr(t, hideAt, hideAt + 0.18)) * 40);
+    cx.globalAlpha = 0.6 * show; cx.fillStyle = C.ink; cx.fillRect(0, 0, W, 150); cx.globalAlpha = 1;
+    txt(scramble(String(num), t, t0, 0.18), 72, 104, 56, C.text, { alpha: show, ls: 0.02 });
+    txt(scramble(name, t, t0, 0.25), 220, 86, 30, C.text, { weight: 800, font: SANS, ls: 0, alpha: show });
+    txt(scramble(cat, t, t0, 0.25), 220, 118, 18, C.dim, { alpha: show });
+    txt(status, W - 72, 92, 18, loading ? C.muted : C.text, { align: 'right', alpha: show });
+    const bx = 64, by = H - 250 + slide, bw = 640, bh = 160;
+    cx.globalAlpha = 0.96 * show; cx.fillStyle = C.ink2; rr(bx, by, bw, bh, 8); cx.fill(); cx.strokeStyle = C.or; cx.lineWidth = 1.5; rr(bx, by, bw, bh, 8); cx.stroke(); cx.globalAlpha = 1;
+    txt('[NO AR AGORA] ' + hour, bx + 28, by + 44, 17, C.or, { alpha: show });
+    txt(prog, bx + 28, by + 92, 32, C.text, { weight: 800, font: SANS, ls: 0, alpha: show });
+    cx.globalAlpha = show; cx.fillStyle = C.line2; cx.fillRect(bx + 28, by + 122, bw - 56, 3); cx.fillStyle = C.or; cx.fillRect(bx + 28, by + 122, (bw - 56) * progP, 3); cx.globalAlpha = 1;
+  }
+  function mCanal(t) {
+    cx.fillStyle = '#000'; cx.fillRect(0, 0, W, H);
+    const z = zapState(t);
+    if (!z) { cx.drawImage(FR_CINE, 0, 0); }
+    else {
+      const [tk, num, openAt, firstAt] = z;
+      const prevImg = (() => { let img = FR_CINE; for (const q of ZAP) if (q[0] < tk && q[3] != null && t >= q[3]) img = CH[q[1]][5]; return img; })();
+      if (z === ZAP[0] || z === ZAP[4]) { cx.globalAlpha = 1 - sm(pr(t, tk, tk + 0.15)); cx.drawImage(prevImg, 0, 0); cx.globalAlpha = 1; }
+      if (z === ZAP[1]) { cx.globalAlpha = 1 - sm(pr(t, tk, tk + 0.15)); cx.drawImage(FR_FIELD, 0, 0); cx.globalAlpha = 1; }
+      const loadingNow = openAt != null && t >= openAt && (firstAt == null ? t < ERR_T : t < firstAt);
+      if (firstAt != null && t >= firstAt) revealFrame(CH[num][5], firstAt, t);
+      if (openAt != null && t >= openAt && (firstAt == null ? t < ERR_T : t < firstAt + 0.25)) loaderFade(t, num, openAt, firstAt);
+      let status = 'AGUARDE';
+      if (openAt != null && t >= openAt) status = 'CONECTANDO' + '.'.repeat(1 + Math.floor(t * 4) % 3);
+      if (firstAt != null && t >= firstAt) status = scramble(num === 204 ? '1080P · 50 QPS · DD+' : '2160P · 60 QPS · HDR10 · DD+', t, firstAt, 0.3);
+      const hideAt = firstAt != null ? firstAt + 2.0 : null;
+      if (firstAt == null && openAt != null && t >= ERR_T) {
+        cx.fillStyle = C.ink; cx.fillRect(0, 0, W, H);
+        const a = sm(pr(t, ERR_T, ERR_T + 0.15));
+        txt(scramble('SINAL INDISPONÍVEL', t, ERR_T, 0.35), CX, CY - 60, 26, C.or, { align: 'center', alpha: a });
+        txt('O canal 208 não respondeu.', CX, CY + 4, 40, C.text, { weight: 800, font: SANS, ls: 0, align: 'center', alpha: a });
+        const e = expoOut(pr(t, ERR_T + 0.15, ERR_T + 0.6));
+        const b1w = 300, b2w = 300, gap = 24, by = CY + 70 + (1 - e) * 24, bx = CX - (b1w + b2w + gap) / 2;
+        cx.globalAlpha = a; cx.fillStyle = C.or; rr(bx, by, b1w, 64, 32); cx.fill(); cx.globalAlpha = 1;
+        focusRing(bx, by, b1w, 64, 32, a * e);
+        txt('Tentar de novo', bx + b1w / 2, by + 41, 24, C.on, { weight: 800, font: SANS, ls: 0, align: 'center', alpha: a });
+        cx.globalAlpha = a; cx.strokeStyle = C.line2; cx.lineWidth = 1.5; rr(bx + b1w + gap, by, b2w, 64, 32); cx.stroke(); cx.globalAlpha = 1;
+        txt('Voltar ao 207', bx + b1w + gap + b2w / 2, by + 41, 24, C.text, { weight: 800, font: SANS, ls: 0, align: 'center', alpha: a });
+      } else infoOverlay(t, num, tk, loadingNow, status, hideAt, burstStart(z));
+    }
+    ZAP.forEach(q => keyChip(t, q[0], 'CH+'));
+    caption(t, 0.2, 0.95, 'CANAL', '203 · CINE AUTORAL');
+    caption(t, 1.0, 2.15, 'INSTANTÂNEO', 'O GUIA JÁ ESTÁ NA TV: NÚMERO E NOME DECODIFICAM NA HORA');
+    caption(t, 2.2, 4.4, 'PRIMEIRO QUADRO', 'A VARREDURA DA ABERTURA REVELA O SINAL');
+    caption(t, 5.0, 7.9, 'ZAPPING', 'O CANAL SÓ ABRE QUANDO VOCÊ PARA DE APERTAR (0,6 S)');
+    caption(t, 8.4, 9.45, 'SINTONIZANDO', 'TEMPO REAL E AS ETAPAS DA CONEXÃO, COMO NA ABERTURA');
+    caption(t, 9.5, 11.3, 'ERRO', 'DESENHADO, COM SAÍDA · SOM ERRO');
+  }
+
+  /* =====================================================================
+     3 · DESCANSO DE TELA
+     ===================================================================== */
+  const WORDS = ['CINE AUTORAL', '203', '22:10', 'NO AR AGORA', 'ESPORTE MAIS', '204', 'SEMIFINAL DO ESTADUAL', 'EPG OK', '1080P', '50 QPS', 'DD+', 'HDR10+', 'ATMOS', 'DOLBY VISION', 'LOBBUS', 'F2600C', 'A SEGUIR', '00:05', 'LINHA DE FOGO', 'T2:E4', 'MARÉ ALTA', 'CIDADE ACESA', 'SINCRONIZADO', '312 CANAIS', '4K', 'CONTINUAR', 'ÓRBITA', 'DOC MUNDO', 'MAR PROFUNDO', 'O ÚLTIMO INVERNO'];
+  const RCW = 18, RCH = 24, NC = Math.ceil(W / RCW), NR = Math.ceil(H / RCH);
+  const RCOL = []; { const r = mulberry(4242); for (let i = 0; i < NC; i++) { let s = ''; while (s.length < 160) s += WORDS[Math.floor(r() * WORDS.length)] + '  '; RCOL.push({ v: 6 + r() * 8, off: r() * 60, trail: 14 + Math.floor(r() * 14), s, o: r() < 0.08 }); } }
+  const N = wolfData.pts.length / 2; const PR = mulberry(77); const PP = [];
+  const g3 = () => (PR() + PR() + PR() - 1.5) / 1.5;
+  for (let i = 0; i < N; i += 3) PP.push({ wx: wolfData.pts[i * 2], wy: wolfData.pts[i * 2 + 1], nx: g3() * 1.25, ny: g3() * 0.62, r: [PR(), PR(), PR()] });
+  const TINT = (() => { const o = document.createElement('canvas'); o.width = WOLF.width; o.height = WOLF.height; const g = o.getContext('2d'); g.drawImage(WOLF, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = C.or; g.fillRect(0, 0, o.width, o.height); return o; })();
+  function rain(t, box, ga = 1) {
+    const tq = Math.floor(t * 24) / 24;
+    cx.font = `500 16px ${MONO}`; cx.textAlign = 'left';
+    for (let c = 0; c < NC; c++) {
+      const col = RCOL[c], span = NR + col.trail, pos = (tq * col.v + col.off) % span, head = Math.floor(pos), cyc = Math.floor((tq * col.v + col.off) / span);
+      const x = c * RCW + 2;
+      for (let k = 0; k < col.trail; k++) {
+        const row = head - k; if (row < 0 || row >= NR) continue;
+        const y = row * RCH + 18;
+        if (x > box[0] - 10 && x < box[0] + box[2] + 4 && y > box[1] - 4 && y < box[1] + box[3] + 24) continue;
+        if ((y < 104 && (x < 560 || x > 1620)) || (y > H - 90 && y < H - 44 && (x < 380 || x > 1560))) continue;
+        const ch = col.s[(row + cyc * 11) % col.s.length]; if (ch === ' ') continue;
+        const a = k === 0 ? 0.9 : 0.75 * (1 - k / col.trail);
+        cx.globalAlpha = a * ga; cx.fillStyle = k === 0 ? (col.o ? C.or : C.text) : (col.o ? C.or : C.dim); cx.fillText(ch, x, y);
+      }
+    }
+    cx.globalAlpha = 1;
+  }
+  function hud(t, a) {
+    const m = 72, y1 = 84, y2 = H - 64, sz = 16;
+    const w = txt('LOBBUS.CORE', m, y1, sz, C.text, { alpha: a }); txt('  //  DESCANSO', m + w, y1, sz, C.dim, { alpha: a });
+    txt('23:41:' + String(30 + Math.floor(t)).padStart(2, '0'), W - m, y1, sz, C.text, { align: 'right', alpha: a });
+    txt('31°46′S · 52°20′W', m, y2, sz, C.dim, { alpha: a });
+    const wo = txt('ONLINE', W - m, y2, sz, C.ok, { align: 'right', alpha: a });
+    cx.globalAlpha = a; cx.fillStyle = C.ok; cx.beginPath(); cx.arc(W - m - wo - 18, y2 - 6, 4.5, 0, 7); cx.fill(); cx.globalAlpha = 1;
+    txt('STATUS  ', W - m - wo - 32, y2, sz, C.dim, { align: 'right', alpha: a });
+  }
+  const SS_IN = 1.4, SS_OUT = 10.2;
+  function mDescanso(t) {
+    cx.fillStyle = C.ink; cx.fillRect(0, 0, W, H);
+    if (t < SS_IN + 1.0) { cx.globalAlpha = 1 - sm(pr(t, SS_IN, SS_IN + 1.0)); cx.drawImage(INI, 0, 0); cx.globalAlpha = 1; }
+    if (t >= SS_IN && t < SS_OUT) {
+      const a = sm(pr(t, SS_IN + 0.4, SS_IN + 1.4));
+      const box = [CX - 300, CY - 150, 600, 300];
+      rain(t, box, a);
+      cx.globalAlpha = a; cx.fillStyle = C.ink; rr(box[0], box[1], box[2], box[3], 10); cx.fill(); cx.strokeStyle = C.line; cx.lineWidth = 1; rr(box[0], box[1], box[2], box[3], 10); cx.stroke(); cx.globalAlpha = 1;
+      hud(t, a);
+      const w0 = 4.2, w1 = 8.4;
+      if (t > w0 && t < w1) {
+        const la = sm(pr(t, w0, w0 + 0.3)) * (1 - sm(pr(t, w1 - 0.4, w1)));
+        const m = sm(pr(t, w0 + 0.1, w0 + 1.3)), wh = 190, ww = wh * WOLF.width / WOLF.height, ox = CX, oy = CY - 22;
+        cx.globalCompositeOperation = 'lighter';
+        for (const p of PP) {
+          let lf = sm(cl((m - p.r[0] * .45) / .55));
+          const x = lerp(p.nx, p.wx, lf) + (p.r[1] - .5) * Math.sin(Math.PI * lf) * 0.4, y = lerp(p.ny, p.wy, lf) + (p.r[2] - .5) * Math.sin(Math.PI * lf) * 0.4;
+          const sx = ox + x * wh, sy = oy + y * wh; if (sx < box[0] + 6 || sx > box[0] + box[2] - 6 || sy < box[1] + 6 || sy > box[1] + box[3] - 6) continue;
+          cx.globalAlpha = la * (0.5 + 0.5 * Math.sin(t * 2.2 + p.r[2] * 60)) * (1 - sm(pr(t, w0 + 1.5, w0 + 2.0)));
+          cx.fillStyle = p.r[1] > .62 ? '#FFE9DB' : C.or; cx.fillRect(sx - 1, sy - 1, 2.4, 2.4);
+        }
+        cx.globalCompositeOperation = 'source-over'; cx.globalAlpha = 1;
+        const sp = pr(t, w0 + 1.35, w0 + 1.52), ry = oy - wh / 2 + wh * sp;
+        if (sp > 0) {
+          cx.save(); cx.globalAlpha = la; cx.beginPath(); cx.rect(0, 0, W, ry); cx.clip(); cx.drawImage(WOLF, ox - ww / 2, oy - wh / 2, ww, wh);
+          cx.globalAlpha = la * (1 - sm(pr(t, w0 + 1.56, w0 + 1.95))); cx.drawImage(TINT, ox - ww / 2, oy - wh / 2, ww, wh); cx.restore(); cx.globalAlpha = 1;
+          if (sp < 1) { cx.fillStyle = C.or; cx.fillRect(ox - ww / 2 - 30, ry - 1.5, ww + 60, 3); }
+        }
+        txt('LOBBUS TV', CX, CY + 118, 18, C.muted, { align: 'center', alpha: la * sm(pr(t, w0 + 1.6, w0 + 2.0)), ls: 0.3 });
+      } else {
+        const ca = a * (t < w0 ? 1 : sm(pr(t, w1, w1 + 0.4)));
+        txt('[LOBBUS TV]', CX, CY - 72, 18, C.or, { align: 'center', alpha: ca, ls: 0.2 });
+        txt('23:41', CX, CY + 26, 96, C.text, { align: 'center', alpha: ca, ls: 0.02 });
+        txt('SEX · 23 OUT', CX, CY + 82, 18, C.dim, { align: 'center', alpha: ca, ls: 0.2 });
+      }
+    }
+    if (t >= SS_OUT) { cx.globalAlpha = sm(pr(t, SS_OUT, SS_OUT + 0.15)); cx.drawImage(INI, 0, 0); cx.globalAlpha = 1; }
+    keyChip(t, SS_OUT, 'QUALQUER TECLA');
+    caption(t, 0.2, 1.5, 'DESCANSO', 'DEPOIS DE 5 MIN SEM USO, FORA DO PLAYER');
+    caption(t, 1.6, 4.1, 'SISTEMA', 'CHUVA DE CÓDIGO COM OS SEUS CANAIS E PROGRAMAS · 24 QPS');
+    caption(t, 4.2, 8.4, 'LOBO', 'DE TEMPOS EM TEMPOS ELE SE FORMA, COMO NA ABERTURA');
+    caption(t, 8.5, 10.1, 'TV', 'APÓS 30 MIN, DEVOLVE A TELA AO DESCANSO DA PRÓPRIA TV');
+    caption(t, 10.2, 11.8, 'VOLTAR', 'QUALQUER TECLA VOLTA EXATAMENTE ONDE VOCÊ ESTAVA');
+  }
+
+  /* =====================================================================
+     4 · PAINEL DE VOLUME
+     ===================================================================== */
+  const VOL = [[0.6, 33, 'VOL+'], [0.95, 34, 'VOL+'], [1.3, 35, 'VOL+'], [1.65, 36, 'VOL+'], [2.9, 'mudo', 'MUDO'], [4.0, 36, 'MUDO']];
+  function mVolume(t) {
+    cx.drawImage(FR_FIELD, 0, 0);
+    let level = 32, mute = false, last = -9;
+    for (const [tk, v] of VOL) if (t >= tk) { last = tk; if (v === 'mudo') mute = true; else { level = v; mute = false; } }
+    const show = sm(pr(t, 0.6, 0.72)) * (1 - sm(pr(t, last + 1.6, last + 1.78)));
+    if (show > 0) {
+      const slide = (1 - expoOut(pr(t, 0.6, 0.78))) * 16;
+      const w = 460, h = 112, x = W - 64 - w + slide, y = 56 + 70;
+      cx.globalAlpha = show * 0.95; cx.fillStyle = C.ink2; rr(x, y, w, h, 10); cx.fill(); cx.globalAlpha = show; cx.strokeStyle = C.line2; cx.lineWidth = 1; rr(x, y, w, h, 10); cx.stroke(); cx.globalAlpha = 1;
+      const ix = x + 32, iy = y + 40;
+      cx.globalAlpha = show; cx.strokeStyle = mute ? C.or : C.text; cx.fillStyle = mute ? C.or : C.text; cx.lineWidth = 3; cx.lineJoin = 'round';
+      cx.beginPath(); cx.moveTo(ix, iy - 8); cx.lineTo(ix + 9, iy - 8); cx.lineTo(ix + 21, iy - 18); cx.lineTo(ix + 21, iy + 18); cx.lineTo(ix + 9, iy + 8); cx.lineTo(ix, iy + 8); cx.closePath(); cx.stroke();
+      if (mute) { cx.beginPath(); cx.moveTo(ix + 30, iy - 9); cx.lineTo(ix + 46, iy + 9); cx.moveTo(ix + 46, iy - 9); cx.lineTo(ix + 30, iy + 9); cx.stroke(); }
+      else { cx.beginPath(); cx.arc(ix + 24, iy, 10, -0.9, 0.9); cx.stroke(); cx.beginPath(); cx.arc(ix + 24, iy, 19, -0.9, 0.9); cx.stroke(); }
+      cx.globalAlpha = 1;
+      txt(mute ? 'MUDO' : 'VOLUME', x + 92, y + 48, 18, mute ? C.or : C.dim, { alpha: show });
+      txt(mute ? '--' : String(level), x + w - 30, y + 54, 40, mute ? C.dim : C.text, { align: 'right', alpha: show, ls: 0.02 });
+      const segs = 25, sw = (w - 64 - (segs - 1) * 4) / segs, filled = Math.round(level / 100 * segs);
+      for (let i = 0; i < segs; i++) { cx.globalAlpha = show; cx.fillStyle = !mute && i < filled ? C.or : C.line2; cx.fillRect(x + 32 + i * (sw + 4), y + 80, sw, 6); }
+      cx.globalAlpha = 1;
+    }
+    VOL.forEach(([tk, v, k]) => keyChip(t, tk, k));
+    caption(t, 0.6, 2.8, 'VOLUME', 'PAINEL DA LOBBUS NO LUGAR DA BARRA DA TV');
+    caption(t, 2.9, 4.4, 'MUDO', 'O NÚMERO SAI E O ÍCONE FICA LARANJA');
+    caption(t, 4.5, 6.4, 'DEPENDE DE TESTE', 'SÓ SE A TCL DEIXAR ESCONDER A BARRA DELA');
+  }
+
+  /* =====================================================================
+     2b · CARREGANDO O SINAL (duas versões)
+     ===================================================================== */
+  const VAR = new URLSearchParams(location.search).get('v') || '1';
+  const L_OPEN = 0.8, L_FIRST = 3.2;
+  if (MODE === 'carregando') EVENTS.push({ t: L_OPEN, s: 'canal' });
+  const STATIC = []; { const r = mulberry(909); for (let i = 0; i < 5200; i++) STATIC.push([r() * W, r() * H, r(), r(), r()]); }
+  const TONE = ['#C94A05', '#E0560A', '#F2600C', '#FF7A2E', '#FFE9DB'];
+  function chuvisco(t, a) {
+    const tq = Math.floor(t * 24);
+    cx.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < STATIC.length; i++) {
+      const p = STATIC[i];
+      const on = hash(tq, i) < 0.55; if (!on) continue;
+      const x = p[0] + (hash(tq, i + 7) - .5) * 26, y = p[1] + (hash(tq, i + 13) - .5) * 14;
+      const s = 1.6 + p[2] * 2.6;
+      cx.globalAlpha = a * (0.25 + 0.55 * hash(tq, i + 29)); cx.fillStyle = TONE[Math.floor(p[3] * TONE.length)]; cx.fillRect(x, y, s, s);
+    }
+    cx.globalCompositeOperation = 'source-over'; cx.globalAlpha = 1;
+  }
+  function sintonizando(t, num, t0, done) {
+    const a = sm(pr(t, t0, t0 + 0.15));
+    const el = Math.max(0, (done ?? t) - t0), secs = el.toFixed(1).replace('.', ',') + ' S';
+    const pw = 680, ph = 300, px = CX - pw / 2, py = CY - 170;
+    cx.globalAlpha = a * (VAR === '2' ? 0.88 : 0.0); cx.fillStyle = C.ink; rr(px, py, pw, ph, 10); cx.fill(); cx.globalAlpha = 1;
+    if (VAR === '2') { cx.globalAlpha = a; cx.strokeStyle = C.line; cx.lineWidth = 1; rr(px, py, pw, ph, 10); cx.stroke(); cx.globalAlpha = 1; }
+    const head = 'SINTONIZANDO ', w1 = measure(head, 22), w2 = measure(String(num), 22), w3 = measure('  ·  ' + secs, 22);
+    const x0 = CX - (w1 + w2 + w3) / 2, y = py + 70;
+    txt(head, x0, y, 22, C.muted, { alpha: a }); txt(String(num), x0 + w1, y, 22, C.text, { alpha: a }); txt('  ·  ' + secs, x0 + w1 + w2, y, 22, C.dim, { alpha: a });
+    const bw = 360, by = y + 30, bx = CX - bw / 2;
+    cx.globalAlpha = a; cx.fillStyle = C.line2; cx.fillRect(bx, by, bw, 3);
+    if (done == null) { const ph2 = ((t - t0) * 0.85) % 1, seg = 110, sx = bx - seg + ph2 * (bw + seg); cx.fillStyle = C.or; cx.fillRect(Math.max(bx, sx), by, Math.min(bx + bw, sx + seg) - Math.max(bx, sx), 3); }
+    else { cx.fillStyle = C.or; cx.fillRect(bx, by, bw, 3); }
+    cx.globalAlpha = 1;
+    const steps = [['SERVIDOR', 0.15, 0.45, 'OK'], ['CANAL ' + num, 0.45, 1.3, 'OK'], ['PRIMEIRO QUADRO', 0.9, null, 'OK']];
+    const lx = CX - 260, rx = CX + 260;
+    steps.forEach(([lab, ts, tok, okTxt], i) => {
+      const st = t0 + ts; if (t < st) return;
+      const la = a * sm(cl((t - st) / 0.08)), yy = by + 64 + i * 36;
+      const isOk = (tok != null && t >= t0 + tok) || (done != null && t >= done);
+      const val = isOk ? okTxt : 'AGUARDANDO' + '.'.repeat(1 + Math.floor(t * 4) % 3).padEnd(3, ' ');
+      const lw = txt('> ' + lab, lx, yy, 17, C.dim, { weight: 400, alpha: la });
+      const vw = measure(isOk ? okTxt : 'AGUARDANDO...', 17), dw = measure('.', 17);
+      txt('.'.repeat(Math.max(2, Math.floor((rx - lx - lw - vw - 24) / dw))), lx + lw + 10, yy, 17, 'rgba(255,233,219,0.22)', { weight: 400, alpha: la });
+      txt(val, rx, yy, 17, isOk ? C.ok : C.muted, { align: 'right', alpha: la });
+    });
+  }
+  function mCarregando(t) {
+    cx.fillStyle = '#000'; cx.fillRect(0, 0, W, H);
+    if (t < L_OPEN + 0.15) { cx.globalAlpha = t < L_OPEN ? 1 : 1 - sm(pr(t, L_OPEN, L_OPEN + 0.15)); cx.drawImage(FR_CINE, 0, 0); cx.globalAlpha = 1; }
+    if (t >= L_OPEN) {
+      const loading = t < L_FIRST;
+      const out = 1 - sm(pr(t, L_FIRST, L_FIRST + 0.25));
+      if (VAR === '2' && out > 0) chuvisco(t, sm(pr(t, L_OPEN, L_OPEN + 0.3)));
+      if (t >= L_FIRST) revealFrame(FR_FIELD, L_FIRST, t);
+      if (out > 0) sintonizandoAlpha(t, out);
+      let status = loading ? 'CONECTANDO' + '.'.repeat(1 + Math.floor(t * 4) % 3) : scramble('1080P · 50 QPS · DD+', t, L_FIRST, 0.3);
+      infoOverlay(t, 204, L_OPEN, loading, status, L_FIRST + 1.6);
+    }
+    keyChip(t, L_OPEN, 'CH+');
+    caption(t, 0.1, 0.75, 'CANAL', '203 · CINE AUTORAL');
+    caption(t, 0.8, 3.15, VAR === '2' ? 'SEM SINAL AINDA' : 'SINTONIZANDO', VAR === '2' ? 'O CHUVISCO DA TV, EM PARTÍCULAS LARANJA, ATÉ O SINAL CHEGAR' : 'TEMPO CORRENDO E AS ETAPAS REAIS DA CONEXÃO, COMO NA ABERTURA');
+    caption(t, 3.2, 5.0, 'PRIMEIRO QUADRO', 'A VARREDURA DA ABERTURA REVELA O SINAL');
+  }
+  function loaderFade(t, num, t0, tFirst) {
+    if (tFirst == null || t < tFirst) { sintonizando(t, num, t0, null); return; }
+    const out = 1 - sm(pr(t, tFirst, tFirst + 0.25)); if (out <= 0) return;
+    LOAD_OFF_CX.setTransform(1, 0, 0, 1, 0, 0); LOAD_OFF_CX.clearRect(0, 0, W, H);
+    const main = cx; cx = LOAD_OFF_CX; sintonizando(t, num, t0, tFirst); cx = main;
+    cx.globalAlpha = out; cx.drawImage(LOAD_OFF, 0, 0); cx.globalAlpha = 1;
+  }
+  function sintonizandoAlpha(t, out) {
+    if (out >= 1) { sintonizando(t, 204, L_OPEN, null); return; }
+    LOAD_OFF_CX.setTransform(1, 0, 0, 1, 0, 0); LOAD_OFF_CX.clearRect(0, 0, W, H);
+    const main = cx; cx = LOAD_OFF_CX; sintonizando(t, 204, L_OPEN, L_FIRST); cx = main;
+    cx.globalAlpha = out; cx.drawImage(LOAD_OFF, 0, 0); cx.globalAlpha = 1;
+  }
+  const LOAD_OFF = document.createElement('canvas'); LOAD_OFF.width = W; LOAD_OFF.height = H; const LOAD_OFF_CX = LOAD_OFF.getContext('2d');
+
+  const MODES = { carregando: [mCarregando, 5.4], movimento: [mMovimento, 12.6], canal: [mCanal, 11.4], descanso: [mDescanso, 12.0], volume: [mVolume, 6.6] };
+  window.renderAt = t => { cx.setTransform(1, 0, 0, 1, 0, 0); cx.globalAlpha = 1; cx.globalCompositeOperation = 'source-over'; MODES[MODE][0](t); };
+  window.TL = { videoEnd: MODES[MODE][1] };
+  window.EVENTS = EVENTS;
+  window.renderAt(0);
+  window.READY = true;
+})();
+</script>
+</body>
+</html>
