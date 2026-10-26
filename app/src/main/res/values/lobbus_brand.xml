@@ -31,6 +31,24 @@
     <string name="lobbus_filmes_top10_contador" translatable="false">MAIS VISTOS NA SUA LISTA</string>
     <string name="lobbus_filmes_tecnicos" translatable="false">Em 4K, HDR e Dolby Atmos</string>
     <string name="lobbus_filmes_tecnicos_contador" translatable="false">FEITO PARA A SUA TV</string>
+    <!-- Abertura (item 4b.1 do plano de movimento). -->
+    <string name="lobbus_abertura_nucleo" translatable="false">LOBBUS.CORE // TV v%1$s</string>
+    <string name="lobbus_abertura_coordenadas" translatable="false">31°46′S · 52°20′W</string>
+    <string name="lobbus_abertura_estado" translatable="false">STATUS ● ONLINE</string>
+    <string name="lobbus_abertura_iniciando" translatable="false">INICIANDO %1$s</string>
+    <string name="lobbus_abertura_slogan" translatable="false">O MARKETING COMO DEVE SER.</string>
+    <string name="lobbus_abertura_log_linha" translatable="false">%1$s: %2$s</string>
+    <string name="lobbus_abertura_log_nucleo" translatable="false">NÚCLEO LOBBUS</string>
+    <string name="lobbus_abertura_log_fonte" translatable="false">FONTE XTREAM</string>
+    <string name="lobbus_abertura_log_canais" translatable="false">CANAIS</string>
+    <string name="lobbus_abertura_log_guia" translatable="false">GUIA DE PROGRAMAÇÃO</string>
+    <string name="lobbus_abertura_log_filmes" translatable="false">FILMES</string>
+    <string name="lobbus_abertura_log_series" translatable="false">SÉRIES</string>
+    <string name="lobbus_abertura_ok" translatable="false">OK</string>
+    <string name="lobbus_abertura_conectada" translatable="false">CONECTADA</string>
+    <string name="lobbus_abertura_offline" translatable="false">OFFLINE</string>
+    <string name="lobbus_abertura_aguardando" translatable="false">AGUARDANDO</string>
+    <string name="lobbus_abertura_sem_guia" translatable="false">SEM GUIA</string>
     <!-- Moldura da imagem (player em tela cheia). -->
     <string name="lobbus_frame_title" translatable="false">Moldura da imagem</string>
     <string name="lobbus_frame_description" translatable="false">Mostra o vídeo um pouco menor, com bordas pretas, para ganhar nitidez em canais Full HD numa TV 4K. Nunca estica a imagem.</string>

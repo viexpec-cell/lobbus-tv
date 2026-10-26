@@ -43,6 +43,8 @@ import tv.own.owntv.features.profiles.ProfileGateSessionViewModel
 import tv.own.owntv.features.profiles.ProfilesViewModel
 import tv.own.owntv.features.setup.Onboarding
 import tv.own.owntv.features.shell.OwnTVShell
+import tv.own.owntv.lobbus.abertura.LobbusAberturaAnimada
+import tv.own.owntv.lobbus.abertura.lembrarDadosDaAbertura
 import tv.own.owntv.features.shell.ShellViewModel
 import tv.own.owntv.ui.theme.BlurredBackdrop
 import tv.own.owntv.ui.theme.LocalBackground
@@ -238,6 +240,9 @@ open class MainActivity : ComponentActivity() {
             val avatarPath by viewModel.avatarPath.collectAsStateWithLifecycle()
             val profileName by viewModel.profileName.collectAsStateWithLifecycle()
             val sourceSummary by viewModel.sourceSummary.collectAsStateWithLifecycle()
+            // LOBBUS: a abertura toca uma vez por processo. `remember` basta: numa troca de
+            // configuração a composição se refaz, mas o processo é o mesmo e ela não volta.
+            var mostrarAbertura by remember { mutableStateOf(true) }
             val playlists by viewModel.playlists.collectAsStateWithLifecycle()
             val activePlaylistId by viewModel.activePlaylistId.collectAsStateWithLifecycle()
             val weather by viewModel.weather.collectAsStateWithLifecycle()
@@ -449,6 +454,27 @@ open class MainActivity : ComponentActivity() {
                             // the shell. The known loading/onboarding/gate cases are above; a blank
                             // frame is safer than rendering protected content if a new state is added.
                             else -> Unit
+                        }
+                        // LOBBUS: a abertura do item 4b.1, por cima de tudo. Só na abertura a frio:
+                        // o estado nasce ligado uma vez por processo, então voltar do segundo plano
+                        // cai direto no Início. Qualquer tecla pula, e enquanto ela roda é ela quem
+                        // segura o foco do controle.
+                        if (mostrarAbertura) {
+                            LobbusAberturaAnimada(
+                                dados = lembrarDadosDaAbertura(
+                                    versao = tv.own.owntv.BuildConfig.VERSION_NAME,
+                                    fonteConectada = sourceSummary != null,
+                                    // As contagens do banco ainda não chegam aqui: até elas virem, o
+                                    // log mostra AGUARDANDO, como o protótipo faz sem fonte.
+                                    canais = null,
+                                    filmes = null,
+                                    series = null,
+                                    fimDoGuia = null,
+                                ),
+                                comSom = true,
+                                onTerminou = { mostrarAbertura = false },
+                                modifier = Modifier.fillMaxSize(),
+                            )
                         }
                         } // end foreground Box (above the background layer)
                     }
