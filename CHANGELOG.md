@@ -7,6 +7,20 @@
 > Issue numbers that are part of a title are fine; explanatory parentheticals are not. The detail —
 > what, why, files and verification — belongs in the commit message, never here.
 
+## v0.5.0 — 2026-10-26
+
+### ✨ New features
+- **🎬 Abertura da Lobbus TV, com o lobo em partículas, a varredura laranja e som**
+- **🧭 Menu lateral de 128 px com rótulos em Geist Mono**
+- **🕐 Relógio e data no desenho da Lobbus**
+- **🏠 Início com destaque, etiquetas de sinal e fileiras numeradas**
+- **📺 Ao vivo com o card "No ar agora" e "A seguir neste canal"**
+- **🎞️ Filmes: Top 10 da semana e a fileira Em 4K, HDR e Dolby Atmos**
+
+### 🐞 Fixes
+- **Os textos que ainda chamavam o app de OwnTV**
+- **Rótulos em caixa alta seguem o idioma da TV**
+
 ## v5.2.0 — 2026-10-17
 
 ### ✨ New features
