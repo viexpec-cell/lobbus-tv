@@ -18,6 +18,14 @@
     <string name="lobbus_no_ar_agora" translatable="false">No ar agora</string>
     <string name="lobbus_a_seguir_no_canal" translatable="false">A seguir neste canal</string>
     <string name="lobbus_rotulo_com_contagem" translatable="false">%1$s · %2$s</string>
+    <!-- Textos do core que citavam o OwnTV e falam do app em si. Os que nomeiam serviços do
+         OwnTV de verdade (o Worker compartilhado) continuam como estão: seria falso renomeá-los. -->
+    <string name="setup_disclaimer" translatable="false">A Lobbus TV é apenas um reprodutor de mídia. Ela não inclui canais, listas de reprodução nem conteúdo. Você é responsável por adicionar suas próprias fontes Xtream, M3U ou Stalker às quais tenha acesso legal.</string>
+    <string name="setup_set_up_owntv" translatable="false">Configurar a Lobbus TV</string>
+    <string name="content_exit_owntv" translatable="false">Sair da Lobbus TV?</string>
+    <string name="common_own_tv_user" translatable="false">Usuário da Lobbus TV</string>
+    <string name="content_epg_own_player" translatable="false">Reprodutor da Lobbus TV</string>
+    <string name="settings_proxy_description" translatable="false">Envia todo o tráfego e a reprodução da Lobbus TV por um proxy HTTP.</string>
     <!-- Tela de Filmes (Fase 4). -->
     <string name="lobbus_filmes_top10" translatable="false">Top 10 da semana</string>
     <string name="lobbus_filmes_top10_contador" translatable="false">MAIS VISTOS NA SUA LISTA</string>
