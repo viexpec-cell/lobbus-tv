@@ -24,7 +24,7 @@ import androidx.compose.ui.res.stringResource
 import java.text.NumberFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Locale
+import tv.own.owntv.lobbus.lobbusLocale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -70,11 +70,12 @@ fun lembrarDadosDaAbertura(
     val ok = stringResource(R.string.lobbus_abertura_ok)
     val conectada = stringResource(R.string.lobbus_abertura_conectada)
     val semGuia = stringResource(R.string.lobbus_abertura_sem_guia)
-    val formato = remember { NumberFormat.getIntegerInstance(Locale.getDefault()) }
+    val idioma = lobbusLocale()
+    val formato = remember(idioma) { NumberFormat.getIntegerInstance(idioma) }
     fun numero(valor: Int?): String = valor?.let { formato.format(it) } ?: aguardando
     return DadosDaAbertura(
         nucleo = stringResource(R.string.lobbus_abertura_nucleo, versao),
-        relogio = LocalDateTime.now().format(RELOGIO).uppercase(Locale.getDefault()),
+        relogio = LocalDateTime.now().format(RELOGIO).uppercase(idioma),
         coordenadas = stringResource(R.string.lobbus_abertura_coordenadas),
         estado = stringResource(R.string.lobbus_abertura_estado),
         iniciando = stringResource(R.string.lobbus_abertura_iniciando),
