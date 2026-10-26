@@ -59,7 +59,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
@@ -1278,10 +1280,10 @@ private fun LobbusTop10Fileira(
             inicio = 0.dp,
         )
         Spacer(Modifier.height(12.mpx))
-        androidx.compose.foundation.lazy.LazyRow(
+        LazyRow(
             horizontalArrangement = Arrangement.spacedBy(16.mpx),
         ) {
-            androidx.compose.foundation.lazy.itemsIndexed(itens) { indice, item ->
+            itemsIndexed(itens) { indice, item ->
                 var focado by remember { mutableStateOf(false) }
                 tv.own.owntv.lobbus.movies.LobbusItemTop10(
                     numero = indice + 1,
@@ -1325,10 +1327,10 @@ private fun LobbusFileiraTecnica(
             inicio = 0.dp,
         )
         Spacer(Modifier.height(12.mpx))
-        androidx.compose.foundation.lazy.LazyRow(
+        LazyRow(
             horizontalArrangement = Arrangement.spacedBy(20.mpx),
         ) {
-            androidx.compose.foundation.lazy.items(itens, key = { it.id }) { filme ->
+            items(itens, key = { it.id }) { filme ->
                 var focado by remember { mutableStateOf(false) }
                 val sinais = ProviderVariantParser.displaySignals(filme.name)
                 tv.own.owntv.lobbus.movies.LobbusCartaoLargo(
