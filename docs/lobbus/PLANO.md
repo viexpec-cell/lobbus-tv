@@ -4,10 +4,11 @@ Checklist vivo. Toda sessão começa aqui e termina atualizando "Estado atual".
 
 ## Estado atual
 
-- Fase: **4 · Telas assinatura** (Início, Ao vivo e o desenho da Filmes aprovados) e **4b · Movimento** (pacotes aprovados, nada em código ainda)
-- Último passo (25/10): desenho da Filmes aprovado pelo Vitor pelo print `docs/lobbus/prints/04-filmes.png`
-  e mesclado na `main`, junto com os pacotes de movimento e de primeiro acesso (só documentos e
-  protótipos, nenhuma linha de Kotlin). Em seguida, APK v0.3.0 com Início e Ao vivo para a TV.
+- Fase: **4 · Telas assinatura** (Início, Ao vivo e Filmes feitos) e **4b · Movimento** (abertura em código)
+- Último passo (26/10): **v0.5.0 publicada como release assinado pelo CI**, a primeira que o
+  atualizador do app enxerga. Traz a casca nova (menu de 128 px com rótulos mono e o relógio do
+  protótipo), as duas fileiras da Filmes com dados reais, a abertura e os textos que ainda
+  chamavam o app de OwnTV. Os quatro segredos de assinatura estão cadastrados e funcionando.
 - Antes (18/10): **Ao vivo aprovado pelo Vitor** pelo print `docs/lobbus/prints/02-ao-vivo.png`
   e mesclado na `main`, junto com dois acertos do Início: o título do destaque em duas linhas e o
   acento do cabeçalho de tela. A `main` está verde e os prints reproduzem iguais a partir dela.
@@ -87,10 +88,9 @@ Problema: canal Full HD numa TV 4K é ampliado 2× e perde nitidez ao ocupar a t
       `docs/lobbus/prints/01-inicio.png`; já na `main`
 - [x] Ao vivo com card "No ar agora" estilo IMDb e "A seguir": aprovado pelo Vitor em 18/10/2026
       pelo print `docs/lobbus/prints/02-ao-vivo.png`; já na `main`
-- [ ] Filmes com Top 10 de números vazados e fileira 4K/HDR/Atmos: desenho escrito em
-      `lobbus/movies/LobbusFilmes.kt` e renderizado (print `docs/lobbus/prints/04-filmes.png`), mas
-      **ainda não ligado à tela**: a Filmes de hoje é uma grade de cartazes, sem fileiras. Falta
-      trazer o Top 10 do "em alta" e filtrar a fileira pelas capacidades do provedor
+- [x] Filmes com Top 10 de números vazados e fileira 4K/HDR/Atmos: desenho aprovado em 25/10 e
+      ligado aos dados em 26/10. O Top 10 vem do mesmo "em alta" do Início; a fileira técnica usa a
+      busca indexada do core por qualidade e capacidades anunciadas, sem tocar no core
 - [ ] Detalhe da série com episódios e "Continuar T:E"
 - [ ] Player com painel de informações técnicas
 
@@ -100,3 +100,15 @@ Problema: canal Full HD numa TV 4K é ampliado 2× e perde nitidez ao ocupar a t
 - [ ] Ajuste automático de taxa de quadros ligado por padrão
 - [ ] "Assistir a seguir" da Google TV
 - [ ] Release v1.0.0
+
+## Fase 4c · Casca e lista (pedido do Vitor em 26/10)
+
+- [x] Menu lateral de 128 px com rótulos em Geist Mono, no lugar da cápsula de 84 só com ícones
+- [x] Relógio e data no desenho do protótipo, na barra de cima
+- [ ] Juntar as duplicatas do mesmo canal (FHD e 4K viram uma linha na melhor qualidade, com as
+      outras versões acessíveis). Agrupar pelo identificador de guia quando houver, pelo nome
+      normalizado quando não, e nunca agrupar na dúvida
+- [ ] No Guia vazio, oferecer o guia que a própria lista anuncia (`url-tvg` do M3U ou `xmltv.php`
+      do Xtream), em vez de mandar o Vitor procurar em Configurações
+- [ ] Vitor: liberar os workflows automáticos na aba Actions do fork (hoje todo build depende de
+      disparo manual)
