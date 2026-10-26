@@ -4,8 +4,11 @@ Checklist vivo. Toda sessão começa aqui e termina atualizando "Estado atual".
 
 ## Estado atual
 
-- Fase: **4 · Telas assinatura** (Início e Ao vivo aprovados) e **2** com pendências do Vitor
-- Último passo (18/10): **Ao vivo aprovado pelo Vitor** pelo print `docs/lobbus/prints/02-ao-vivo.png`
+- Fase: **4 · Telas assinatura** (Início, Ao vivo e o desenho da Filmes aprovados) e **4b · Movimento** (pacotes aprovados, nada em código ainda)
+- Último passo (25/10): desenho da Filmes aprovado pelo Vitor pelo print `docs/lobbus/prints/04-filmes.png`
+  e mesclado na `main`, junto com os pacotes de movimento e de primeiro acesso (só documentos e
+  protótipos, nenhuma linha de Kotlin). Em seguida, APK v0.3.0 com Início e Ao vivo para a TV.
+- Antes (18/10): **Ao vivo aprovado pelo Vitor** pelo print `docs/lobbus/prints/02-ao-vivo.png`
   e mesclado na `main`, junto com dois acertos do Início: o título do destaque em duas linhas e o
   acento do cabeçalho de tela. A `main` está verde e os prints reproduzem iguais a partir dela.
   Antes disso, no mesmo dia: Início aprovado e mesclado, máquina de prints rodando de verdade,
