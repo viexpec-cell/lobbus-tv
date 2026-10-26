@@ -180,22 +180,33 @@ fun StageClock(weatherInfo: WeatherInfo?, fahrenheit: Boolean, colors: ClockColo
             }
         },
     ) {
-        Text(
-            time,
-            style = stageText(40, 700, (-0.5).mpxSp).copy(fontFeatureSettings = "tnum", shadow = shadow, lineHeight = 40.mpxSp),
-            color = timeColor,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+        // LOBBUS: o relógio do protótipo, "SEX · 16 OUT  23:20": a data em Geist Mono caixa alta e,
+        // ao lado dela, a hora grande. O OwnTV empilhava a hora sobre a data.
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(18.mpx),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            tv.own.owntv.lobbus.home.LobbusRotuloMono(
+                texto = date.uppercase(tv.own.owntv.lobbus.lobbusLocale()),
+                cor = dateColor,
+                tamanho = 15,
+            )
+            Text(
+                time,
+                style = stageText(44, 800, (-1).mpxSp).copy(fontFeatureSettings = "tnum", shadow = shadow, lineHeight = 44.mpxSp),
+                color = timeColor,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
         Row(
             Modifier.padding(top = 6.mpx),
             horizontalArrangement = Arrangement.spacedBy(10.mpx),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             val sub: TextStyle = stageText(17, 400).copy(shadow = shadow)
-            Text(date, style = sub, color = dateColor, maxLines = 1, overflow = TextOverflow.Ellipsis)
             if (weatherInfo != null) {
-                Text("·", style = sub, color = StageColors.Muted.copy(alpha = 0.5f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                // LOBBUS: o tempo fica na linha de baixo, sozinho: a data subiu para junto da hora.
                 WeatherConditionIcon(weatherInfo, Modifier.size(17.mpx))
                 val degrees = if (fahrenheit) (weatherInfo.temperatureC * 9 / 5 + 32).toInt() else weatherInfo.temperatureC.toInt()
                 Text(
