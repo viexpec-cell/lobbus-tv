@@ -147,8 +147,13 @@ fun LobbusAberturaAnimada(
         if (terminou) return
         terminou = true
         val som = tocador
-        if (som != null && som.isPlaying) {
+        if (som != null) {
             // Som sai em 150 ms, em vez de cortar seco.
+            //
+            // Nada aqui pergunta o estado do tocador antes de agir. `isPlaying()` lança exceção num
+            // tocador já liberado, e foi assim que a v0.5.0 derrubou o app ao sair da abertura: o
+            // som passou a ser carregado em segundo plano e a liberação pode chegar antes desta
+            // linha. Tentar e ignorar a falha é seguro; perguntar não é.
             escopo.launch {
                 val passos = 10
                 repeat(passos) { passo ->
@@ -165,7 +170,7 @@ fun LobbusAberturaAnimada(
     DisposableEffect(tocador) {
         onDispose {
             runCatching { tocador?.stop() }
-            tocador?.release()
+            runCatching { tocador?.release() }
         }
     }
 
