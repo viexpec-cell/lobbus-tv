@@ -63,7 +63,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import tv.own.owntv.core.trending.ProviderVariantParser
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -481,6 +484,8 @@ fun MoviesScreen(
         if (rememberMovies) perCategoryMovieIds[selectedKey] = movie.id
     }
     val posterOf: (MovieEntity) -> String? = { it.posterUrl?.takeIf { u -> u.isNotBlank() } ?: cachedPosters[it.id] }
+    // LOBBUS: o Top 10 do protótipo, que vem do mesmo "em alta" que alimenta o destaque do Início.
+    val top10 by vm.top10.collectAsStateWithLifecycle()
     val playHint = stringResource(R.string.common_ok) to stringResource(R.string.content_play)
     val optionsHint = stringResource(R.string.content_key_hold_ok) to stringResource(R.string.content_key_options)
 
@@ -612,6 +617,17 @@ fun MoviesScreen(
                                 contentPadding = PaddingValues(start = fx(84), end = fx(64), top = 14.mpx, bottom = glowRoom),
                                 modifier = Modifier.fillMaxWidth().weight(1f),
                             ) {
+                                // LOBBUS: a fileira Top 10 abre a tela, acima da grade, como no protótipo.
+                                if (top10.isNotEmpty()) {
+                                    item(span = { GridItemSpan(maxLineSpan) }) {
+                                        LobbusTop10Fileira(
+                                            itens = top10,
+                                            posterOf = posterOf,
+                                            onClick = { filme -> startMovie(filme) },
+                                            onFocus = { filme -> onMovieFocus(filme) },
+                                        )
+                                    }
+                                }
                                 items(count = movies.itemCount, key = movies.itemKey { it.id }, contentType = movies.itemContentType { "movie" }) { index ->
                                     val movie = movies[index] ?: return@items
                                     val prog = movieProgress[movie.id]
@@ -1224,4 +1240,51 @@ internal fun movieTitleInfo(
         plot = if (tmdbWins) meta?.overview ?: providerPlot else providerPlot ?: meta?.overview,
         cast = tv.own.owntv.core.metadata.MetadataCast.parse(meta?.castJson),
     )
+}
+
+/**
+ * LOBBUS: a fileira "Top 10 da semana" do protótipo, acima da grade de cartazes.
+ *
+ * Os dez títulos vêm do mesmo "em alta" que alimenta o destaque do Início (o `HomeFeedReader` do
+ * core), e não de uma regra nova: é o que o protótipo chama de "mais vistos na sua lista". O
+ * desenho (número vazado, cartaz por cima, anel de foco) está em `lobbus/movies/LobbusFilmes.kt`.
+ */
+@Composable
+private fun LobbusTop10Fileira(
+    itens: List<tv.own.owntv.core.home.TrendingHomeItem.Movie>,
+    posterOf: (MovieEntity) -> String?,
+    onClick: (MovieEntity) -> Unit,
+    onFocus: (MovieEntity) -> Unit,
+) {
+    Column(Modifier.padding(bottom = 28.mpx)) {
+        tv.own.owntv.lobbus.home.LobbusTituloFileira(
+            titulo = stringResource(R.string.lobbus_filmes_top10),
+            contador = stringResource(R.string.lobbus_filmes_top10_contador),
+            ordem = 1,
+            altura = 46.mpx,
+            inicio = 0.dp,
+        )
+        Spacer(Modifier.height(12.mpx))
+        androidx.compose.foundation.lazy.LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(16.mpx),
+        ) {
+            androidx.compose.foundation.lazy.itemsIndexed(itens) { indice, item ->
+                var focado by remember { mutableStateOf(false) }
+                tv.own.owntv.lobbus.movies.LobbusItemTop10(
+                    numero = indice + 1,
+                    titulo = item.movie.name,
+                    etiqueta = ProviderVariantParser.displaySignals(item.snapshot.providerRawName).quality.label,
+                    focado = focado,
+                    modifier = Modifier
+                        .onFocusChanged {
+                            focado = it.isFocused
+                            if (it.isFocused) onFocus(item.movie)
+                        }
+                        .clickable { onClick(item.movie) },
+                ) {
+                    Box(Modifier.fillMaxSize()) { VodPosterArt(posterOf(item.movie), OwnTVIcon.MOVIES) }
+                }
+            }
+        }
+    }
 }

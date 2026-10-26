@@ -101,6 +101,9 @@ class MovieViewModel(
     private val externalPlayerLauncher: tv.own.owntv.core.player.ExternalPlayerLauncher,
     private val streamUrlResolver: tv.own.owntv.core.stalker.StreamUrlResolver,
     private val subtitleController: tv.own.owntv.core.subtitles.SubtitleController,
+    // LOBBUS: o mesmo leitor que monta o feed do Início, para o Top 10 da Filmes sair do mesmo
+    // "em alta" que o destaque usa, em vez de uma segunda regra inventada aqui.
+    private val homeFeed: tv.own.owntv.core.home.HomeFeedReader,
 ) : ViewModel() {
 
     /** The categories' search text, held here so it survives the player (see LiveViewModel). */
@@ -474,6 +477,23 @@ class MovieViewModel(
     suspend fun isInHistory(movie: MovieEntity): Boolean {
         val pid = currentProfileId() ?: return false
         return historyDao.exists(pid, MediaType.MOVIE, movie.id)
+    }
+
+    // LOBBUS: os dez primeiros filmes do "em alta", para a fileira Top 10 da tela de Filmes.
+    private val _top10 = MutableStateFlow<List<tv.own.owntv.core.home.TrendingHomeItem.Movie>>(emptyList())
+    val top10: StateFlow<List<tv.own.owntv.core.home.TrendingHomeItem.Movie>> = _top10.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            ctx.collect { contexto ->
+                _top10.value = runCatching {
+                    homeFeed.load(contexto.profileId)
+                        .trendingItems
+                        .filterIsInstance<tv.own.owntv.core.home.TrendingHomeItem.Movie>()
+                        .take(10)
+                }.getOrDefault(emptyList())
+            }
+        }
     }
 
     val favoriteIds: StateFlow<Set<Long>> = ctx
