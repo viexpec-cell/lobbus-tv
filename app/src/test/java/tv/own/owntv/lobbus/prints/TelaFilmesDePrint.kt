@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import java.util.Locale
+import tv.own.owntv.lobbus.lobbusLocale
 import tv.own.owntv.lobbus.home.LobbusMetaHeroi
 import tv.own.owntv.lobbus.home.LobbusTituloFileira
 import tv.own.owntv.lobbus.live.LobbusCabecalhoDeTela
@@ -150,9 +150,10 @@ private fun CartazDoTop10(posicao: Int, filme: Filme, modifier: Modifier = Modif
 }
 
 /** "2025 · DRAMA · 2H12", como o protótipo escreve embaixo do cartão largo. */
+@Composable
 private fun linhaTecnica(filme: Filme): String {
     val horas = filme.duracaoMin / 60
     val minutos = filme.duracaoMin % 60
     val duracao = "${horas}H${minutos.toString().padStart(2, '0')}"
-    return "${filme.ano} · ${filme.generos.uppercase(Locale.getDefault())} · $duracao"
+    return "${filme.ano} · ${filme.generos.uppercase(lobbusLocale())} · $duracao"
 }

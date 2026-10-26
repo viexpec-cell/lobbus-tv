@@ -30,7 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.tv.material3.Text
-import java.util.Locale
+import tv.own.owntv.lobbus.lobbusLocale
 import tv.own.owntv.lobbus.home.LobbusRotuloMono
 import tv.own.owntv.lobbus.live.LobbusBarraDeProgresso
 import tv.own.owntv.lobbus.live.LobbusCabecalhoDeTela
@@ -176,7 +176,7 @@ private fun LinhaDeCanal(canal: Canal, modifier: Modifier = Modifier) {
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                canal.nome.filter { it.isUpperCase() }.take(2).ifBlank { canal.nome.take(2).uppercase(Locale.getDefault()) },
+                canal.nome.filter { it.isUpperCase() }.take(2).ifBlank { canal.nome.take(2).uppercase(lobbusLocale()) },
                 style = stageText(22, 800),
                 color = if (focada) stageAccent.onAccent else StageColors.Text,
             )
@@ -270,7 +270,7 @@ private fun AreaDaPrevia(canal: Canal) {
             }
             Spacer(Modifier.width(16.mpx))
             LobbusRotuloMono(
-                "${canal.numero} · ${canal.nome.uppercase(Locale.getDefault())}",
+                "${canal.numero} · ${canal.nome.uppercase(lobbusLocale())}",
                 StageColors.Muted,
                 tamanho = 13,
             )
