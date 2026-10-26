@@ -3,6 +3,7 @@ package tv.own.owntv.features.shell.components
 import androidx.compose.ui.draw.clip
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -67,6 +68,7 @@ import tv.own.owntv.ui.stage.StageSurface
 import tv.own.owntv.ui.stage.drawBoxShadow
 import tv.own.owntv.ui.stage.stageGlass
 import tv.own.owntv.ui.theme.StageColors
+import tv.own.owntv.ui.theme.StageRadii
 import tv.own.owntv.ui.theme.mpx
 import tv.own.owntv.ui.theme.ownTvTween
 import tv.own.owntv.ui.theme.stageAccent
@@ -107,7 +109,8 @@ private val NavSize.openWidth get() = when (this) {
 
 /** The space a docked rail takes from the content, from the screen edge: 28 + 84 capsule, 24 + width with names. */
 fun railDockedReserve(size: NavSize) =
-    if (size == NavSize.COMPACT) (28 + 84 + 16).mpx else (24 + size.openWidth + 16).mpx
+    // LOBBUS: a cápsula compacta passou de 84 para 128 px, e o conteúdo começa depois dela.
+    if (size == NavSize.COMPACT) (28 + 128 + 16).mpx else (24 + size.openWidth + 16).mpx
 
 /**
  * Where content starts below the top-right cluster (34 + its 68 height + a gap) on screens that have not
@@ -179,7 +182,8 @@ fun StageRail(
         }
         if (state == RailState.HIDDEN) RailEdgeGlow(Modifier.align(Alignment.CenterStart))
 
-        val width = if (open) size.openWidth.mpx else 84.mpx
+        // LOBBUS: 128 px fixos no lugar da cápsula de 84, que é a medida do protótipo.
+        val width = if (open) size.openWidth.mpx else 128.mpx
         val edge = if (open) 24.mpx else 28.mpx
         Column(
             modifier = Modifier
@@ -357,8 +361,15 @@ private fun RailItem(
         radius = r,
         // At least 60, not exactly: with a large font size the name and its detail line need more, and a
         // fixed height cut the detail line off (#7.2).
-        modifier = modifier.then(if (open) Modifier.fillMaxWidth().heightIn(min = 60.mpx) else Modifier.size(58.mpx)),
-        idle = if (active) Modifier.background(a.accent.copy(alpha = 0.14f), RoundedCornerShape(r)) else Modifier,
+        modifier = modifier.then(
+            if (open) {
+                Modifier.fillMaxWidth().heightIn(min = 60.mpx)
+            } else {
+                // LOBBUS: o item do menu de 128 px do protótipo: ícone e, embaixo, o rótulo em mono.
+                Modifier.width(112.mpx).heightIn(min = 96.mpx)
+            },
+        ),
+        idle = if (active && open) Modifier.background(a.accent.copy(alpha = 0.14f), RoundedCornerShape(r)) else Modifier,
         contentAlignment = if (open) Alignment.CenterStart else Alignment.Center,
     ) { focused ->
         val iconTint = when {
@@ -367,8 +378,15 @@ private fun RailItem(
             else -> StageColors.NavText
         }
         if (!open) {
-            OwnTVIcon(icon, iconTint, Modifier.size(27.mpx))
-            if (active && !focused) RailActiveDot(Modifier.align(Alignment.CenterEnd).offset(x = 9.mpx))
+            // LOBBUS: ícone num quadrado de 64 px, que ganha o anel laranja quando é a seção aberta,
+            // e o rótulo em Geist Mono embaixo, como o protótipo desenha.
+            LobbusItemDeMenu(
+                icon = icon,
+                label = label,
+                active = active,
+                focused = focused,
+                iconTint = iconTint,
+            )
             return@StageSurface
         }
         Row(
@@ -470,5 +488,55 @@ internal fun RailAvatar(initial: String, size: Int = 46, textSize: Int = 20, ava
         contentAlignment = Alignment.Center,
     ) {
         Text(initial, style = stageText(textSize, 800), color = Color(0xFF2A0D12), maxLines = 1, overflow = TextOverflow.Ellipsis)
+    }
+}
+
+/**
+ * LOBBUS: um item do menu lateral de 128 px, no desenho do protótipo aprovado
+ * (`docs/lobbus/design/`): o ícone num quadrado de 64, com anel laranja quando é a seção aberta, e
+ * o rótulo em Geist Mono caixa alta embaixo.
+ *
+ * O menu do OwnTV mostrava só o ícone nessa largura, e era o que fazia o app inteiro continuar
+ * parecendo o OwnTV, porque esta é a única peça que aparece em todas as telas.
+ */
+@Composable
+private fun LobbusItemDeMenu(
+    icon: OwnTVIcon,
+    label: String,
+    active: Boolean,
+    focused: Boolean,
+    iconTint: Color,
+) {
+    val a = stageAccent
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Box(
+            Modifier
+                .size(64.mpx)
+                .then(
+                    if (active && !focused) {
+                        Modifier
+                            .background(a.accent.copy(alpha = 0.14f), RoundedCornerShape(StageRadii.Plate))
+                            .border(2.mpx, a.accent, RoundedCornerShape(StageRadii.Plate))
+                    } else {
+                        Modifier
+                    },
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
+            OwnTVIcon(icon, iconTint, Modifier.size(28.mpx))
+        }
+        Spacer(Modifier.height(10.mpx))
+        tv.own.owntv.lobbus.home.LobbusRotuloMono(
+            texto = label.uppercase(tv.own.owntv.lobbus.lobbusLocale()),
+            cor = when {
+                focused -> a.onAccent
+                active -> StageColors.Text
+                else -> StageColors.NavText
+            },
+            tamanho = 12,
+        )
     }
 }
