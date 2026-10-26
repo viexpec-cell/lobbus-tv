@@ -76,6 +76,36 @@ class PrintsDasTelasTest {
         compose.gravarTela("04-filmes")
     }
 
+    /**
+     * A abertura (item 4b.1) em cinco instantes, para comparar com os mesmos segundos de
+     * `docs/lobbus/movimento/abertura/referencia.mp4`: carregador, nuvem, varredura, assinatura e
+     * o Encaixe.
+     */
+    @Test
+    fun aberturaCarregador() {
+        compose.printDaTela("4b1-abertura-t060") { TelaAbertura(tempo = 0.60f) }
+    }
+
+    @Test
+    fun aberturaNuvem() {
+        compose.printDaTela("4b1-abertura-t220") { TelaAbertura(tempo = 2.20f) }
+    }
+
+    @Test
+    fun aberturaVarredura() {
+        compose.printDaTela("4b1-abertura-t280") { TelaAbertura(tempo = 2.80f) }
+    }
+
+    @Test
+    fun aberturaAssinatura() {
+        compose.printDaTela("4b1-abertura-t400") { TelaAbertura(tempo = 4.00f) }
+    }
+
+    @Test
+    fun aberturaEncaixe() {
+        compose.printDaTela("4b1-abertura-t480") { TelaAbertura(tempo = 4.80f) }
+    }
+
     /** Tela inteira, 1920×1080, para comparar lado a lado com `docs/lobbus/design/`. */
     @Test
     fun telaDeExemplo() {
