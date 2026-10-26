@@ -486,6 +486,8 @@ fun MoviesScreen(
     val posterOf: (MovieEntity) -> String? = { it.posterUrl?.takeIf { u -> u.isNotBlank() } ?: cachedPosters[it.id] }
     // LOBBUS: o Top 10 do protótipo, que vem do mesmo "em alta" que alimenta o destaque do Início.
     val top10 by vm.top10.collectAsStateWithLifecycle()
+    // LOBBUS: a fileira técnica do protótipo, vinda da busca indexada por qualidade e capacidades.
+    val destaquesTecnicos by vm.destaquesTecnicos.collectAsStateWithLifecycle()
     val playHint = stringResource(R.string.common_ok) to stringResource(R.string.content_play)
     val optionsHint = stringResource(R.string.content_key_hold_ok) to stringResource(R.string.content_key_options)
 
@@ -622,6 +624,16 @@ fun MoviesScreen(
                                     item(span = { GridItemSpan(maxLineSpan) }) {
                                         LobbusTop10Fileira(
                                             itens = top10,
+                                            posterOf = posterOf,
+                                            onClick = { filme -> startMovie(filme) },
+                                            onFocus = { filme -> onMovieFocus(filme) },
+                                        )
+                                    }
+                                }
+                                if (destaquesTecnicos.isNotEmpty()) {
+                                    item(span = { GridItemSpan(maxLineSpan) }) {
+                                        LobbusFileiraTecnica(
+                                            itens = destaquesTecnicos,
                                             posterOf = posterOf,
                                             onClick = { filme -> startMovie(filme) },
                                             onFocus = { filme -> onMovieFocus(filme) },
@@ -1283,6 +1295,54 @@ private fun LobbusTop10Fileira(
                         .clickable { onClick(item.movie) },
                 ) {
                     Box(Modifier.fillMaxSize()) { VodPosterArt(posterOf(item.movie), OwnTVIcon.MOVIES) }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * LOBBUS: a fileira "Em 4K, HDR e Dolby Atmos" do protótipo, logo abaixo do Top 10.
+ *
+ * Os títulos vêm da busca indexada do core por qualidade e capacidades anunciadas, então é o
+ * catálogo inteiro que responde, não só a parte que já foi rolada na tela. As etiquetas de cada
+ * cartão são as mesmas que o provedor anuncia, lidas do nome na importação.
+ */
+@Composable
+private fun LobbusFileiraTecnica(
+    itens: List<MovieEntity>,
+    posterOf: (MovieEntity) -> String?,
+    onClick: (MovieEntity) -> Unit,
+    onFocus: (MovieEntity) -> Unit,
+) {
+    Column(Modifier.padding(bottom = 28.mpx)) {
+        tv.own.owntv.lobbus.home.LobbusTituloFileira(
+            titulo = stringResource(R.string.lobbus_filmes_tecnicos),
+            contador = stringResource(R.string.lobbus_filmes_tecnicos_contador),
+            ordem = 2,
+            altura = 46.mpx,
+            inicio = 0.dp,
+        )
+        Spacer(Modifier.height(12.mpx))
+        androidx.compose.foundation.lazy.LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(20.mpx),
+        ) {
+            androidx.compose.foundation.lazy.items(itens, key = { it.id }) { filme ->
+                var focado by remember { mutableStateOf(false) }
+                val sinais = ProviderVariantParser.displaySignals(filme.name)
+                tv.own.owntv.lobbus.movies.LobbusCartaoLargo(
+                    titulo = filme.name,
+                    linhaTecnica = metaLine(filme).uppercase(java.util.Locale.getDefault()),
+                    etiquetas = (listOfNotNull(sinais.quality.label) + sinais.capabilities).take(2),
+                    focado = focado,
+                    modifier = Modifier
+                        .onFocusChanged {
+                            focado = it.isFocused
+                            if (it.isFocused) onFocus(filme)
+                        }
+                        .clickable { onClick(filme) },
+                ) {
+                    Box(Modifier.fillMaxSize()) { VodPosterArt(filme.backdropUrl ?: posterOf(filme), OwnTVIcon.MOVIES) }
                 }
             }
         }

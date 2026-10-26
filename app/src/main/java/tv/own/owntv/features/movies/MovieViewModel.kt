@@ -483,6 +483,13 @@ class MovieViewModel(
     private val _top10 = MutableStateFlow<List<tv.own.owntv.core.home.TrendingHomeItem.Movie>>(emptyList())
     val top10: StateFlow<List<tv.own.owntv.core.home.TrendingHomeItem.Movie>> = _top10.asStateFlow()
 
+    // LOBBUS: a fileira "Em 4K, HDR e Dolby Atmos" do protótipo. O core já guarda, para cada filme,
+    // a qualidade e as capacidades que o provedor anuncia (qualityRank e advertisedCapabilities,
+    // preenchidos na importação), e já expõe uma busca indexada sobre elas. Então a fileira sai de
+    // uma consulta de verdade ao catálogo inteiro, sem precisar de consulta nova no banco.
+    private val _destaquesTecnicos = MutableStateFlow<List<MovieEntity>>(emptyList())
+    val destaquesTecnicos: StateFlow<List<MovieEntity>> = _destaquesTecnicos.asStateFlow()
+
     init {
         viewModelScope.launch {
             ctx.collect { contexto ->
@@ -492,9 +499,33 @@ class MovieViewModel(
                         .filterIsInstance<tv.own.owntv.core.home.TrendingHomeItem.Movie>()
                         .take(10)
                 }.getOrDefault(emptyList())
+                _destaquesTecnicos.value = carregarDestaquesTecnicos(contexto)
             }
         }
     }
+
+    /**
+     * LOBBUS: os filmes que o provedor anuncia em 4K, HDR ou Dolby Atmos, para a fileira técnica da
+     * tela de Filmes.
+     *
+     * A busca indexada do core devolve, junto com cada linha, a qualidade e as capacidades que a
+     * importação já tinha extraído do nome do provedor. Então a decisão aqui é só de corte: 4K para
+     * cima, ou qualquer capacidade anunciada (HDR, Dolby Vision, Atmos). Nada de adivinhar pelo
+     * nome de novo.
+     */
+    private suspend fun carregarDestaquesTecnicos(contexto: Ctx): List<MovieEntity> = runCatching {
+        val linhas = contexto.sourceIds.flatMap { fonte ->
+            movieDao.trendingFts(fonte, LOBBUS_FTS_QUALIDADE, LOBBUS_TECNICOS_POR_FONTE)
+        }
+        val escolhidos = linhas.filter(::ehDestaqueTecnico).map { it.id }.take(LOBBUS_TECNICOS_NA_FILEIRA)
+        val porId = movieDao.getByIds(escolhidos).associateBy { it.id }
+        escolhidos.mapNotNull(porId::get)
+    }.getOrDefault(emptyList())
+
+    /** 4K para cima, ou com alguma capacidade anunciada pelo provedor. */
+    private fun ehDestaqueTecnico(linha: tv.own.owntv.core.database.dao.TrendingCatalogRow): Boolean =
+        linha.qualityRank >= tv.own.owntv.core.trending.AdvertisedQuality.UHD.rank ||
+            !linha.advertisedCapabilities.isNullOrBlank()
 
     val favoriteIds: StateFlow<Set<Long>> = ctx
         .flatMapLatest { favoriteDao.observeFavoriteIds(it.profileId, MediaType.MOVIE) }
@@ -1116,3 +1147,13 @@ class MovieViewModel(
         )
     }
 }
+
+/**
+ * LOBBUS: termos que a busca indexada procura no nome do provedor. São os mesmos que o core usa para
+ * preencher a qualidade e as capacidades na importação, escritos como o FTS espera.
+ */
+private const val LOBBUS_FTS_QUALIDADE = "4K OR UHD OR HDR OR ATMOS OR DV"
+
+/** Quantos títulos a fileira técnica mostra, e quantas linhas a busca traz de cada fonte. */
+private const val LOBBUS_TECNICOS_NA_FILEIRA = 12
+private const val LOBBUS_TECNICOS_POR_FONTE = 120

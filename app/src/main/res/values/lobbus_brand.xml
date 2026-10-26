@@ -21,6 +21,8 @@
     <!-- Tela de Filmes (Fase 4). -->
     <string name="lobbus_filmes_top10" translatable="false">Top 10 da semana</string>
     <string name="lobbus_filmes_top10_contador" translatable="false">MAIS VISTOS NA SUA LISTA</string>
+    <string name="lobbus_filmes_tecnicos" translatable="false">Em 4K, HDR e Dolby Atmos</string>
+    <string name="lobbus_filmes_tecnicos_contador" translatable="false">FEITO PARA A SUA TV</string>
     <!-- Moldura da imagem (player em tela cheia). -->
     <string name="lobbus_frame_title" translatable="false">Moldura da imagem</string>
     <string name="lobbus_frame_description" translatable="false">Mostra o vídeo um pouco menor, com bordas pretas, para ganhar nitidez em canais Full HD numa TV 4K. Nunca estica a imagem.</string>

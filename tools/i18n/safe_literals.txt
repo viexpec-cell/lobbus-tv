@@ -164,6 +164,7 @@
 1	technical	app/src/main/java/tv/own/owntv/features/more/MoreScreen.kt	▶
 5	empty	app/src/main/java/tv/own/owntv/features/movies/MovieViewModel.kt	\0
 1	technical	app/src/main/java/tv/own/owntv/features/movies/MovieViewModel.kt	${StorageAccess.sanitize(movie.name)}.${movie.containerExt ?: StorageAccess.extOf(movie.streamUrl)}
+1	sql	app/src/main/java/tv/own/owntv/features/movies/MovieViewModel.kt	4K OR UHD OR HDR OR ATMOS OR DV
 1	technical	app/src/main/java/tv/own/owntv/features/movies/MovieViewModel.kt	MOVIE
 1	log	app/src/main/java/tv/own/owntv/features/movies/MovieViewModel.kt	OwnTVHome
 2	log	app/src/main/java/tv/own/owntv/features/movies/MovieViewModel.kt	external play history record failed movieId=${movie.id} profile=$pid
