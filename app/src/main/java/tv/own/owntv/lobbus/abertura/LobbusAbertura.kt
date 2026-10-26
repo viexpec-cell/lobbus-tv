@@ -55,11 +55,11 @@ import tv.own.owntv.ui.theme.stageText
 fun LobbusAbertura(
     tempo: Float,
     dados: DadosDaAbertura,
-    nuvem: NuvemDeParticulas,
+    nuvem: NuvemDeParticulas?,
     modifier: Modifier = Modifier,
 ) {
     val tinta = remember { android.graphics.Paint().apply { isAntiAlias = true } }
-    val buffer = remember(nuvem) { FloatArray(nuvem.quantidade * 2) }
+    val buffer = remember(nuvem) { FloatArray((nuvem?.quantidade ?: 0) * 2) }
     val medidor = rememberTextMeasurer()
 
     BoxWithConstraints(modifier.fillMaxSize().background(Fundo)) {
@@ -95,13 +95,13 @@ fun LobbusAbertura(
             val sumicoDaNuvem = 1f - progresso(tempo, AberturaTempos.DISSOLVE)
             val opacidadeDaNuvem = entradaDaNuvem * sumicoDaNuvem
             if (opacidadeDaNuvem > 0.01f) {
-                val casas = nuvem.posicoesEm(
+                val casas = nuvem?.posicoesEm(
                     t = tempo,
                     centroX = size.width / 2f,
                     centroY = size.height * 0.46f,
                     altura = px(543f),
                     saida = buffer,
-                )
+                ) ?: 0
                 tinta.color = Laranja.copy(alpha = opacidadeDaNuvem).toArgbCompat()
                 tinta.strokeWidth = px(2f)
                 drawIntoCanvas { it.nativeCanvas.drawPoints(buffer, 0, casas, tinta) }

@@ -25,8 +25,10 @@ import java.text.NumberFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import tv.own.owntv.R
 
 /**
@@ -96,6 +98,9 @@ fun lembrarDadosDaAbertura(
 
 private val RELOGIO = DateTimeFormatter.ofPattern("EEE · dd MMM · HH:mm:ss")
 
+/** Teto de avanço por quadro: 1/24 s. Acima disso a animação atrasa, em vez de pular. */
+private const val PASSO_MAXIMO = 1f / 24f
+
 /**
  * A abertura rodando: relógio próprio, som e a tecla que pula.
  *
@@ -113,14 +118,28 @@ fun LobbusAberturaAnimada(
     modifier: Modifier = Modifier,
 ) {
     val contexto = LocalContext.current
-    val nuvem = remember(contexto) { NuvemDeParticulas.doRecurso(contexto) }
     val foco = remember { FocusRequester() }
     val escopo = rememberCoroutineScope()
     var tempo by remember { mutableFloatStateOf(0f) }
     var terminou by remember { mutableStateOf(false) }
 
-    val tocador = remember(comSom) {
-        if (comSom) MediaPlayer.create(contexto, R.raw.lobbus_abertura) else null
+    // A nuvem lê e interpreta 149 KB de pontos, e o MediaPlayer abre o arquivo de som. As duas
+    // coisas fora da linha principal: na abertura a frio ela está ocupada subindo banco, Koin e a
+    // primeira composição, e qualquer trabalho a mais ali vira engasgo na cara do usuário.
+    var nuvem by remember { mutableStateOf<NuvemDeParticulas?>(null) }
+    var tocador by remember { mutableStateOf<MediaPlayer?>(null) }
+    var pronta by remember { mutableStateOf(false) }
+
+    LaunchedEffect(contexto, comSom) {
+        val carregada = withContext(Dispatchers.Default) { NuvemDeParticulas.doRecurso(contexto) }
+        val som = if (comSom) {
+            withContext(Dispatchers.IO) { runCatching { MediaPlayer.create(contexto, R.raw.lobbus_abertura) }.getOrNull() }
+        } else {
+            null
+        }
+        nuvem = carregada
+        tocador = som
+        pronta = true
     }
 
     fun encerrar() {
@@ -143,19 +162,27 @@ fun LobbusAberturaAnimada(
     }
 
     DisposableEffect(tocador) {
-        tocador?.start()
         onDispose {
             runCatching { tocador?.stop() }
             tocador?.release()
         }
     }
 
-    LaunchedEffect(Unit) {
-        foco.requestFocus()
-        val inicio = withFrameNanos { it }
+    // O relógio da abertura só começa quando tudo está carregado e um quadro já foi desenhado, e o
+    // som começa junto com ele, não antes.
+    LaunchedEffect(pronta) {
+        if (!pronta) return@LaunchedEffect
+        runCatching { foco.requestFocus() }
+        withFrameNanos { }
+        runCatching { tocador?.start() }
+        var anterior = withFrameNanos { it }
         while (true) {
             val agora = withFrameNanos { it }
-            tempo = (agora - inicio) / 1_000_000_000f
+            // Um quadro demorado atrasa a abertura, nunca pula pedaço dela: sem este limite, um
+            // segundo preso na partida saltava o carregador inteiro e a animação "sumia".
+            val passo = ((agora - anterior) / 1_000_000_000f).coerceAtMost(PASSO_MAXIMO)
+            anterior = agora
+            tempo += passo
             if (tempo >= AberturaTempos.FIM) break
         }
         encerrar()
