@@ -858,6 +858,11 @@
 2	technical	app/src/main/java/tv/own/owntv/features/update/UpdateDialog.kt	•
 1	file-path	app/src/main/java/tv/own/owntv/lobbus/PictureFrame.kt	lobbus_prefs
 1	preference-key	app/src/main/java/tv/own/owntv/lobbus/PictureFrame.kt	picture_frame
+1	empty	app/src/main/java/tv/own/owntv/lobbus/abertura/AberturaTempos.kt	\0
+1	technical	app/src/main/java/tv/own/owntv/lobbus/abertura/AberturaTempos.kt	ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&/\\<>*+=-
+1	technical	app/src/main/java/tv/own/owntv/lobbus/abertura/LobbusAberturaAnimada.kt	EEE · dd MMM · HH:mm:ss
+1	json	app/src/main/java/tv/own/owntv/lobbus/abertura/NuvemDeParticulas.kt	aspect
+1	json	app/src/main/java/tv/own/owntv/lobbus/abertura/NuvemDeParticulas.kt	pts
 2	empty	app/src/main/java/tv/own/owntv/lobbus/home/LobbusHeroi.kt	\0
 1	technical	app/src/main/java/tv/own/owntv/lobbus/home/LobbusHeroi.kt	a
 1	technical	app/src/main/java/tv/own/owntv/lobbus/home/LobbusHeroi.kt	ao

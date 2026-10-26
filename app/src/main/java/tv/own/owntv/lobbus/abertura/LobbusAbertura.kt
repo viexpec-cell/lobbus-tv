@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.nativeCanvas
@@ -280,8 +281,10 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.desenharCarregador(
     fun px(v: Float) = v * k
     val estiloMono = TextStyle(
         fontFamily = LobbusMonoFamily,
-        fontSize = (14f * k * 1.8f).sp,
-        letterSpacing = (2f * k * 1.8f).sp,
+        // LOBBUS: px de projeto viram sp pela densidade real (toSp), como o mpxSp de StageTokens.
+        // Multiplicar por 1,8 aqui e deixar o .sp aplicar a densidade de novo desenhava 1,8x maior.
+        fontSize = px(14f).toSp(),
+        letterSpacing = px(2f).toSp(),
     )
     val centroX = size.width / 2f
     val topo = size.height * 0.40f + subida
