@@ -7,6 +7,16 @@
 > Issue numbers that are part of a title are fine; explanatory parentheticals are not. The detail —
 > what, why, files and verification — belongs in the commit message, never here.
 
+## v0.5.1 — 2026-10-27
+
+### ✨ New features
+- **🎬 Filmes em fileiras: Top 10, Em 4K HDR e Dolby Atmos e uma fileira por categoria**
+- **📚 Séries em fileiras, no mesmo desenho dos Filmes**
+
+### 🐞 Fixes
+- **A marca da Lobbus nas telas em português**
+- **Textos de DNS e de metadados sem travessão**
+
 ## v0.5.0 — 2026-10-26
 
 ### ✨ New features

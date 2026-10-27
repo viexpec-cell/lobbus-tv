@@ -26,6 +26,9 @@
     <string name="common_own_tv_user" translatable="false">Usuário da Lobbus TV</string>
     <string name="content_epg_own_player" translatable="false">Reprodutor da Lobbus TV</string>
     <string name="settings_proxy_description" translatable="false">Envia todo o tráfego e a reprodução da Lobbus TV por um proxy HTTP.</string>
+    <string name="settings_dns_toggle_description" translatable="false">Resolver todas as consultas de domínio da Lobbus TV por um servidor DNS personalizado.</string>
+    <string name="settings_dns_explanation" translatable="false">O DNS personalizado pode ajudar a contornar bloqueios de domínio impostos pelo provedor de internet ou permitir o desbloqueio geográfico por meio de serviços SmartDNS. O DNS-over-HTTPS (DoH) é o recomendado: ele criptografa suas consultas.</string>
+    <string name="settings_metadata_server_unavailable" translatable="false">Não foi possível acessar o servidor de metadados: verifique a rede, a chave ou a URL.</string>
     <!-- Tela de Filmes (Fase 4). -->
     <string name="lobbus_filmes_top10" translatable="false">Top 10 da semana</string>
     <string name="lobbus_series_top10" translatable="false">Top 10 da semana</string>
