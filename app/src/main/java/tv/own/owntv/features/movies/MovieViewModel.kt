@@ -549,7 +549,7 @@ class MovieViewModel(
             .toList()
             .mapNotNull { item ->
                 val id = (item.key as tv.own.owntv.core.live.LiveKey.Folder).id
-                val titulo = item.title ?: return null
+                val titulo = item.title ?: return@mapNotNull null
                 val filmes = runCatching { primeirosDaPagina(movieDao.pagingByCategory(id)) }.getOrDefault(emptyList())
                 FileiraDeFilmes(item.key, titulo, filmes).takeIf { filmes.isNotEmpty() }
             }
