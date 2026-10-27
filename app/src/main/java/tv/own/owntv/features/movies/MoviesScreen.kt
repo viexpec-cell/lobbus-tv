@@ -491,6 +491,8 @@ fun MoviesScreen(
     val top10 by vm.top10.collectAsStateWithLifecycle()
     // LOBBUS: a fileira técnica do protótipo, vinda da busca indexada por qualidade e capacidades.
     val destaquesTecnicos by vm.destaquesTecnicos.collectAsStateWithLifecycle()
+    // LOBBUS: as fileiras por categoria, que fazem a tela de descoberta do protótipo.
+    val fileiras by vm.fileiras.collectAsStateWithLifecycle()
     val playHint = stringResource(R.string.common_ok) to stringResource(R.string.content_play)
     val optionsHint = stringResource(R.string.content_key_hold_ok) to stringResource(R.string.content_key_options)
 
@@ -602,8 +604,25 @@ fun MoviesScreen(
                         Spacer(Modifier.weight(1f))
                         StageKeyHints(listOf(playHint, optionsHint, "◀" to stringResource(R.string.content_category_browser_title)))
                     }
+                    // LOBBUS: em "Todos os filmes", e sem busca, a tela é de fileiras, como o
+                    // protótipo. Entrar numa categoria, buscar ou ordenar leva de volta à grade,
+                    // que é onde se varre um catálogo de dezenas de milhares de títulos.
+                    val emFileiras = selectedKey == LiveKey.All && searchQuery.isBlank() &&
+                        (top10.isNotEmpty() || destaquesTecnicos.isNotEmpty() || fileiras.isNotEmpty())
                     if (movies.itemCount == 0) {
                         Text(emptyText, style = stageText(20, 500), color = StageColors.Muted, modifier = Modifier.padding(start = fx(84), top = 60.mpx))
+                    } else if (emFileiras) {
+                        Spacer(Modifier.height(14.mpx))
+                        LobbusCatalogoEmFileiras(
+                            top10 = top10,
+                            tecnicos = destaquesTecnicos,
+                            fileiras = fileiras,
+                            posterOf = posterOf,
+                            onClick = { filme -> startMovie(filme) },
+                            onFocus = { filme -> onMovieFocus(filme) },
+                            start = fx(84),
+                            modifier = Modifier.weight(1f),
+                        )
                     } else {
                         // The 196 × 294 posters, 26 apart, as many across as fit; the grid grows downwards
                         // (a grid, not a single row). Glow room on every side.
@@ -1347,6 +1366,88 @@ private fun LobbusFileiraTecnica(
                 ) {
                     Box(Modifier.fillMaxSize()) { VodPosterArt(filme.backdropUrl ?: posterOf(filme), OwnTVIcon.MOVIES) }
                 }
+            }
+        }
+    }
+}
+
+/**
+ * LOBBUS: o catálogo de filmes em fileiras, como o protótipo aprovado desenha
+ * (`docs/lobbus/design/LobbusTV-04-filmes.jpg`).
+ *
+ * Abre com o Top 10 e a fileira técnica, e depois uma fileira por categoria visível do perfil. É a
+ * tela de descoberta: para varrer uma categoria inteira, o Vitor entra nela e cai na grade de
+ * sempre, com busca, ordenação e paginação.
+ */
+@Composable
+private fun LobbusCatalogoEmFileiras(
+    top10: List<tv.own.owntv.core.home.TrendingHomeItem.Movie>,
+    tecnicos: List<MovieEntity>,
+    fileiras: List<FileiraDeFilmes>,
+    posterOf: (MovieEntity) -> String?,
+    onClick: (MovieEntity) -> Unit,
+    onFocus: (MovieEntity) -> Unit,
+    start: Dp,
+    modifier: Modifier = Modifier,
+) {
+    LazyColumn(
+        modifier = modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(start = start, end = 64.mpx, top = 14.mpx, bottom = 48.mpx),
+        verticalArrangement = Arrangement.spacedBy(10.mpx),
+    ) {
+        if (top10.isNotEmpty()) {
+            item(key = "lobbus-top10") {
+                LobbusTop10Fileira(itens = top10, posterOf = posterOf, onClick = onClick, onFocus = onFocus)
+            }
+        }
+        if (tecnicos.isNotEmpty()) {
+            item(key = "lobbus-tecnicos") {
+                LobbusFileiraTecnica(itens = tecnicos, posterOf = posterOf, onClick = onClick, onFocus = onFocus)
+            }
+        }
+        itemsIndexed(fileiras, key = { _, f -> f.titulo }) { indice, fileira ->
+            LobbusFileiraDeCartazes(
+                titulo = fileira.titulo,
+                // O Top 10 é [01] e a técnica [02]; as categorias seguem a partir daí.
+                ordem = indice + 3,
+                filmes = fileira.filmes,
+                posterOf = posterOf,
+                onClick = onClick,
+                onFocus = onFocus,
+            )
+        }
+    }
+}
+
+/** Uma fileira de cartazes de uma categoria, no cabeçalho e no espaçamento do protótipo. */
+@Composable
+private fun LobbusFileiraDeCartazes(
+    titulo: String,
+    ordem: Int,
+    filmes: List<MovieEntity>,
+    posterOf: (MovieEntity) -> String?,
+    onClick: (MovieEntity) -> Unit,
+    onFocus: (MovieEntity) -> Unit,
+) {
+    Column(Modifier.padding(bottom = 28.mpx)) {
+        tv.own.owntv.lobbus.home.LobbusTituloFileira(
+            titulo = titulo,
+            contador = stringResource(R.string.lobbus_fileira_titulos, filmes.size),
+            ordem = ordem,
+            altura = 46.mpx,
+            inicio = 0.dp,
+        )
+        Spacer(Modifier.height(12.mpx))
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(26.mpx)) {
+            items(filmes, key = { it.id }) { filme ->
+                StagePoster(
+                    title = filme.name,
+                    rating = filme.rating?.takeIf { it > 0 }?.let(::vodRating),
+                    width = 196.mpx,
+                    height = 294.mpx,
+                    onClick = { onClick(filme) },
+                    modifier = Modifier.onFocusChanged { if (it.isFocused) onFocus(filme) },
+                ) { VodPosterArt(posterOf(filme), OwnTVIcon.MOVIES) }
             }
         }
     }
