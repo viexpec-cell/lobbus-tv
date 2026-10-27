@@ -107,6 +107,8 @@ class SeriesViewModel(
     private val externalPlayerLauncher: tv.own.owntv.core.player.ExternalPlayerLauncher,
     private val streamUrlResolver: tv.own.owntv.core.stalker.StreamUrlResolver,
     private val subtitleController: tv.own.owntv.core.subtitles.SubtitleController,
+    // LOBBUS: o mesmo "em alta" que alimenta o destaque do Início, para a fileira Top 10.
+    private val homeFeed: tv.own.owntv.core.home.HomeFeedReader,
 ) : ViewModel() {
 
     /** The categories' search text, held here so it survives the player (see LiveViewModel). */
@@ -542,6 +544,62 @@ class SeriesViewModel(
             }
         }
         .cachedIn(viewModelScope)
+
+    // LOBBUS: as dez series mais vistas, para a fileira Top 10 da tela de Series.
+    private val _top10 = MutableStateFlow<List<tv.own.owntv.core.home.TrendingHomeItem.Series>>(emptyList())
+    val top10: StateFlow<List<tv.own.owntv.core.home.TrendingHomeItem.Series>> = _top10.asStateFlow()
+
+    // LOBBUS: as fileiras do catalogo, uma por categoria visível do perfil, como em Filmes.
+    private val _fileiras = MutableStateFlow<List<FileiraDeSeries>>(emptyList())
+    val fileiras: StateFlow<List<FileiraDeSeries>> = _fileiras.asStateFlow()
+
+    init {
+        // As fileiras dependem do perfil e das fontes ativas (ctx) e da lista de categorias visíveis
+        // (railItems), que muda quando o Vitor esconde ou renomeia alguma. Por isso as duas entram
+        // juntas: trocar de perfil ou mexer nas categorias refaz a tela.
+        viewModelScope.launch {
+            combine(ctx, railItems) { contexto, itens -> contexto to itens }.collect { (contexto, itens) ->
+                _top10.value = runCatching {
+                    homeFeed.load(contexto.profileId)
+                        .trendingItems
+                        .filterIsInstance<tv.own.owntv.core.home.TrendingHomeItem.Series>()
+                        .take(10)
+                }.getOrDefault(emptyList())
+                _fileiras.value = carregarFileiras(itens)
+            }
+        }
+    }
+
+    /**
+     * Monta as fileiras a partir das categorias que o perfil deixa visiveis, na ordem em que a
+     * coluna de categorias as mostra, pegando só os primeiros títulos de cada uma.
+     *
+     * Usa a mesma consulta paginada da grade, pedindo apenas a primeira pagina: assim a fileira
+     * respeita ordenação, categorias combinadas e itens escondidos sem duplicar regra nenhuma.
+     */
+    private suspend fun carregarFileiras(itens: List<LiveRailItem>): List<FileiraDeSeries> =
+        itens.asSequence()
+            .filter { it.key is LiveKey.Folder }
+            .take(LOBBUS_FILEIRAS_DE_CATEGORIA)
+            .toList()
+            .mapNotNull { item ->
+                val id = (item.key as LiveKey.Folder).id
+                val titulo = item.title ?: return@mapNotNull null
+                val series = runCatching { primeirosDaPagina(seriesDao.pagingByCategory(id)) }.getOrDefault(emptyList())
+                FileiraDeSeries(item.key, titulo, series).takeIf { series.isNotEmpty() }
+            }
+
+    /** A primeira página de uma consulta paginada, que é tudo que uma fileira precisa. */
+    private suspend fun primeirosDaPagina(fonte: PagingSource<Int, SeriesEntity>): List<SeriesEntity> {
+        val pagina = fonte.load(
+            PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = LOBBUS_SERIES_POR_FILEIRA,
+                placeholdersEnabled = false,
+            ),
+        )
+        return (pagina as? PagingSource.LoadResult.Page)?.data.orEmpty()
+    }
 
     private data class Args(val key: LiveKey, val ctx: Ctx, val query: String, val sort: SettingsRepository.SortMode)
 
@@ -1419,3 +1477,17 @@ class SeriesViewModel(
         )
     }
 }
+
+/**
+ * LOBBUS: uma fileira do catalogo de series, no desenho do protótipo: um nome e as primeiras
+ * series daquela categoria.
+ */
+data class FileiraDeSeries(
+    val chave: LiveKey,
+    val titulo: String,
+    val series: List<SeriesEntity>,
+)
+
+/** Quantos títulos cada fileira mostra, e quantas fileiras de categoria a tela monta. */
+private const val LOBBUS_SERIES_POR_FILEIRA = 14
+private const val LOBBUS_FILEIRAS_DE_CATEGORIA = 8

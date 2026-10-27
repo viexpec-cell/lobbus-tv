@@ -109,6 +109,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -251,6 +253,8 @@ private fun SeriesGrid(
     val context = androidx.compose.ui.platform.LocalContext.current
     val toast = rememberInAppToast()
     val series = vm.series.collectAsLazyPagingItems()
+    val top10 by vm.top10.collectAsStateWithLifecycle()
+    val fileiras by vm.fileiras.collectAsStateWithLifecycle()
     val moveState by vm.moveState.collectAsStateWithLifecycle()
     val categoryMoveState by vm.categoryMoveState.collectAsStateWithLifecycle()
     var contextCategory by remember { mutableStateOf<LiveRailItem?>(null) }
@@ -653,8 +657,24 @@ private fun SeriesGrid(
                         Spacer(Modifier.weight(1f))
                         StageKeyHints(listOf(playHint, optionsHint, "◀" to stringResource(R.string.content_category_browser_title)))
                     }
+                    // LOBBUS: em "Todas as séries", e sem busca, a tela é de fileiras, como em Filmes.
+                    // Entrar numa categoria, buscar ou ordenar leva de volta à grade, que é onde se
+                    // varre um catálogo inteiro.
+                    val emFileiras = selectedKey == LiveKey.All && searchQuery.isBlank() &&
+                        (top10.isNotEmpty() || fileiras.isNotEmpty())
                     if (series.itemCount == 0) {
                         Text(emptyText, style = stageText(20, 500), color = StageColors.Muted, modifier = Modifier.padding(start = fx(84), top = 60.mpx))
+                    } else if (emFileiras) {
+                        Spacer(Modifier.height(14.mpx))
+                        LobbusCatalogoDeSeriesEmFileiras(
+                            top10 = top10,
+                            fileiras = fileiras,
+                            posterOf = posterOf,
+                            onClick = { show -> vm.openSeries(show) },
+                            onFocus = { show -> onShowFocus(show) },
+                            start = fx(84),
+                            modifier = Modifier.weight(1f),
+                        )
                     } else {
                         // The 196 × 294 posters, 26 apart, as many across as fit; the grid grows downwards
                         // (a grid, not a single row). Glow room on every side.
@@ -1966,3 +1986,121 @@ private fun episodeLine(aired: String?, durationSecs: Int?, secondsLeft: Int?, w
     secondsLeft?.let { stringResource(R.string.home_time_left, vodRuntime(it)) },
     if (watched) stringResource(R.string.content_episode_watched) else null,
 ).joinToString(" · ")
+
+/**
+ * LOBBUS: a fileira "Top 10 da semana" de séries, no mesmo desenho da de Filmes.
+ *
+ * Os dez títulos vêm do mesmo "em alta" que alimenta o destaque do Início (o `HomeFeedReader` do
+ * core), e não de uma regra nova.
+ */
+@Composable
+private fun LobbusTop10DeSeries(
+    itens: List<tv.own.owntv.core.home.TrendingHomeItem.Series>,
+    posterOf: (tv.own.owntv.core.database.entity.SeriesEntity) -> String?,
+    onClick: (tv.own.owntv.core.database.entity.SeriesEntity) -> Unit,
+    onFocus: (tv.own.owntv.core.database.entity.SeriesEntity) -> Unit,
+) {
+    Column(Modifier.padding(bottom = 28.mpx)) {
+        tv.own.owntv.lobbus.home.LobbusTituloFileira(
+            titulo = stringResource(R.string.lobbus_series_top10),
+            contador = stringResource(R.string.lobbus_series_top10_contador),
+            ordem = 1,
+            altura = 46.mpx,
+            inicio = 0.dp,
+        )
+        Spacer(Modifier.height(12.mpx))
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(16.mpx)) {
+            itemsIndexed(itens) { indice, item ->
+                var focado by remember { mutableStateOf(false) }
+                tv.own.owntv.lobbus.movies.LobbusItemTop10(
+                    numero = indice + 1,
+                    titulo = item.series.name,
+                    etiqueta = item.snapshot.year?.toString(),
+                    focado = focado,
+                    modifier = Modifier
+                        .onFocusChanged {
+                            focado = it.isFocused
+                            if (it.isFocused) onFocus(item.series)
+                        }
+                        .clickable { onClick(item.series) },
+                ) {
+                    Box(Modifier.fillMaxSize()) { VodPosterArt(posterOf(item.series), OwnTVIcon.SERIES) }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * LOBBUS: o catálogo de séries em fileiras, o mesmo esqueleto aprovado em Filmes.
+ *
+ * Abre com o Top 10 e depois uma fileira por categoria visível do perfil. É a tela de descoberta:
+ * para varrer uma categoria inteira, o Vitor entra nela e cai na grade de sempre.
+ */
+@Composable
+private fun LobbusCatalogoDeSeriesEmFileiras(
+    top10: List<tv.own.owntv.core.home.TrendingHomeItem.Series>,
+    fileiras: List<FileiraDeSeries>,
+    posterOf: (tv.own.owntv.core.database.entity.SeriesEntity) -> String?,
+    onClick: (tv.own.owntv.core.database.entity.SeriesEntity) -> Unit,
+    onFocus: (tv.own.owntv.core.database.entity.SeriesEntity) -> Unit,
+    start: Dp,
+    modifier: Modifier = Modifier,
+) {
+    LazyColumn(
+        modifier = modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(start = start, end = 64.mpx, top = 14.mpx, bottom = 48.mpx),
+        verticalArrangement = Arrangement.spacedBy(10.mpx),
+    ) {
+        if (top10.isNotEmpty()) {
+            item(key = "lobbus-series-top10") {
+                LobbusTop10DeSeries(itens = top10, posterOf = posterOf, onClick = onClick, onFocus = onFocus)
+            }
+        }
+        itemsIndexed(fileiras, key = { _, f -> f.titulo }) { indice, fileira ->
+            LobbusFileiraDeSeries(
+                titulo = fileira.titulo,
+                // O Top 10 é [01]; as categorias seguem a partir daí.
+                ordem = indice + 2,
+                series = fileira.series,
+                posterOf = posterOf,
+                onClick = onClick,
+                onFocus = onFocus,
+            )
+        }
+    }
+}
+
+/** Uma fileira de cartazes de uma categoria de séries, no cabeçalho e no espaçamento do protótipo. */
+@Composable
+private fun LobbusFileiraDeSeries(
+    titulo: String,
+    ordem: Int,
+    series: List<tv.own.owntv.core.database.entity.SeriesEntity>,
+    posterOf: (tv.own.owntv.core.database.entity.SeriesEntity) -> String?,
+    onClick: (tv.own.owntv.core.database.entity.SeriesEntity) -> Unit,
+    onFocus: (tv.own.owntv.core.database.entity.SeriesEntity) -> Unit,
+) {
+    Column(Modifier.padding(bottom = 28.mpx)) {
+        tv.own.owntv.lobbus.home.LobbusTituloFileira(
+            titulo = titulo,
+            contador = stringResource(R.string.lobbus_fileira_titulos, series.size),
+            ordem = ordem,
+            altura = 46.mpx,
+            inicio = 0.dp,
+        )
+        Spacer(Modifier.height(12.mpx))
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(26.mpx)) {
+            items(series, key = { it.id }) { show ->
+                StagePoster(
+                    title = show.name,
+                    rating = show.rating?.takeIf { it > 0 }?.let(::vodRating),
+                    width = 196.mpx,
+                    height = 294.mpx,
+                    onClick = { onClick(show) },
+                    modifier = Modifier.onFocusChanged { if (it.isFocused) onFocus(show) },
+                ) { VodPosterArt(posterOf(show), OwnTVIcon.SERIES) }
+            }
+        }
+    }
+}

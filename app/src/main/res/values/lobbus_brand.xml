@@ -28,6 +28,8 @@
     <string name="settings_proxy_description" translatable="false">Envia todo o tráfego e a reprodução da Lobbus TV por um proxy HTTP.</string>
     <!-- Tela de Filmes (Fase 4). -->
     <string name="lobbus_filmes_top10" translatable="false">Top 10 da semana</string>
+    <string name="lobbus_series_top10" translatable="false">Top 10 da semana</string>
+    <string name="lobbus_series_top10_contador" translatable="false">MAIS VISTAS NA SUA LISTA</string>
     <string name="lobbus_filmes_top10_contador" translatable="false">MAIS VISTOS NA SUA LISTA</string>
     <string name="lobbus_filmes_tecnicos" translatable="false">Em 4K, HDR e Dolby Atmos</string>
     <string name="lobbus_filmes_tecnicos_contador" translatable="false">FEITO PARA A SUA TV</string>
