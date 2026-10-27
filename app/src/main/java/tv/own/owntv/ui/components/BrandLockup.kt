@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.tv.material3.Text
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -142,6 +143,7 @@ fun Wordmark(width: Dp, modifier: Modifier = Modifier, tv: Color = stageAccent.a
                     fontSize = with(LocalDensity.current) { (h * 0.40f).toSp() },
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }

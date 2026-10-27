@@ -259,7 +259,7 @@ fun LobbusMetaHeroi(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 OwnTVIcon(OwnTVIcon.STAR, tint = stageAccent.accent, filled = true, modifier = Modifier.size(21.mpx))
-                Text(nota, style = stageText(21, 800), color = StageColors.Text, maxLines = 1)
+                Text(nota, style = stageText(21, 800), color = StageColors.Text, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
         partes.forEachIndexed { indice, parte ->

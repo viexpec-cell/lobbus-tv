@@ -60,6 +60,9 @@ fun LobbusNumeroVazado(numero: Int, tamanho: Int = 240, modifier: Modifier = Mod
         ),
         color = StageColors.Ink.copy(alpha = 0.30f),
         maxLines = 1,
+        // Um algarismo nunca estoura a linha, e o contorno da Montserrat passa um pouco das bordas
+        // do texto: recortar aqui cortaria a ponta do traço.
+        overflow = TextOverflow.Visible,
         modifier = modifier,
     )
 }
