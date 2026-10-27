@@ -491,8 +491,11 @@ class MovieViewModel(
     val destaquesTecnicos: StateFlow<List<MovieEntity>> = _destaquesTecnicos.asStateFlow()
 
     init {
+        // As fileiras dependem de duas coisas: do perfil e das fontes ativas (ctx) e da lista de
+        // categorias visíveis (railItems), que muda quando o Vitor esconde ou renomeia alguma. Por
+        // isso as duas entram juntas: trocar de perfil ou mexer nas categorias refaz a tela.
         viewModelScope.launch {
-            ctx.collect { contexto ->
+            combine(ctx, railItems) { contexto, itens -> contexto to itens }.collect { (contexto, itens) ->
                 _top10.value = runCatching {
                     homeFeed.load(contexto.profileId)
                         .trendingItems
@@ -500,6 +503,7 @@ class MovieViewModel(
                         .take(10)
                 }.getOrDefault(emptyList())
                 _destaquesTecnicos.value = carregarDestaquesTecnicos(contexto)
+                _fileiras.value = carregarFileiras(itens)
             }
         }
     }
@@ -526,6 +530,43 @@ class MovieViewModel(
     private fun ehDestaqueTecnico(linha: tv.own.owntv.core.database.dao.TrendingCatalogRow): Boolean =
         linha.qualityRank >= tv.own.owntv.core.trending.AdvertisedQuality.UHD.rank ||
             !linha.advertisedCapabilities.isNullOrBlank()
+
+    // LOBBUS: as fileiras do catálogo, uma por categoria visível do perfil, no desenho do protótipo.
+    private val _fileiras = MutableStateFlow<List<FileiraDeFilmes>>(emptyList())
+    val fileiras: StateFlow<List<FileiraDeFilmes>> = _fileiras.asStateFlow()
+
+    /**
+     * Monta as fileiras a partir das categorias que o perfil deixa visíveis, na ordem em que a
+     * coluna de categorias as mostra, pegando só os primeiros títulos de cada uma.
+     *
+     * Usa a mesma consulta paginada da grade, pedindo apenas a primeira página: assim a fileira
+     * respeita ordenação, categorias combinadas e itens escondidos sem duplicar regra nenhuma.
+     */
+    private suspend fun carregarFileiras(itens: List<LiveRailItem>): List<FileiraDeFilmes> =
+        itens.asSequence()
+            .filter { it.key is tv.own.owntv.core.live.LiveKey.Folder }
+            .take(LOBBUS_FILEIRAS_DE_CATEGORIA)
+            .toList()
+            .mapNotNull { item ->
+                val id = (item.key as tv.own.owntv.core.live.LiveKey.Folder).id
+                val titulo = item.title ?: return null
+                val filmes = runCatching { primeirosDaPagina(movieDao.pagingByCategory(id)) }.getOrDefault(emptyList())
+                FileiraDeFilmes(item.key, titulo, filmes).takeIf { filmes.isNotEmpty() }
+            }
+
+    /** A primeira página de uma consulta paginada, que é tudo que uma fileira precisa. */
+    private suspend fun primeirosDaPagina(
+        fonte: androidx.paging.PagingSource<Int, MovieEntity>,
+    ): List<MovieEntity> {
+        val pagina = fonte.load(
+            androidx.paging.PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = LOBBUS_FILMES_POR_FILEIRA,
+                placeholdersEnabled = false,
+            ),
+        )
+        return (pagina as? androidx.paging.PagingSource.LoadResult.Page)?.data.orEmpty()
+    }
 
     val favoriteIds: StateFlow<Set<Long>> = ctx
         .flatMapLatest { favoriteDao.observeFavoriteIds(it.profileId, MediaType.MOVIE) }
@@ -1157,3 +1198,21 @@ private const val LOBBUS_FTS_QUALIDADE = "4K OR UHD OR HDR OR ATMOS OR DV"
 /** Quantos títulos a fileira técnica mostra, e quantas linhas a busca traz de cada fonte. */
 private const val LOBBUS_TECNICOS_NA_FILEIRA = 12
 private const val LOBBUS_TECNICOS_POR_FONTE = 120
+
+/**
+ * LOBBUS: uma fileira do catálogo de filmes, no desenho do protótipo: um nome e os primeiros
+ * títulos daquela categoria.
+ *
+ * A fileira carrega poucos títulos de propósito. O catálogo do Vitor tem dezenas de milhares de
+ * filmes e a tela mostra uma dúzia por fileira; quem quiser a categoria inteira abre a grade, que
+ * continua existindo com a paginação de sempre.
+ */
+data class FileiraDeFilmes(
+    val chave: tv.own.owntv.core.live.LiveKey,
+    val titulo: String,
+    val filmes: List<MovieEntity>,
+)
+
+/** Quantos títulos cada fileira mostra, e quantas fileiras de categoria a tela monta. */
+private const val LOBBUS_FILMES_POR_FILEIRA = 14
+private const val LOBBUS_FILEIRAS_DE_CATEGORIA = 8
