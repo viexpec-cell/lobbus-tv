@@ -105,7 +105,37 @@ val appModule = module {
     viewModelOf(::MovieViewModel)
     viewModelOf(::SportsViewModel)
     viewModelOf(::SportsSettingsViewModel)
-    viewModelOf(::SeriesViewModel)
+    // LOBBUS: 23 parâmetros, um a mais do que a maior aridade que o DSL `*Of` do Koin gera (o Top 10
+    // das fileiras trouxe o HomeFeedReader). Como no SettingsViewModel logo abaixo, a ligação fica
+    // explícita com argumentos nomeados: reordenar o construtor continua seguro, e acrescentar um
+    // parâmetro vira erro de compilação aqui, não dependência trocada em tempo de execução.
+    viewModel {
+        SeriesViewModel(
+            seriesDao = get(),
+            catalogPriority = get(),
+            categoryDao = get(),
+            favoriteDao = get(),
+            historyDao = get(),
+            userDataWriter = get(),
+            progressDao = get(),
+            profileDao = get(),
+            sourceDao = get(),
+            seriesRepository = get(),
+            settings = get(),
+            customize = get(),
+            player = get(),
+            downloadManager = get(),
+            launcherIntegrationRepository = get(),
+            contentOrderDao = get(),
+            customCategoryDao = get(),
+            seriesSortOrderDao = get(),
+            metadata = get(),
+            externalPlayerLauncher = get(),
+            streamUrlResolver = get(),
+            subtitleController = get(),
+            homeFeed = get(),
+        )
+    }
     viewModelOf(::SearchViewModel)
     viewModelOf(::ProfilesViewModel)
     // Activity-scoped session state for the profile gate (configuration-only retention, no saved
